@@ -1,0 +1,63 @@
+/* test.css */
+
+/* ให้เต็มหน้าจอแนวตั้ง */
+body, html {
+  height: 100%;
+  margin: 0;
+  background: #f8f9fa;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ปรับฟอร์มให้ดูดีบนอุปกรณ์เล็ก */
+form {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ปุ่ม */
+button.btn {
+  font-size: 1rem;
+}
+
+/* Responsive ฟอร์ม */
+@media (max-width: 576px) {
+  form {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+
+h1 span {
+  font-size: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  h1 span {
+    font-size: 2rem;
+  }
+}
+
+.login-btn, .register-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.login-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.register-btn {
+  background-color: #6c757d;
+  color: white;
+}
+

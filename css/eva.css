@@ -1,0 +1,95 @@
+/* ใช้ฟอนต์ที่อ่านง่าย */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+.h1 {
+  text-align: center;
+  color: #000000;
+  margin-top: 20px;
+}
+
+
+/* Container ขอบด้านนอก */
+.container {
+  padding: 20px 10px;
+}
+
+/* Card สไตล์ */
+.card {
+  background-color: #d479d1;
+  border: 1px solid #000000;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+/* Card body */
+.card-body {
+  padding: 20px;
+}
+
+/* ข้อความหัวข้อ */
+.card-body strong {
+  color: #0d6efd;
+}
+
+/* Checkbox layout */
+.card-body input[type="checkbox"] {
+  margin-right: 6px;
+  margin-left: 4px;
+}
+
+/* รูปภาพให้อยู่กลางและสวย */
+.card-body img {
+  display: block;
+  margin: 10px auto;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  max-width: 100%;
+  height: auto;
+}
+
+/* จัดพารากราฟไม่ให้ติดกันเกินไป */
+.card-body p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+  font-size: 16px;
+}
+
+/* ปุ่มยืนยัน */
+.btn-primary {
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: scale(1.03);
+}
+
+.table-color {
+  background-color: #ca07c3;
+  color: #ffffff;
+  text-align: center;
+}
+
+.table {
+    font-size: 1.2rem; /* ปรับขนาดข้อความทั้งหมดในตาราง */
+  }
+
+  th, td {
+    vertical-align: top;
+    padding: 1rem;
+  }
+
+  label {
+    font-size: 1rem; /* ปรับขนาด label ของ checkbox ให้ใหญ่ขึ้น */
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }

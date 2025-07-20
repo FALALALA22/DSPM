@@ -1,0 +1,41 @@
+.circle-button {
+      aspect-ratio: 1 / 1;
+      width: 300px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      transition: transform 0.2s ease;
+      padding: 0;
+    }
+
+    .circle-button img {
+      width: 70%;
+      height: 90%;
+      object-fit: contain;
+    }
+
+    .circle-button:hover {
+      transform: scale(1.05);
+    }
+
+    /* Responsive sizing */
+    /* @media (min-width: 576px) {
+      .circle-button {
+        width: 120px;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .circle-button {
+        width: 140px;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .circle-button {
+        width: 160px;
+      }
+    } */
