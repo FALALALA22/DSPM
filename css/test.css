@@ -43,6 +43,84 @@ h1 span {
   }
 }
 
+@media (max-width: 768px) {
+  /* ซ่อน table และแสดง card layout */
+  table {
+    display: none;
+  }
+  
+  /* Card container */
+  .card-container {
+    display: block;
+  }
+  
+  /* Card styling */
+  .data-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #007bff;
+  }
+  
+  /* Card title */
+  .card-title {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+  }
+  
+  /* Card data rows */
+  .card-row {
+    display: block;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .card-row:last-child {
+    border-bottom: none;
+  }
+  
+  .card-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  .card-value {
+    color: #333;
+    line-height: 1.4;
+    display: block;
+  }
+  
+  .card-value input[type="checkbox"] {
+    margin-right: 5px;
+    margin-left: 10px;
+  }
+  
+  .card-value label {
+    margin-right: 15px;
+    font-weight: normal;
+  }
+  
+  /* Form adjustments for mobile */
+  form {
+    padding: 15px;
+  }
+  
+  h1 {
+    font-size: 1.3rem;
+  }
+  
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
 .login-btn, .register-btn {
   display: inline-block;
   padding: 10px 20px;
