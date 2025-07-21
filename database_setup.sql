@@ -48,13 +48,16 @@ CREATE TABLE IF NOT EXISTS evaluations (
     total_passed INT DEFAULT 0,
     total_failed INT DEFAULT 0,
     evaluation_date DATE NOT NULL,
+    evaluation_time TIME NOT NULL,
+    version INT DEFAULT 1,
+    notes TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (child_id) REFERENCES children(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_evaluation (child_id, age_range, evaluation_date)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- เพิ่ม index สำหรับการค้นหา
 CREATE INDEX idx_child_evaluation ON evaluations(child_id, age_range);
 CREATE INDEX idx_evaluation_date ON evaluations(evaluation_date);
+CREATE INDEX idx_evaluation_version ON evaluations(child_id, age_range, evaluation_date, version);

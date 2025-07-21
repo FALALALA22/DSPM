@@ -50,30 +50,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     
     $evaluation_date = date('Y-m-d');
+    $evaluation_time = date('H:i:s');
     $evaluation_json = json_encode($evaluation_data);
+    $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
     
-    // บันทึกหรืออัพเดทข้อมูลการประเมิน
-    $check_sql = "SELECT id FROM evaluations WHERE child_id = ? AND age_range = ? AND evaluation_date = ?";
-    $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("iss", $child_id, $age_range, $evaluation_date);
-    $check_stmt->execute();
-    $existing = $check_stmt->get_result()->fetch_assoc();
-    $check_stmt->close();
+    // หาเวอร์ชันล่าสุดสำหรับการประเมินนี้
+    $version_sql = "SELECT MAX(version) as max_version FROM evaluations WHERE child_id = ? AND age_range = ? AND evaluation_date = ?";
+    $version_stmt = $conn->prepare($version_sql);
+    $version_stmt->bind_param("iss", $child_id, $age_range, $evaluation_date);
+    $version_stmt->execute();
+    $version_result = $version_stmt->get_result()->fetch_assoc();
+    $next_version = ($version_result['max_version'] ?? 0) + 1;
+    $version_stmt->close();
     
-    if ($existing) {
-        // อัพเดทข้อมูลเดิม
-        $update_sql = "UPDATE evaluations SET evaluation_data = ?, total_passed = ?, total_failed = ?, updated_at = NOW() WHERE id = ?";
-        $stmt = $conn->prepare($update_sql);
-        $stmt->bind_param("siii", $evaluation_json, $total_passed, $total_failed, $existing['id']);
-    } else {
-        // เพิ่มข้อมูลใหม่
-        $insert_sql = "INSERT INTO evaluations (child_id, user_id, age_range, evaluation_data, total_passed, total_failed, evaluation_date) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($insert_sql);
-        $stmt->bind_param("iississ", $child_id, $user['id'], $age_range, $evaluation_json, $total_passed, $total_failed, $evaluation_date);
-    }
+    // เพิ่มข้อมูลใหม่เสมอ (ไม่แทนที่)
+    $insert_sql = "INSERT INTO evaluations (child_id, user_id, age_range, evaluation_data, total_passed, total_failed, evaluation_date, evaluation_time, version, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($insert_sql);
+    $stmt->bind_param("iisssissis", $child_id, $user['id'], $age_range, $evaluation_json, $total_passed, $total_failed, $evaluation_date, $evaluation_time, $next_version, $notes);
     
     if ($stmt->execute()) {
-        $_SESSION['success'] = "บันทึกผลการประเมินเรียบร้อยแล้ว";
+        $evaluation_id = $conn->insert_id;
+        if ($next_version > 1) {
+            $_SESSION['success'] = "บันทึกผลการประเมินครั้งที่ {$next_version} เรียบร้อยแล้ว (อัพเดทจากครั้งก่อน)";
+        } else {
+            $_SESSION['success'] = "บันทึกผลการประเมินเรียบร้อยแล้ว";
+        }
         $stmt->close();
         $conn->close();
         header("Location: child_detail.php?id={$child_id}");
@@ -83,6 +84,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $stmt->close();
 }
+
+// ดึงการประเมินล่าสุดถ้ามี (สำหรับแสดงข้อมูลเดิม)
+$latest_evaluation = null;
+$latest_sql = "SELECT * FROM evaluations WHERE child_id = ? AND age_range = ? ORDER BY evaluation_date DESC, version DESC LIMIT 1";
+$latest_stmt = $conn->prepare($latest_sql);
+$latest_stmt->bind_param("is", $child_id, $age_range);
+$latest_stmt->execute();
+$latest_result = $latest_stmt->get_result();
+$latest_evaluation = $latest_result->fetch_assoc();
+$latest_stmt->close();
 
 $stmt->close();
 $conn->close();
@@ -117,6 +128,30 @@ $conn->close();
     <h2 class="text-center mb-4" style="color: #149ee9;">
       เด็ก: <?php echo htmlspecialchars($child['child_name']); ?> | ช่วงอายุ: แรกเกิด - 1 เดือน
     </h2>
+
+    <!-- แสดงข้อมูลการประเมินก่อนหน้า -->
+    <?php if ($latest_evaluation): ?>
+      <div class="alert alert-info">
+        <h5><i class="fas fa-history"></i> การประเมินครั้งล่าสุด</h5>
+        <div class="row">
+          <div class="col-md-6">
+            <strong>วันที่:</strong> <?php echo date('d/m/Y', strtotime($latest_evaluation['evaluation_date'])); ?><br>
+            <strong>เวลา:</strong> <?php echo date('H:i', strtotime($latest_evaluation['evaluation_time'])); ?> น.
+          </div>
+          <div class="col-md-6">
+            <strong>ผลการประเมิน:</strong> 
+            <span class="badge bg-success"><?php echo $latest_evaluation['total_passed']; ?> ผ่าน</span>
+            <span class="badge bg-danger"><?php echo $latest_evaluation['total_failed']; ?> ไม่ผ่าน</span><br>
+            <strong>ครั้งที่:</strong> <?php echo $latest_evaluation['version']; ?>
+          </div>
+        </div>
+        <?php if ($latest_evaluation['notes']): ?>
+          <div class="mt-2">
+            <strong>หมายเหตุ:</strong> <?php echo htmlspecialchars($latest_evaluation['notes']); ?>
+          </div>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
 
     <!-- แสดงข้อความแจ้งเตือน -->
     <?php if (isset($_SESSION['error'])): ?>
@@ -253,6 +288,16 @@ $conn->close();
           <button type="button" class="btn btn-primary btn-lg px-5 rounded-pill" data-bs-toggle="modal" data-bs-target="#confirmModal">
             ยืนยันแบบประเมิน
           </button>
+        </div>
+      </div>
+
+      <!-- ช่องหมายเหตุ -->
+      <div class="card mt-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0"><i class="fas fa-sticky-note"></i> หมายเหตุ (ไม่บังคับ)</h5>
+        </div>
+        <div class="card-body">
+          <textarea class="form-control" name="notes" rows="3" placeholder="เพิ่มหมายเหตุสำหรับการประเมินครั้งนี้ เช่น พฤติกรรมที่สังเกต สภาพแวดล้อม หรือข้อสังเกตอื่นๆ"></textarea>
         </div>
       </div>
 
@@ -507,6 +552,16 @@ $conn->close();
             ยืนยันแบบประเมิน
           </button>
         </div>
+
+        <!-- ช่องหมายเหตุสำหรับ Mobile -->
+        <div class="card mt-3">
+          <div class="card-header bg-light">
+            <h6 class="mb-0"><i class="fas fa-sticky-note"></i> หมายเหตุ (ไม่บังคับ)</h6>
+          </div>
+          <div class="card-body">
+            <textarea class="form-control" name="notes" rows="3" placeholder="เพิ่มหมายเหตุสำหรับการประเมินครั้งนี้"></textarea>
+          </div>
+        </div>
       </div>
 
       <!-- Modal -->
@@ -518,7 +573,27 @@ $conn->close();
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              คุณแน่ใจหรือไม่ว่าต้องการส่งแบบประเมินของ <strong><?php echo htmlspecialchars($child['child_name']); ?></strong>?
+              <p>คุณแน่ใจหรือไม่ว่าต้องการส่งแบบประเมินของ <strong><?php echo htmlspecialchars($child['child_name']); ?></strong>?</p>
+              
+              <?php if ($latest_evaluation): ?>
+                <div class="alert alert-warning">
+                  <small><i class="fas fa-info-circle"></i> 
+                  <strong>หมายเหตุ:</strong> การประเมินนี้จะถูกบันทึกเป็นครั้งที่ <?php echo ($latest_evaluation['version'] + 1); ?> 
+                  สำหรับวันที่ <?php echo date('d/m/Y'); ?> (ข้อมูลเก่าจะยังคงอยู่)</small>
+                </div>
+              <?php endif; ?>
+              
+              <div id="evaluation-summary" class="mt-3" style="display: none;">
+                <h6>สรุปผลการประเมิน:</h6>
+                <div class="row">
+                  <div class="col-6">
+                    <span class="badge bg-success" id="passed-count">0 ผ่าน</span>
+                  </div>
+                  <div class="col-6">
+                    <span class="badge bg-danger" id="failed-count">0 ไม่ผ่าน</span>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
@@ -542,10 +617,12 @@ $conn->close();
         if (passCheckbox && failCheckbox) {
           passCheckbox.addEventListener('change', function() {
             if (this.checked) failCheckbox.checked = false;
+            updateSummary();
           });
           
           failCheckbox.addEventListener('change', function() {
             if (this.checked) passCheckbox.checked = false;
+            updateSummary();
           });
         }
       }
@@ -566,6 +643,7 @@ $conn->close();
               if (passCheckboxDesktop) passCheckboxDesktop.checked = true;
               if (failCheckboxDesktop) failCheckboxDesktop.checked = false;
             }
+            updateSummary();
           });
           
           failCheckboxMobile.addEventListener('change', function() {
@@ -575,6 +653,7 @@ $conn->close();
               if (failCheckboxDesktop) failCheckboxDesktop.checked = true;
               if (passCheckboxDesktop) passCheckboxDesktop.checked = false;
             }
+            updateSummary();
           });
 
           // Sync desktop to mobile
@@ -584,6 +663,7 @@ $conn->close();
                 passCheckboxMobile.checked = true;
                 failCheckboxMobile.checked = false;
               }
+              updateSummary();
             });
           }
 
@@ -593,11 +673,34 @@ $conn->close();
                 failCheckboxMobile.checked = true;
                 passCheckboxMobile.checked = false;
               }
+              updateSummary();
             });
           }
         }
       }
+
+      // แสดงสรุปผลเมื่อเปิด Modal
+      document.getElementById('confirmModal').addEventListener('show.bs.modal', function() {
+        updateSummary();
+        document.getElementById('evaluation-summary').style.display = 'block';
+      });
     });
+
+    function updateSummary() {
+      let passedCount = 0;
+      let failedCount = 0;
+
+      for (let i = 1; i <= 5; i++) {
+        const passCheckbox = document.getElementById(`q${i}_pass`);
+        const failCheckbox = document.getElementById(`q${i}_fail`);
+        
+        if (passCheckbox && passCheckbox.checked) passedCount++;
+        if (failCheckbox && failCheckbox.checked) failedCount++;
+      }
+
+      document.getElementById('passed-count').textContent = passedCount + ' ผ่าน';
+      document.getElementById('failed-count').textContent = failedCount + ' ไม่ผ่าน';
+    }
   </script>
 </body>
 </html>

@@ -29,12 +29,26 @@ if (!$child) {
 }
 
 // ดึงผลการประเมินทั้งหมดของเด็กคนนี้
-$sql = "SELECT * FROM evaluations WHERE child_id = ? ORDER BY evaluation_date DESC, age_range";
+$sql = "SELECT *, DATE(evaluation_date) as eval_date FROM evaluations WHERE child_id = ? ORDER BY evaluation_date DESC, version DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $child_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $evaluations = $result->fetch_all(MYSQLI_ASSOC);
+
+// จัดกลุ่มตามวันที่และช่วงอายุ
+$grouped_evaluations = array();
+foreach ($evaluations as $evaluation) {
+    $key = $evaluation['eval_date'] . '_' . $evaluation['age_range'];
+    if (!isset($grouped_evaluations[$key])) {
+        $grouped_evaluations[$key] = array(
+            'date' => $evaluation['eval_date'],
+            'age_range' => $evaluation['age_range'],
+            'versions' => array()
+        );
+    }
+    $grouped_evaluations[$key]['versions'][] = $evaluation;
+}
 
 $stmt->close();
 $conn->close();
@@ -94,7 +108,7 @@ $conn->close();
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
 
-        <?php if (empty($evaluations)): ?>
+        <?php if (empty($grouped_evaluations)): ?>
             <!-- ถ้าไม่มีผลการประเมิน -->
             <div class="text-center py-5">
                 <div class="mb-4">
@@ -106,53 +120,81 @@ $conn->close();
             </div>
         <?php else: ?>
             <!-- แสดงผลการประเมิน -->
-            <div class="row">
-                <?php foreach ($evaluations as $evaluation): ?>
-                    <?php
-                    $total_questions = 5; // สำหรับช่วงอายุ 0-1 เดือน
-                    $percentage = ($evaluation['total_passed'] / $total_questions) * 100;
-                    $badge_class = '';
-                    if ($percentage >= 80) $badge_class = 'passed';
-                    elseif ($percentage >= 50) $badge_class = 'partial';
-                    else $badge_class = 'failed';
-                    ?>
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card evaluation-card h-100 shadow-sm">
-                            <div class="card-header bg-info text-white">
-                                <h5 class="mb-0">ช่วงอายุ: <?php echo htmlspecialchars($evaluation['age_range']); ?> เดือน</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="text-center mb-3">
-                                    <span class="badge score-badge <?php echo $badge_class; ?>">
-                                        <?php echo $evaluation['total_passed']; ?>/<?php echo $total_questions; ?>
-                                    </span>
-                                    <div class="mt-2">
-                                        <small class="text-muted"><?php echo round($percentage, 1); ?>% ผ่าน</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <strong>ผลการประเมิน:</strong><br>
-                                    <span class="text-success">✓ ผ่าน: <?php echo $evaluation['total_passed']; ?> ข้อ</span><br>
-                                    <span class="text-danger">✗ ไม่ผ่าน: <?php echo $evaluation['total_failed']; ?> ข้อ</span>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <strong>วันที่ประเมิน:</strong><br>
-                                    <?php echo date('d/m/Y', strtotime($evaluation['evaluation_date'])); ?>
-                                </div>
-                                
-                                <div class="btn-group w-100" role="group">
-                                    <a href="view_evaluation_detail.php?id=<?php echo $evaluation['id']; ?>" 
-                                       class="btn btn-primary btn-sm">ดูรายละเอียด</a>
-                                    <a href="evaluation1.php?child_id=<?php echo $child['id']; ?>&age_range=<?php echo $evaluation['age_range']; ?>" 
-                                       class="btn btn-warning btn-sm">ประเมินใหม่</a>
-                                </div>
-                            </div>
+            <?php foreach ($grouped_evaluations as $group): ?>
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">ช่วงอายุ: <?php echo htmlspecialchars($group['age_range']); ?> เดือน</h5>
+                            <span class="badge bg-light text-dark">
+                                <?php echo date('d/m/Y', strtotime($group['date'])); ?>
+                            </span>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            </div>
+                    <div class="card-body">
+                        <?php if (count($group['versions']) > 1): ?>
+                            <div class="alert alert-info">
+                                <i class="fas fa-history"></i> มีการประเมินซ้ำ <?php echo count($group['versions']); ?> ครั้งในวันนี้
+                            </div>
+                        <?php endif; ?>
+                        
+                        <!-- แสดงแต่ละ version -->
+                        <?php foreach ($group['versions'] as $index => $evaluation): ?>
+                            <?php
+                            $total_questions = 5; // สำหรับช่วงอายุ 0-1 เดือน
+                            $percentage = ($evaluation['total_passed'] / $total_questions) * 100;
+                            $badge_class = '';
+                            if ($percentage >= 80) $badge_class = 'passed';
+                            elseif ($percentage >= 50) $badge_class = 'partial';
+                            else $badge_class = 'failed';
+                            
+                            $version_label = count($group['versions']) > 1 ? 
+                                (count($group['versions']) - $index == 1 ? 'ล่าสุด' : 'ครั้งที่ ' . $evaluation['version']) 
+                                : '';
+                            ?>
+                            
+                            <div class="row mb-3 <?php echo $index > 0 ? 'border-top pt-3' : ''; ?>">
+                                <div class="col-md-8">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge score-badge <?php echo $badge_class; ?> me-2">
+                                            <?php echo $evaluation['total_passed']; ?>/<?php echo $total_questions; ?>
+                                        </span>
+                                        <?php if ($version_label): ?>
+                                            <span class="badge bg-secondary me-2"><?php echo $version_label; ?></span>
+                                        <?php endif; ?>
+                                        <small class="text-muted">
+                                            <?php echo date('H:i', strtotime($evaluation['evaluation_time'])); ?> น.
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <span class="text-success">✓ ผ่าน: <?php echo $evaluation['total_passed']; ?> ข้อ</span> |
+                                        <span class="text-danger">✗ ไม่ผ่าน: <?php echo $evaluation['total_failed']; ?> ข้อ</span> |
+                                        <span class="text-info"><?php echo round($percentage, 1); ?>% ผ่าน</span>
+                                    </div>
+                                    
+                                    <?php if ($evaluation['notes']): ?>
+                                        <div class="alert alert-light p-2">
+                                            <small><strong>หมายเหตุ:</strong> <?php echo htmlspecialchars($evaluation['notes']); ?></small>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="btn-group-vertical" role="group">
+                                        <a href="view_evaluation_detail.php?id=<?php echo $evaluation['id']; ?>" 
+                                           class="btn btn-primary btn-sm">ดูรายละเอียด</a>
+                                        <?php if ($index == 0): // แสดงปุ่มประเมินใหม่เฉพาะ version ล่าสุด ?>
+                                            <a href="evaluation1.php?child_id=<?php echo $child['id']; ?>&age_range=<?php echo $evaluation['age_range']; ?>" 
+                                               class="btn btn-warning btn-sm">ประเมินใหม่</a>
+                                        <?php endif; ?>
+                                        <button class="btn btn-danger btn-sm" 
+                                                onclick="deleteEvaluation(<?php echo $evaluation['id']; ?>)">ลบ</button>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
 
             <!-- สรุปผลรวม -->
             <div class="row mt-4">
@@ -169,11 +211,11 @@ $conn->close();
                                 </div>
                                 <div class="col-md-3">
                                     <h3 class="text-success"><?php echo array_sum(array_column($evaluations, 'total_passed')); ?></h3>
-                                    <p>ข้อที่ผ่าน</p>
+                                    <p>ข้อที่ผ่านรวม</p>
                                 </div>
                                 <div class="col-md-3">
                                     <h3 class="text-danger"><?php echo array_sum(array_column($evaluations, 'total_failed')); ?></h3>
-                                    <p>ข้อที่ไม่ผ่าน</p>
+                                    <p>ข้อที่ไม่ผ่านรวม</p>
                                 </div>
                                 <div class="col-md-3">
                                     <h3 class="text-info"><?php echo date('d/m/Y', strtotime($evaluations[0]['evaluation_date'])); ?></h3>
@@ -195,5 +237,13 @@ $conn->close();
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function deleteEvaluation(evaluationId) {
+            if (confirm('คุณแน่ใจหรือไม่ที่จะลบผลการประเมินนี้?\n\nการลบจะไม่สามารถกู้คืนได้')) {
+                // ส่งไปยังหน้าลบ
+                window.location.href = 'delete_evaluation.php?id=' + evaluationId + '&child_id=<?php echo $child['id']; ?>';
+            }
+        }
+    </script>
 </body>
 </html>
