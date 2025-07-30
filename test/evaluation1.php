@@ -586,7 +586,7 @@ $conn->close();
               <?php if ($latest_evaluation): ?>
                 <div class="alert alert-warning">
                   <small><i class="fas fa-info-circle"></i> 
-                  <strong>หมายเหตุ:</strong> การประเมินนี้จะถูกบันทึกเป็นครั้งที่ <?php echo ($latest_evaluation['version'] + 1); ?> 
+                  <strong>หมายเหตุ:</strong> การประเมินนี้จะถูกบันทึกเป็นครั้งที่ <?php echo ($latest_evaluation['eva_version'] + 1); ?> 
                   สำหรับวันที่ <?php echo date('d/m/Y'); ?> (ข้อมูลเก่าจะยังคงอยู่)</small>
                 </div>
               <?php endif; ?>

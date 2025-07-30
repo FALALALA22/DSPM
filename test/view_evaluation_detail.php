@@ -1,5 +1,5 @@
 <?php
-session_start();
+//session_start();
 require_once '../check_session.php';
 require_once '../db_conn.php';
 
@@ -17,7 +17,7 @@ if ($evaluation_id == 0) {
 // ดึงข้อมูลการประเมิน - ตรวจสอบสิทธิ์ตาม role
 if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     // Admin และ Staff ดูได้ทุกการประเมิน
-    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo_path as photo 
+    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo as photo 
             FROM evaluations e 
             JOIN children c ON e.eva_child_id = c.chi_id 
             WHERE e.eva_id = ?";
@@ -25,7 +25,7 @@ if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     $stmt->bind_param("i", $evaluation_id);
 } else {
     // User ปกติดูได้เฉพาะของตัวเอง
-    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo_path as photo 
+    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo as photo 
             FROM evaluations e 
             JOIN children c ON e.eva_child_id = c.chi_id 
             WHERE e.eva_id = ? AND e.eva_user_id = ?";
@@ -47,47 +47,37 @@ $responses = json_decode($evaluation['eva_responses'], true);
 $stmt->close();
 $conn->close();
 
-// ข้อคำถามประเมินพัฒนาการ 0-1 เดือน
+// ข้อคำถามประเมินพัฒนาการ 0-1 เดือน (ตรงกับ evaluation1.php)
 $questions = [
-    'feeding' => [
-        'title' => 'การรับประทานอาหาร',
-        'items' => [
-            'ดูดนมแม่หรือนมขวดได้',
-            'กลืนได้',
-            'ดูดได้อย่างประสานสัมพันธ์กับการหายใจ'
-        ]
+    1 => [
+        'skill' => 'ท่านอนคว่ำยกศีรษะและหันไปข้างใดข้างหนึ่งได้ (GM)',
+        'method' => 'จัดให้เด็กอยู่ในท่านอนคว่ำบนเบาะนอน แขนทั้งสองข้างอยู่หน้าไหล่',
+        'pass_criteria' => 'เด็กสามารถยกศีรษะและหันไปข้างใดข้างหนึ่งได้',
+        'training' => 'จัดให้เด็กอยู่ในท่านอนคว่ำ เขย่าของเล่นที่มีเสียงตรงหน้าเด็ก ระยะห่างประมาณ 30 ซม. เมื่อเด็กมองที่ของเล่นแล้วค่อย ๆ เคลื่อนของเล่นมาทางด้านซ้ายหรือขวา เพื่อให้เด็กหันศีรษะมองตาม ถ้าเด็กทำไม่ได้ให้ประคองศีรษะเด็กให้หันตาม'
     ],
-    'sensory' => [
-        'title' => 'ประสาทสัมผัส',
-        'items' => [
-            'สะดุ้งเมื่อมีเสียงดัง',
-            'หลับตาเมื่อมีแสงแรง',
-            'มีปฏิกิริยาตอบสนองต่อกลิ่น'
-        ]
+    2 => [
+        'skill' => 'มองตามถึงกึ่งกลางลำตัว (FM)',
+        'method' => 'จัดให้เด็กอยู่ในท่านอนหงาย ถือลูกบอลผ้าสีแดงห่างจากหน้าเด็กประมาณ 20 ซม. ขยับลูกบอลผ้าสีแดงเพื่อกระตุ้นให้เด็กสนใจ แล้วเคลื่อนลูกบอลผ้าสีแดงช้า ๆ ไปทางด้านข้างลำตัวเด็กข้างใดข้างหนึ่งเคลื่อนลูกบอลผ้าสีแดงกลับมาที่จุดกึ่งกลางลำตัวเด็ก',
+        'pass_criteria' => 'เด็กมองตามลูกบอลผ้าสีแดง จากด้านข้างถึงระยะกึ่งกลางลำตัวได้',
+        'training' => '1. จัดให้เด็กอยู่ในท่านอนหงาย ก้มหน้าให้อยู่ใกล้ ๆ เด็ก ห่างจากหน้าเด็กประมาณ 20 ซม. 2. เรียกให้เด็กสนใจ โดยเรียกชื่อเด็ก เมื่อเด็กสนใจมองให้เคลื่อนหรือเอียงหน้าไปทางด้านข้างลำตัวเด็กอย่างช้าๆ เพื่อให้เด็กมองตาม 3. ถ้าเด็กไม่มองให้ช่วยเหลือโดยการประคองหน้าเด็กให้มองตาม 4. ฝึกเพิ่มเติมโดยใช้ของเล่นที่มีสีสันสดใสกระตุ้นให้เด็กสนใจและมองตาม'
     ],
-    'movement' => [
-        'title' => 'การเคลื่อนไหว',
-        'items' => [
-            'ขยับแขนขา',
-            'หมุนหัวได้',
-            'เมื่อจับมือจะกำมือเป็นหมัด'
-        ]
+    3 => [
+        'skill' => 'สะดุ้งหรือเคลื่อนไหวร่างกายเมื่อได้ยินเสียงพูดระดับปกติ(RL)',
+        'method' => '1. จัดให้เด็กอยู่ในท่านอนหงาย 2. อยู่ห่างจากเด็กประมาณ 60 ซม. เรียกชื่อเด็กจากด้านข้างทีละข้างทั้งซ้ายและขวา โดยพูดเสียงดังปกติ',
+        'pass_criteria' => 'เด็กแสดงการรับรู้ด้วยการกะพริบตา สะดุ้ง หรือเคลื่อนไหวร่างกาย',
+        'training' => '1. จัดให้เด็กอยู่ในท่านอนหงาย เรียกชื่อหรือพูดคุยกับเด็กจากด้านข้างทีละข้างทั้งข้างซ้ายและขวาโดยพูดเสียงดังกว่าปกติ 2. หากเด็กสะดุ้งหรือขยับตัวให้ยิ้มและสัมผัสตัวเด็ก ลดเสียงพูดคุยลงเรื่อย ๆ จนให้อยู่ในระดับปกติ'
     ],
-    'communication' => [
-        'title' => 'การสื่อสาร',
-        'items' => [
-            'ร้องไห้เมื่อหิว',
-            'ร้องไห้เมื่อเปียก',
-            'มีเสียงนอกจากการร้องไห้'
-        ]
+    4 => [
+        'skill' => 'ส่งเสียงอ้อแอ้ (EL)',
+        'method' => 'สังเกตว่าเด็กส่งเสียงอ้อแอ้ในระหว่างทำการประเมิน หรือถามจากพ่อแม่ผู้ปกครอง',
+        'pass_criteria' => 'เด็กทำเสียงอ้อแอ้ได้',
+        'training' => 'อุ้มหรือสัมผัสตัวเด็กเบา ๆ มองสบตา แล้วพูดคุยกับเด็กด้วยเสียงสูง ๆ ต่ำ ๆ เพื่อให้เด็กสนใจและหยุดรอให้เด็กส่งเสียงอ้อแอ้ตอบ'
     ],
-    'social' => [
-        'title' => 'สังคม',
-        'items' => [
-            'สงบลงเมื่อได้ยินเสียงคุ้นเคย',
-            'มองหาเสียงที่คุ้นเคย',
-            'มีท่าทางแสดงอารมณ์'
-        ]
+    5 => [
+        'skill' => 'มองจ้องหน้าได้นาน 1 - 2 วินาที(PS)',
+        'method' => 'อุ้มเด็กให้ห่างจากหน้าพ่อแม่ ผู้ปกครองหรือผู้ประเมินประมาณ 30 ซม. ยิ้มและพูดคุยกับเด็ก',
+        'pass_criteria' => 'เด็กสามารถมองจ้องหน้าได้อย่างน้อย 1 วินาที',
+        'training' => '1. จัดให้เด็กอยู่ในท่านอนหงายหรืออุ้มเด็ก 2. สบตา พูดคุย ส่งเสียง ยิ้ม หรือทำตาลักษณะต่าง ๆ เช่น ตาโตกะพริบตา เพื่อให้เด็กสนใจมอง เป็นการเสริมสร้างความสัมพันธ์ระหว่างเด็กกับผู้ดูแล โดยทำให้เด็กมีอารมณ์ดี'
     ]
 ];
 ?>
@@ -198,22 +188,26 @@ $questions = [
                                 <h4 class="text-primary mb-2"><?= htmlspecialchars($evaluation['child_name']) ?></h4>
                                 <div class="row">
                                     <div class="col-md-6 mb-2">
-                                        <strong>ช่วงอายุ:</strong> <?= htmlspecialchars($evaluation['age_range']) ?>
+                                        <strong>ช่วงอายุ:</strong> <?= htmlspecialchars($evaluation['eva_age_range']) ?>
                                     </div>
                                     <div class="col-md-6 mb-2">
-                                        <strong>เวอร์ชัน:</strong> <?= $evaluation['version'] ?>
+                                        <strong>เวอร์ชัน:</strong> <?= $evaluation['eva_version'] ?>
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <strong>วันที่ประเมิน:</strong> 
-                                        <?= date('d/m/Y H:i', strtotime($evaluation['evaluation_time'])) ?>
+                                        <?= date('d/m/Y H:i', strtotime($evaluation['eva_evaluation_time'])) ?>
                                     </div>
                                     <div class="col-md-6 mb-2">
+                                        <strong>ผลการประเมิน:</strong>
+                                        <span class="badge bg-success"><?= $evaluation['eva_total_score'] ?> ผ่าน</span>
+                                        <span class="badge bg-danger"><?= ($evaluation['eva_total_questions'] - $evaluation['eva_total_score']) ?> ไม่ผ่าน</span>
+                                    </div>
                                         <strong>คะแนนรวม:</strong> 
                                         <span class="badge bg-primary status-badge">
-                                            <?= $evaluation['total_score'] ?>/<?= $evaluation['total_questions'] ?>
+                                            <?= $evaluation['eva_total_score'] ?>/<?= $evaluation['eva_total_questions'] ?>
                                         </span>
                                     </div>
-                                    <?php if ($evaluation['notes']): ?>
+                                    <?php if ($evaluation['eva_notes']): ?>
                                         <div class="col-12 mt-2">
                                             <strong>หมายเหตุ:</strong>
                                             <p class="mt-1 p-2 bg-light rounded">
@@ -231,32 +225,42 @@ $questions = [
 
         <!-- Evaluation Details -->
         <div class="row">
-            <?php foreach ($questions as $category => $data): ?>
+            <?php foreach ($questions as $question_id => $data): ?>
                 <div class="col-md-6 mb-4">
-                    <div class="card category-card">
+                    <div class="card question-card">
                         <div class="card-header">
-                            <h6 class="mb-0"><?= $data['title'] ?></h6>
+                            <h6 class="mb-0">ข้อ <?= $question_id ?>: <?= htmlspecialchars($data['skill']) ?></h6>
                         </div>
                         <div class="card-body">
-                            <?php 
-                            $category_score = 0;
-                            foreach ($data['items'] as $index => $item): 
-                                $key = $category . '_' . $index;
-                                $is_checked = isset($responses[$key]) && $responses[$key] == '1';
-                                if ($is_checked) $category_score++;
-                            ?>
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-<?= $is_checked ? 'check-circle checked-item' : 'times-circle unchecked-item' ?> me-2"></i>
-                                    <span class="<?= $is_checked ? 'checked-item' : 'unchecked-item' ?>">
-                                        <?= htmlspecialchars($item) ?>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>ทักษะที่ประเมิน:</strong>
+                                    <p class="small text-muted"><?= htmlspecialchars($data['skill']) ?></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>วิธีการประเมิน:</strong>
+                                    <p class="small text-muted"><?= htmlspecialchars($data['method']) ?></p>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>การส่งเสริมพัฒนาการ:</strong>
+                                    <p class="small text-muted"><?= htmlspecialchars($data['training']) ?></p>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="text-center">
+                                <strong>ผลการประเมิน:</strong>
+                                <?php 
+                                $question_key = "question_" . $question_id;
+                                $is_passed = isset($responses[$question_key]) && $responses[$question_key]['passed'] == 1;
+                                ?>
+                                <div class="mt-2">
+                                    <span class="badge fs-6 <?= $is_passed ? 'bg-success' : 'bg-danger' ?> px-3 py-2">
+                                        <i class="fas fa-<?= $is_passed ? 'check-circle' : 'times-circle' ?> me-2"></i>
+                                        <?= $is_passed ? 'ผ่าน' : 'ไม่ผ่าน' ?>
                                     </span>
                                 </div>
-                            <?php endforeach; ?>
-                            <hr>
-                            <div class="text-end">
-                                <span class="badge bg-<?= $category_score == count($data['items']) ? 'success' : ($category_score > 0 ? 'warning' : 'secondary') ?>">
-                                    คะแนน: <?= $category_score ?>/<?= count($data['items']) ?>
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -267,7 +271,7 @@ $questions = [
         <!-- Action Buttons -->
         <div class="row mt-4">
             <div class="col-12 text-center">
-                <a href="evaluation_history.php?child_id=<?= $evaluation['child_id'] ?>" 
+                <a href="evaluation_history.php?child_id=<?= $evaluation['eva_child_id'] ?>" 
                    class="btn btn-purple me-2">
                     <i class="fas fa-arrow-left me-2"></i>กลับไปดูประวัติ
                 </a>
