@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $errors[] = "ไฟล์รูปภาพต้องเป็น JPG, JPEG, PNG หรือ GIF เท่านั้น";
         } else {
             // สร้างชื่อไฟล์ใหม่เพื่อป้องกันชื่อซ้ำ
-            $new_filename = 'child_' . $user['id'] . '_' . time() . '.' . $file_extension;
+            $new_filename = 'child_' . $user['user_id'] . '_' . time() . '.' . $file_extension;
             $upload_path = $upload_dir . $new_filename;
             
             if (move_uploaded_file($_FILES['child_photo']['tmp_name'], $upload_path)) {
@@ -53,9 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // ถ้าไม่มีข้อผิดพลาด ทำการบันทึกข้อมูล
     if (empty($errors)) {
-        $insert_sql = "INSERT INTO children (user_id, child_name, date_of_birth, age_years, age_months, photo_path) VALUES (?, ?, ?, ?, ?, ?)";
+        $insert_sql = "INSERT INTO children (chi_user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($insert_sql);
-        $stmt->bind_param("isssis", $user['id'], $child_name, $date_of_birth, $age_years, $age_months, $photo_path);
+        $stmt->bind_param("isssis", $user['user_id'], $child_name, $date_of_birth, $age_years, $age_months, $photo_path);
         
         if ($stmt->execute()) {
             $_SESSION['success'] = "บันทึกข้อมูลเด็กเรียบร้อยแล้ว";

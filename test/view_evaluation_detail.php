@@ -15,12 +15,12 @@ if ($evaluation_id == 0) {
 }
 
 // ดึงข้อมูลการประเมิน
-$sql = "SELECT e.*, c.name as child_name, c.photo 
+$sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo as photo 
         FROM evaluations e 
-        JOIN children c ON e.child_id = c.id 
-        WHERE e.id = ? AND e.user_id = ?";
+        JOIN children c ON e.eva_child_id = c.chi_id 
+        WHERE e.eva_id = ? AND e.eva_user_id = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $evaluation_id, $user['id']);
+$stmt->bind_param("ii", $evaluation_id, $user['chi_user_id']);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -31,7 +31,7 @@ if ($result->num_rows == 0) {
 }
 
 $evaluation = $result->fetch_assoc();
-$responses = json_decode($evaluation['responses'], true);
+$responses = json_decode($evaluation['eva_responses'], true);
 
 $stmt->close();
 $conn->close();

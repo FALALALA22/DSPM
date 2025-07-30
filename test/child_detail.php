@@ -15,9 +15,9 @@ if ($child_id == 0) {
 }
 
 // ดึงข้อมูลเด็ก
-$sql = "SELECT * FROM children WHERE id = ? AND user_id = ?";
+$sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $child_id, $user['id']);
+$stmt->bind_param("ii", $child_id, $user['user_id']);
 $stmt->execute();
 $result = $stmt->get_result();
 $child = $result->fetch_assoc();
@@ -32,7 +32,7 @@ $stmt->close();
 $conn->close();
 
 // คำนวณอายุปัจจุบันของเด็ก
-$birth_date = new DateTime($child['date_of_birth']);
+$birth_date = new DateTime($child['chi_date_of_birth']);
 $current_date = new DateTime();
 $age_diff = $birth_date->diff($current_date);
 $current_age_months = ($age_diff->y * 12) + $age_diff->m;
@@ -43,7 +43,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ข้อมูลเด็ก - <?php echo htmlspecialchars($child['child_name']); ?></title>
+    <title>ข้อมูลเด็ก - <?php echo htmlspecialchars($child['chi_child_name']); ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="../css/test.css" />
     <style>
@@ -147,9 +147,9 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
         <div class="child-profile">
             <div class="row align-items-center">
                 <div class="col-md-3 text-center">
-                    <?php if ($child['photo_path'] && file_exists('../' . $child['photo_path'])): ?>
-                        <img src="../<?php echo htmlspecialchars($child['photo_path']); ?>" 
-                             alt="รูปภาพของ <?php echo htmlspecialchars($child['child_name']); ?>" 
+                    <?php if ($child['chi_photo'] && file_exists('../' . $child['chi_photo'])): ?>
+                        <img src="../<?php echo htmlspecialchars($child['chi_photo']); ?>" 
+                             alt="รูปภาพของ <?php echo htmlspecialchars($child['chi_child_name']); ?>" 
                              class="child-photo-large">
                     <?php else: ?>
                         <div class="no-photo-large">
@@ -158,15 +158,15 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                     <?php endif; ?>
                 </div>
                 <div class="col-md-9">
-                    <h2><?php echo htmlspecialchars($child['child_name']); ?></h2>
+                    <h2><?php echo htmlspecialchars($child['chi_child_name']); ?></h2>
                     <div class="row mt-3">
                         <div class="col-md-6">
-                            <p><strong>วันเกิด:</strong> <?php echo date('d/m/Y', strtotime($child['date_of_birth'])); ?></p>
-                            <p><strong>อายุ:</strong> <?php echo $child['age_years']; ?> ปี <?php echo $child['age_months']; ?> เดือน</p>
+                            <p><strong>วันเกิด:</strong> <?php echo date('d/m/Y', strtotime($child['chi_date_of_birth'])); ?></p>
+                            <p><strong>อายุ:</strong> <?php echo $child['chi_age_years']; ?> ปี <?php echo $child['chi_age_months']; ?> เดือน</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>อายุปัจจุบัน:</strong> <?php echo floor($current_age_months / 12); ?> ปี <?php echo $current_age_months % 12; ?> เดือน</p>
-                            <p><strong>เพิ่มข้อมูลเมื่อ:</strong> <?php echo date('d/m/Y H:i', strtotime($child['created_at'])); ?></p>
+                            <p><strong>เพิ่มข้อมูลเมื่อ:</strong> <?php echo date('d/m/Y H:i', strtotime($child['chi_created_at'])); ?></p>
                         </div>
                     </div>
                 </div>
@@ -192,25 +192,25 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="row justify-content-center">
                     <!-- แถวที่ 1 -->
                     <div class="col-auto">
-                        <a href="evaluation1.php?child_id=<?php echo $child['id']; ?>&age_range=0-1" 
+                        <a href="evaluation1.php?child_id=<?php echo $child['chi_id']; ?>&age_range=0-1" 
                            class="age-button <?php echo ($current_age_months >= 0 && $current_age_months <= 1) ? 'current' : ''; ?>">
                             0-1
                         </a>
                     </div>
                     <div class="col-auto">
-                        <a href="evaluation2.php?child_id=<?php echo $child['id']; ?>&age_range=1-2" 
+                        <a href="evaluation2.php?child_id=<?php echo $child['chi_id']; ?>&age_range=1-2" 
                            class="age-button <?php echo ($current_age_months >= 1 && $current_age_months <= 2) ? 'current' : ''; ?>">
                             1-2
                         </a>
                     </div>
                     <div class="col-auto">
-                        <a href="evaluation3.php?child_id=<?php echo $child['id']; ?>&age_range=2-3" 
+                        <a href="evaluation3.php?child_id=<?php echo $child['chi_id']; ?>&age_range=2-3" 
                            class="age-button <?php echo ($current_age_months >= 2 && $current_age_months <= 3) ? 'current' : ''; ?>">
                             2-3
                         </a>
                     </div>
                     <div class="col-auto">
-                        <a href="evaluation4.php?child_id=<?php echo $child['id']; ?>&age_range=3-4" 
+                        <a href="evaluation4.php?child_id=<?php echo $child['chi_id']; ?>&age_range=3-4" 
                            class="age-button <?php echo ($current_age_months >= 3 && $current_age_months <= 4) ? 'current' : ''; ?>">
                             3-4
                         </a>
@@ -220,7 +220,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="row justify-content-center">
                     <!-- แถวที่ 2 -->
                     <div class="col-auto">
-                        <a href="evaluation5.php?child_id=<?php echo $child['id']; ?>&age_range=4-5" 
+                        <a href="evaluation5.php?child_id=<?php echo $child['chi_id']; ?>&age_range=4-5" 
                            class="age-button <?php echo ($current_age_months >= 4 && $current_age_months <= 5) ? 'current' : ''; ?>">
                             4-5
                         </a>
@@ -275,8 +275,8 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
 
         <div class="card mb-4">
             <div class="card-body text-center">
-                <p class="mb-3">ดูผลการประเมินที่ผ่านมาของ <strong><?php echo htmlspecialchars($child['child_name']); ?></strong></p>
-                <a href="evaluation_history.php?child_id=<?php echo $child['id']; ?>" class="btn btn-success btn-lg">
+                <p class="mb-3">ดูผลการประเมินที่ผ่านมาของ <strong><?php echo htmlspecialchars($child['chi_child_name']); ?></strong></p>
+                <a href="evaluation_history.php?child_id=<?php echo $child['chi_id']; ?>" class="btn btn-success btn-lg">
                     <i class="fas fa-history"></i> ดูผลการประเมินย้อนหลัง
                 </a>
             </div>
@@ -295,7 +295,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
         <!-- ปุ่มจัดการ -->
         <div class="text-center mt-4">
             <a href="children_list.php" class="btn btn-secondary me-2">กลับรายชื่อเด็ก</a>
-            <a href="edit_child.php?id=<?php echo $child['id']; ?>" class="btn btn-warning me-2">แก้ไขข้อมูล</a>
+            <a href="edit_child.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-warning me-2">แก้ไขข้อมูล</a>
             <a href="mainpage.php" class="btn btn-primary">กลับหน้าหลัก</a>
         </div>
     </div>

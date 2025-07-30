@@ -7,9 +7,9 @@ checkLogin(); // ตรวจสอบว่าล็อกอินแล้ว
 $user = getUserInfo();
 
 // ดึงข้อมูลเด็กทั้งหมดของผู้ใช้
-$sql = "SELECT * FROM children WHERE user_id = ? ORDER BY created_at DESC";
+$sql = "SELECT * FROM children WHERE chi_user_id = ? ORDER BY chi_created_at DESC";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user['id']);
+$stmt->bind_param("i", $user['user_id']);
 $stmt->execute();
 $result = $stmt->get_result();
 $children = $result->fetch_all(MYSQLI_ASSOC);
@@ -103,9 +103,9 @@ $conn->close();
                                     <div class="card-body text-center">
                                         <!-- รูปภาพเด็ก -->
                                         <div class="mb-3">
-                                            <?php if ($child['photo_path'] && file_exists('../' . $child['photo_path'])): ?>
-                                                <img src="../<?php echo htmlspecialchars($child['photo_path']); ?>" 
-                                                     alt="รูปภาพของ <?php echo htmlspecialchars($child['child_name']); ?>" 
+                                            <?php if ($child['chi_photo'] && file_exists('../' . $child['chi_photo'])): ?>
+                                                <img src="../<?php echo htmlspecialchars($child['chi_photo']); ?>" 
+                                                     alt="รูปภาพของ <?php echo htmlspecialchars($child['chi_child_name']); ?>" 
                                                      class="child-photo">
                                             <?php else: ?>
                                                 <div class="no-photo">
@@ -115,18 +115,18 @@ $conn->close();
                                         </div>
 
                                         <!-- ข้อมูลเด็ก -->
-                                        <h5 class="card-title"><?php echo htmlspecialchars($child['child_name']); ?></h5>
+                                        <h5 class="card-title"><?php echo htmlspecialchars($child['chi_child_name']); ?></h5>
                                         <p class="card-text">
-                                            <strong>วันเกิด:</strong> <?php echo date('d/m/Y', strtotime($child['date_of_birth'])); ?><br>
-                                            <strong>อายุ:</strong> <?php echo $child['age_years']; ?> ปี <?php echo $child['age_months']; ?> เดือน<br>
-                                            <small class="text-muted">เพิ่มเมื่อ: <?php echo date('d/m/Y H:i', strtotime($child['created_at'])); ?></small>
+                                            <strong>วันเกิด:</strong> <?php echo date('d/m/Y', strtotime($child['chi_date_of_birth'])); ?><br>
+                                            <strong>อายุ:</strong> <?php echo $child['chi_age_years']; ?> ปี <?php echo $child['chi_age_months']; ?> เดือน<br>
+                                            <small class="text-muted">เพิ่มเมื่อ: <?php echo date('d/m/Y H:i', strtotime($child['chi_created_at'])); ?></small>
                                         </p>
 
                                         <!-- ปุ่มจัดการ -->
                                         <div class="btn-group" role="group">
-                                            <a href="child_detail.php?id=<?php echo $child['id']; ?>" class="btn btn-primary btn-sm">ดูรายละเอียด</a>
-                                            <a href="edit_child.php?id=<?php echo $child['id']; ?>" class="btn btn-warning btn-sm">แก้ไข</a>
-                                            <a href="delete_child.php?id=<?php echo $child['id']; ?>" 
+                                            <a href="child_detail.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-primary btn-sm">ดูรายละเอียด</a>
+                                            <a href="edit_child.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-warning btn-sm">แก้ไข</a>
+                                            <a href="delete_child.php?id=<?php echo $child['chi_id']; ?>" 
                                                class="btn btn-danger btn-sm" 
                                                onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบข้อมูลเด็กคนนี้?')">ลบ</a>
                                         </div>

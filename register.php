@@ -5,12 +5,12 @@ require_once 'db_conn.php';
 // ถ้ามีการส่งข้อมูลมาแบบ POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // รับข้อมูลจากฟอร์ม
-    $username = trim($_POST['usrname']);
-    $password = $_POST['password'];
-    $re_password = $_POST['re_password'];
-    $fname = trim($_POST['fname']);
-    $lname = trim($_POST['lname']);
-    $phone = trim($_POST['phone']);
+    $username = trim($_POST['user_username']);
+    $password = $_POST['user_password'];
+    $re_password = $_POST['user_re_password'];
+    $fname = trim($_POST['user_fname']);
+    $lname = trim($_POST['user_lname']);
+    $phone = trim($_POST['user_phone']);
     
     // ตรวจสอบความถูกต้องของข้อมูล
     $errors = array();
@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // ตรวจสอบว่าชื่อผู้ใช้ซ้ำหรือไม่
     if (empty($errors)) {
-        $check_user = "SELECT id FROM users WHERE username = ?";
+        $check_user = "SELECT user_id FROM users WHERE user_username = ?";
         $stmt = $conn->prepare($check_user);
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
         // บันทึกข้อมูลลงฐานข้อมูล
-        $insert_sql = "INSERT INTO users (username, password, fname, lname, phone, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+        $insert_sql = "INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, user_created_at) VALUES (?, ?, ?, ?, ?, NOW())";
         $stmt = $conn->prepare($insert_sql);
         $stmt->bind_param("sssss", $username, $hashed_password, $fname, $lname, $phone);
         
@@ -140,38 +140,38 @@ $conn->close();
         <div class="container">
             <form method="POST" action="register.php">
                 <div class="mb-3">
-                    <label for="usrname" class="form-label">ชื่อผู้ใช้</label>
-                    <input type="text" class="form-control" id="usrname" name="usrname" 
+                    <label for="user_username" class="form-label">ชื่อผู้ใช้</label>
+                    <input type="text" class="form-control" id="user_username" name="user_username" 
                            placeholder="กรุณากรอกชื่อผู้ใช้ที่ต้องการ" 
-                           value="<?php echo isset($_SESSION['form_data']['usrname']) ? htmlspecialchars($_SESSION['form_data']['usrname']) : ''; ?>" required>
+                           value="<?php echo isset($_SESSION['form_data']['user_username']) ? htmlspecialchars($_SESSION['form_data']['user_username']) : ''; ?>" required>
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">รหัสผ่าน</label>
-                    <input type="password" class="form-control" id="password" name="password" 
+                    <label for="user_password" class="form-label">รหัสผ่าน</label>
+                    <input type="password" class="form-control" id="user_password" name="user_password" 
                            placeholder="กรุณากรอกรหัสผ่าน" required>
                 </div>
                 <div class="mb-3">
-                    <label for="re_password" class="form-label">ยืนยันรหัสผ่าน</label>
-                    <input type="password" class="form-control" id="re_password" name="re_password" 
+                    <label for="user_re_password" class="form-label">ยืนยันรหัสผ่าน</label>
+                    <input type="password" class="form-control" id="user_re_password" name="user_re_password" 
                            placeholder="กรุณากรอกรหัสผ่านอีกครั้ง" required>
                 </div>
                 <div class="mb-3">
-                    <label for="fname" class="form-label">ชื่อ</label>
-                    <input type="text" class="form-control" id="fname" name="fname" 
+                    <label for="user_fname" class="form-label">ชื่อ</label>
+                    <input type="text" class="form-control" id="user_fname" name="user_fname" 
                            placeholder="กรุณากรอกชื่อจริง" 
-                           value="<?php echo isset($_SESSION['form_data']['fname']) ? htmlspecialchars($_SESSION['form_data']['fname']) : ''; ?>" required>
+                           value="<?php echo isset($_SESSION['form_data']['user_fname']) ? htmlspecialchars($_SESSION['form_data']['user_fname']) : ''; ?>" required>
                 </div>
                 <div class="mb-3">
-                    <label for="lname" class="form-label">นามสกุล</label>
-                    <input type="text" class="form-control" id="lname" name="lname" 
+                    <label for="user_lname" class="form-label">นามสกุล</label>
+                    <input type="text" class="form-control" id="user_lname" name="user_lname" 
                            placeholder="กรุณากรอกนามสกุล" 
-                           value="<?php echo isset($_SESSION['form_data']['lname']) ? htmlspecialchars($_SESSION['form_data']['lname']) : ''; ?>" required>
+                           value="<?php echo isset($_SESSION['form_data']['user_lname']) ? htmlspecialchars($_SESSION['form_data']['user_lname']) : ''; ?>" required>
                 </div>
                 <div class="mb-3">
-                    <label for="phone" class="form-label">เบอร์โทรศัพท์</label>
-                    <input type="text" class="form-control" id="phone" name="phone" 
+                    <label for="user_phone" class="form-label">เบอร์โทรศัพท์</label>
+                    <input type="text" class="form-control" id="user_phone" name="user_phone" 
                            placeholder="กรุณากรอกเบอร์มือถือของคุณ" 
-                           value="<?php echo isset($_SESSION['form_data']['phone']) ? htmlspecialchars($_SESSION['form_data']['phone']) : ''; ?>" required>
+                           value="<?php echo isset($_SESSION['form_data']['user_phone']) ? htmlspecialchars($_SESSION['form_data']['user_phone']) : ''; ?>" required>
                 </div>
                 <div style="display: flex; justify-content: center; gap: 20px;">
                     <button type="submit" class="btn btn-success">ลงทะเบียน</button>

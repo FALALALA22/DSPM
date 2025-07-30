@@ -16,9 +16,9 @@ if ($evaluation_id == 0 || $child_id == 0) {
 }
 
 // ตรวจสอบว่าการประเมินนี้เป็นของผู้ใช้คนนี้จริง
-$check_sql = "SELECT id FROM evaluations WHERE id = ? AND user_id = ?";
+$check_sql = "SELECT eva_id FROM evaluations WHERE eva_id = ? AND eva_user_id = ?";
 $check_stmt = $conn->prepare($check_sql);
-$check_stmt->bind_param("ii", $evaluation_id, $user['id']);
+$check_stmt->bind_param("ii", $evaluation_id, $user['user_id']);
 $check_stmt->execute();
 $result = $check_stmt->get_result();
 
@@ -29,9 +29,9 @@ if ($result->num_rows == 0) {
 }
 
 // ลบข้อมูลการประเมิน
-$delete_sql = "DELETE FROM evaluations WHERE id = ? AND user_id = ?";
+$delete_sql = "DELETE FROM evaluations WHERE eva_id = ? AND eva_user_id = ?";
 $delete_stmt = $conn->prepare($delete_sql);
-$delete_stmt->bind_param("ii", $evaluation_id, $user['id']);
+$delete_stmt->bind_param("ii", $evaluation_id, $user['user_id']);
 
 if ($delete_stmt->execute()) {
     $_SESSION['success'] = "ลบผลการประเมินเรียบร้อยแล้ว";

@@ -15,10 +15,11 @@ function checkLogin() {
 function getUserInfo() {
     if (isset($_SESSION['user_id'])) {
         return array(
-            'id' => $_SESSION['user_id'],
+            'user_id' => $_SESSION['user_id'],
             'username' => $_SESSION['username'],
             'fname' => $_SESSION['fname'],
             'lname' => $_SESSION['lname'],
+            'user_role' => $_SESSION['user_role'] ?? 'user',
             'login_time' => $_SESSION['login_time']
         );
     }

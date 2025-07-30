@@ -10,8 +10,8 @@ if (isset($_SESSION['user_id'])) {
 
 // ถ้ามีการส่งข้อมูลมาแบบ POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
+    $username = trim($_POST['user_username']);
+    $password = $_POST['user_password'];
     
     $errors = array();
     
@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // ถ้าไม่มีข้อผิดพลาด ทำการตรวจสอบข้อมูลในฐานข้อมูล
     if (empty($errors)) {
-        $sql = "SELECT id, username, password, fname, lname FROM users WHERE username = ?";
+        $sql = "SELECT user_id, user_username, user_password, user_fname, user_lname, user_role FROM users WHERE user_username = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -35,18 +35,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $user = $result->fetch_assoc();
             
             // ตรวจสอบรหัสผ่าน
-            if (password_verify($password, $user['password'])) {
+            if (password_verify($password, $user['user_password'])) {
                 // ล็อกอินสำเร็จ - เก็บข้อมูลใน session
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['fname'] = $user['fname'];
-                $_SESSION['lname'] = $user['lname'];
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['username'] = $user['user_username'];
+                $_SESSION['fname'] = $user['user_fname'];
+                $_SESSION['lname'] = $user['user_lname'];
+                $_SESSION['user_role'] = $user['user_role'];
                 $_SESSION['login_time'] = date('Y-m-d H:i:s');
                 
                 // อัพเดทเวลาล็อกอินล่าสุด (ถ้าต้องการ)
-                $update_sql = "UPDATE users SET updated_at = NOW() WHERE id = ?";
+                $update_sql = "UPDATE users SET user_updated_at = NOW() WHERE user_id = ?";
                 $update_stmt = $conn->prepare($update_sql);
-                $update_stmt->bind_param("i", $user['id']);
+                $update_stmt->bind_param("i", $user['user_id']);
                 $update_stmt->execute();
                 $update_stmt->close();
                 
@@ -113,15 +114,15 @@ $conn->close();
         
         <form method="POST" action="login.php">
           <div class="mb-3">
-            <label for="username" class="form-label">ชื่อผู้ใช้</label>
-            <input type="text" class="form-control" id="username" name="username" 
+            <label for="user_username" class="form-label">ชื่อผู้ใช้</label>
+            <input type="text" class="form-control" id="user_username" name="user_username" 
                    placeholder="กรุณากรอกชื่อผู้ใช้" 
                    value="<?php echo isset($_SESSION['login_username']) ? htmlspecialchars($_SESSION['login_username']) : ''; ?>" 
                    required>
           </div>
           <div class="mb-3">
-            <label for="password" class="form-label">รหัสผ่าน</label>
-            <input type="password" class="form-control" id="password" name="password" 
+            <label for="user_password" class="form-label">รหัสผ่าน</label>
+            <input type="password" class="form-control" id="user_password" name="user_password" 
                    placeholder="กรุณากรอกรหัสผ่าน" required>
           </div>
           <div class="d-grid mb-3">

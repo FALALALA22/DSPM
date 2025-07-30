@@ -16,9 +16,9 @@ if ($child_id == 0) {
 }
 
 // ดึงข้อมูลเด็ก
-$sql = "SELECT * FROM children WHERE id = ? AND user_id = ?";
+$sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $child_id, $user['id']);
+$stmt->bind_param("ii", $child_id, $user['user_id']);
 $stmt->execute();
 $result = $stmt->get_result();
 $child = $result->fetch_assoc();
@@ -50,12 +50,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     
     $evaluation_date = date('Y-m-d');
-    $evaluation_time = date('H:i:s');
+    $evaluation_time = date('Y-m-d H:i:s'); // เปลี่ยนเป็น datetime format
     $evaluation_json = json_encode($evaluation_data);
     $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
     
     // หาเวอร์ชันล่าสุดสำหรับการประเมินนี้
-    $version_sql = "SELECT MAX(version) as max_version FROM evaluations WHERE child_id = ? AND age_range = ? AND evaluation_date = ?";
+    $version_sql = "SELECT MAX(eva_version) as max_version FROM evaluations WHERE eva_child_id = ? AND eva_age_range = ? AND eva_evaluation_date = ?";
     $version_stmt = $conn->prepare($version_sql);
     $version_stmt->bind_param("iss", $child_id, $age_range, $evaluation_date);
     $version_stmt->execute();
@@ -64,9 +64,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $version_stmt->close();
     
     // เพิ่มข้อมูลใหม่เสมอ (ไม่แทนที่)
-    $insert_sql = "INSERT INTO evaluations (child_id, user_id, age_range, evaluation_data, total_passed, total_failed, evaluation_date, evaluation_time, version, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $insert_sql = "INSERT INTO evaluations (eva_child_id, eva_user_id, eva_age_range, eva_responses, eva_total_score, eva_total_questions, eva_evaluation_date, eva_evaluation_time, eva_version, eva_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($insert_sql);
-    $stmt->bind_param("iisssissis", $child_id, $user['id'], $age_range, $evaluation_json, $total_passed, $total_failed, $evaluation_date, $evaluation_time, $next_version, $notes);
+    $total_questions = 5; // แบบประเมินมีทั้งหมด 5 ข้อ
+    $stmt->bind_param("iisssissis", $child_id, $user['user_id'], $age_range, $evaluation_json, $total_passed, $total_questions, $evaluation_date, $evaluation_time, $next_version, $notes);
     
     if ($stmt->execute()) {
         $evaluation_id = $conn->insert_id;
@@ -87,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // ดึงการประเมินล่าสุดถ้ามี (สำหรับแสดงข้อมูลเดิม)
 $latest_evaluation = null;
-$latest_sql = "SELECT * FROM evaluations WHERE child_id = ? AND age_range = ? ORDER BY evaluation_date DESC, version DESC LIMIT 1";
+$latest_sql = "SELECT * FROM evaluations WHERE eva_child_id = ? AND eva_age_range = ? ORDER BY eva_evaluation_date DESC, eva_version DESC LIMIT 1";
 $latest_stmt = $conn->prepare($latest_sql);
 $latest_stmt->bind_param("is", $child_id, $age_range);
 $latest_stmt->execute();
@@ -104,7 +105,7 @@ $conn->close();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>แบบประเมิน ช่วงอายุ แรกเกิดถึง 1 เดือน - <?php echo htmlspecialchars($child['child_name']); ?></title>
+  <title>แบบประเมิน ช่วงอายุ แรกเกิดถึง 1 เดือน - <?php echo htmlspecialchars($child['chi_child_name']); ?></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/eva.css">
   <link rel="stylesheet" href="../css/test.css">
@@ -116,9 +117,9 @@ $conn->close();
       <a class="navbar-brand" href="mainpage.php">DSPM System</a>
       <div class="navbar-nav ms-auto">
         <span class="navbar-text me-3">
-          กำลังประเมิน: <?php echo htmlspecialchars($child['child_name']); ?>
+          กำลังประเมิน: <?php echo htmlspecialchars($child['chi_child_name']); ?>
         </span>
-        <a class="btn btn-outline-light btn-sm" href="child_detail.php?id=<?php echo $child['id']; ?>">กลับ</a>
+        <a class="btn btn-outline-light btn-sm" href="child_detail.php?id=<?php echo $child['chi_id']; ?>">กลับ</a>
       </div>
     </div>
   </nav>
@@ -126,7 +127,7 @@ $conn->close();
   <div class="container py-5">
     <h1 class="text-center mb-4">คู่มือเฝ้าระวังและส่งเสริมพัฒนาการเด็กปฐมวัย</h1>
     <h2 class="text-center mb-4" style="color: #149ee9;">
-      เด็ก: <?php echo htmlspecialchars($child['child_name']); ?> | ช่วงอายุ: แรกเกิด - 1 เดือน
+      เด็ก: <?php echo htmlspecialchars($child['chi_child_name']); ?> | ช่วงอายุ: แรกเกิด - 1 เดือน
     </h2>
 
     <!-- แสดงข้อมูลการประเมินก่อนหน้า -->
@@ -135,19 +136,26 @@ $conn->close();
         <h5><i class="fas fa-history"></i> การประเมินครั้งล่าสุด</h5>
         <div class="row">
           <div class="col-md-6">
-            <strong>วันที่:</strong> <?php echo date('d/m/Y', strtotime($latest_evaluation['evaluation_date'])); ?><br>
-            <strong>เวลา:</strong> <?php echo date('H:i', strtotime($latest_evaluation['evaluation_time'])); ?> น.
+            <strong>วันที่:</strong> <?php echo date('d/m/Y', strtotime($latest_evaluation['eva_evaluation_date'])); ?><br>
+            <strong>เวลา:</strong> <?php 
+            $eval_datetime = $latest_evaluation['eva_evaluation_time'];
+            if (strtotime($eval_datetime)) {
+                echo date('H:i', strtotime($eval_datetime));
+            } else {
+                echo "ไม่ระบุเวลา";
+            }
+            ?> น.
           </div>
           <div class="col-md-6">
             <strong>ผลการประเมิน:</strong> 
-            <span class="badge bg-success"><?php echo $latest_evaluation['total_passed']; ?> ผ่าน</span>
-            <span class="badge bg-danger"><?php echo $latest_evaluation['total_failed']; ?> ไม่ผ่าน</span><br>
-            <strong>ครั้งที่:</strong> <?php echo $latest_evaluation['version']; ?>
+            <span class="badge bg-success"><?php echo $latest_evaluation['eva_total_score']; ?> ผ่าน</span>
+            <span class="badge bg-danger"><?php echo ($latest_evaluation['eva_total_questions'] - $latest_evaluation['eva_total_score']); ?> ไม่ผ่าน</span><br>
+            <strong>ครั้งที่:</strong> <?php echo $latest_evaluation['eva_version']; ?>
           </div>
         </div>
-        <?php if ($latest_evaluation['notes']): ?>
+        <?php if ($latest_evaluation['eva_notes']): ?>
           <div class="mt-2">
-            <strong>หมายเหตุ:</strong> <?php echo htmlspecialchars($latest_evaluation['notes']); ?>
+            <strong>หมายเหตุ:</strong> <?php echo htmlspecialchars($latest_evaluation['eva_notes']); ?>
           </div>
         <?php endif; ?>
       </div>
@@ -305,10 +313,10 @@ $conn->close();
       <div class="d-block d-md-none">
         <!-- Card ข้อที่ 1 -->
         <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-primary text-white">
+          <div class="card-header bgeva1 text-white">
             <h5 class="mb-0">ข้อที่ 1 - ท่านอนคว่ำยกศีรษะและหันไปข้างใดข้างหนึ่งได้ (GM)</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body bg-white">
             <div class="mb-3">
               <strong>อายุ:</strong> แรกเกิด - 1 เดือน
             </div>
@@ -351,10 +359,10 @@ $conn->close();
 
         <!-- Card ข้อที่ 2 -->
         <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-success text-white">
+          <div class="card-header bgeva1 text-white">
             <h5 class="mb-0">ข้อที่ 2 - มองตามถึงกึ่งกลางลำตัว (FM)</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body bg-white">
             <div class="mb-3">
               <strong>อายุ:</strong> แรกเกิด - 1 เดือน
             </div>
@@ -407,10 +415,10 @@ $conn->close();
 
         <!-- Card ข้อที่ 3 -->
         <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-warning text-dark">
+          <div class="card-header bgeva1 text-white">
             <h5 class="mb-0">ข้อที่ 3 - สะดุ้งหรือเคลื่อนไหวร่างกายเมื่อได้ยินเสียงพูดระดับปกติ (RL)</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body bg-white">
             <div class="mb-3">
               <strong>อายุ:</strong> แรกเกิด - 1 เดือน
             </div>
@@ -455,10 +463,10 @@ $conn->close();
 
         <!-- Card ข้อที่ 4 -->
         <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-info text-white">
+          <div class="card-header bgeva1 text-white">
             <h5 class="mb-0">ข้อที่ 4 - ส่งเสียงอ้อแอ้ (EL)</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body bg-white">
             <div class="mb-3">
               <strong>อายุ:</strong> แรกเกิด - 1 เดือน
             </div>
@@ -501,10 +509,10 @@ $conn->close();
 
         <!-- Card ข้อที่ 5 -->
         <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-secondary text-white">
+          <div class="card-header bgeva1 text-white">
             <h5 class="mb-0">ข้อที่ 5 - มองจ้องหน้าได้นาน 1 - 2 วินาที (PS)</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body bg-white">
             <div class="mb-3">
               <strong>อายุ:</strong> แรกเกิด - 1 เดือน
             </div>
@@ -573,7 +581,7 @@ $conn->close();
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <p>คุณแน่ใจหรือไม่ว่าต้องการส่งแบบประเมินของ <strong><?php echo htmlspecialchars($child['child_name']); ?></strong>?</p>
+              <p>คุณแน่ใจหรือไม่ว่าต้องการส่งแบบประเมินของ <strong><?php echo htmlspecialchars($child['chi_child_name']); ?></strong>?</p>
               
               <?php if ($latest_evaluation): ?>
                 <div class="alert alert-warning">
