@@ -14,10 +14,21 @@ if ($child_id == 0) {
     exit();
 }
 
-// ดึงข้อมูลเด็ก
-$sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $child_id, $user['user_id']);
+// ดึงข้อมูลเด็ก - ตรวจสอบสิทธิ์ตาม role
+if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
+    // Admin และ Staff ดูได้ทุกคน พร้อมข้อมูลผู้ปกครอง
+    $sql = "SELECT c.*, u.user_fname, u.user_lname, u.user_phone 
+            FROM children c 
+            JOIN users u ON c.chi_user_id = u.user_id 
+            WHERE c.chi_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $child_id);
+} else {
+    // User ปกติดูได้เฉพาะของตัวเอง
+    $sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $child_id, $user['user_id']);
+}
 $stmt->execute();
 $result = $stmt->get_result();
 $child = $result->fetch_assoc();
@@ -163,6 +174,10 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                         <div class="col-md-6">
                             <p><strong>วันเกิด:</strong> <?php echo date('d/m/Y', strtotime($child['chi_date_of_birth'])); ?></p>
                             <p><strong>อายุ:</strong> <?php echo $child['chi_age_years']; ?> ปี <?php echo $child['chi_age_months']; ?> เดือน</p>
+                            <?php if (($user['user_role'] === 'admin' || $user['user_role'] === 'staff') && isset($child['user_fname'])): ?>
+                                <p><strong>ผู้ปกครอง:</strong> <?php echo htmlspecialchars($child['user_fname'] . ' ' . $child['user_lname']); ?></p>
+                                <p><strong>เบอร์โทร:</strong> <?php echo htmlspecialchars($child['user_phone']); ?></p>
+                            <?php endif; ?>
                         </div>
                         <div class="col-md-6">
                             <p><strong>อายุปัจจุบัน:</strong> <?php echo floor($current_age_months / 12); ?> ปี <?php echo $current_age_months % 12; ?> เดือน</p>

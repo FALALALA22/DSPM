@@ -14,13 +14,24 @@ if ($evaluation_id == 0) {
     exit();
 }
 
-// ดึงข้อมูลการประเมิน
-$sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo as photo 
-        FROM evaluations e 
-        JOIN children c ON e.eva_child_id = c.chi_id 
-        WHERE e.eva_id = ? AND e.eva_user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $evaluation_id, $user['chi_user_id']);
+// ดึงข้อมูลการประเมิน - ตรวจสอบสิทธิ์ตาม role
+if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
+    // Admin และ Staff ดูได้ทุกการประเมิน
+    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo_path as photo 
+            FROM evaluations e 
+            JOIN children c ON e.eva_child_id = c.chi_id 
+            WHERE e.eva_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $evaluation_id);
+} else {
+    // User ปกติดูได้เฉพาะของตัวเอง
+    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo_path as photo 
+            FROM evaluations e 
+            JOIN children c ON e.eva_child_id = c.chi_id 
+            WHERE e.eva_id = ? AND e.eva_user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $evaluation_id, $user['user_id']);
+}
 $stmt->execute();
 $result = $stmt->get_result();
 
