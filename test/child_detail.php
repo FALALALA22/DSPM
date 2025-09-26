@@ -136,6 +136,14 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
             border-radius: 10px;
             margin-bottom: 20px;
         }
+        
+        .collapse-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        [data-bs-toggle="collapse"]:not(.collapsed) .collapse-icon {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -205,10 +213,14 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
 
         <!-- ช่วงอายุ 0-12 เดือน -->
         <div class="card mb-4">
-            <div class="card-header bg-info text-white">
-                <h4 class="mb-0">0-12 เดือน</h4>
+            <div class="card-header bg-info text-white" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#ageRange0-12" aria-expanded="true" aria-controls="ageRange0-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">0-12 เดือน</h4>
+                    <i class="fas fa-chevron-down collapse-icon"></i>
+                </div>
             </div>
-            <div class="card-body">
+            <div id="ageRange0-12" class="collapse show">
+                <div class="card-body">
                 <div class="row justify-content-center">
                     <!-- แถวที่ 1 -->
                     <div class="col-auto">
@@ -263,6 +275,50 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 </div>                
             </div>
         </div>
+        </div>
+
+        <!-- ช่วงอายุ 1-2 ปี -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#ageRange1-2years" aria-expanded="false" aria-controls="ageRange1-2years">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">1-2 ปี (12-24 เดือน)</h4>
+                    <i class="fas fa-chevron-down collapse-icon"></i>
+                </div>
+            </div>
+            <div id="ageRange1-2years" class="collapse">
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <a href="#" onclick="alert('แบบประเมินสำหรับช่วงอายุนี้ยังไม่พร้อมใช้งาน')" 
+                               class="age-button <?php echo ($current_age_months >= 12 && $current_age_months <= 15) ? 'current' : ''; ?>">
+                                12-15
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="#" onclick="alert('แบบประเมินสำหรับช่วงอายุนี้ยังไม่พร้อมใช้งาน')" 
+                               class="age-button <?php echo ($current_age_months >= 16 && $current_age_months <= 18) ? 'current' : ''; ?>">
+                                16-18
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="#" onclick="alert('แบบประเมินสำหรับช่วงอายุนี้ยังไม่พร้อมใช้งาน')" 
+                               class="age-button <?php echo ($current_age_months >= 19 && $current_age_months <= 21) ? 'current' : ''; ?>">
+                                19-21
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="#" onclick="alert('แบบประเมินสำหรับช่วงอายุนี้ยังไม่พร้อมใช้งาน')" 
+                               class="age-button <?php echo ($current_age_months >= 22 && $current_age_months <= 24) ? 'current' : ''; ?>">
+                                22-24
+                            </a>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 1-2 ปี กำลังพัฒนา</small>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- ปุ่มเรียกดูผลย้อนหลัง -->
         <div class="section-header">
@@ -284,6 +340,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
             <ul class="mb-0">
                 <li><span class="badge bg-warning text-dark">สีเหลือง</span> = ช่วงอายุที่เหมาะสมสำหรับการประเมินปัจจุบัน</li>
                 <li><span class="badge bg-primary">สีน้ำเงิน</span> = ช่วงอายุที่สามารถประเมินได้</li>
+                <li>คลิกที่หัวข้อช่วงอายุเพื่อพับ/กางการแสดงผล</li>
                 <li>คลิกที่ช่วงอายุเพื่อเข้าสู่แบบประเมิน</li>
             </ul>
         </div>
