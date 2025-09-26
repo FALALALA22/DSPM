@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSPM Database Dictionary</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        h2 {
+            color: #34495e;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            background-color: #ecf0f1;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        
+        h3 {
+            color: #2980b9;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .overview {
+            background-color: #e8f4fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .overview h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .constraint {
+            background-color: #fff3e0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #e65100;
+            margin: 2px;
+            display: inline-block;
+        }
+        
+        .primary-key {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .foreign-key {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .unique {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .not-null {
+            background-color: #fff8e1;
+            color: #f57c00;
+        }
+        
+        .business-rules {
+            background-color: #f1f8e9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+            margin: 15px 0;
+        }
+        
+        .business-rules h4 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+        
+        .business-rules ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .relationships {
+            background-color: #fce4ec;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #e91e63;
+            margin: 20px 0;
+        }
+        
+        .sample-data {
+            background-color: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        .table-info {
+            background-color: #e0f2f1;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 3px solid #00796b;
+        }
+        
+        .print-section {
+            page-break-before: always;
+        }
+        
+        @media print {
+            body { margin: 20px; }
+            .container { box-shadow: none; }
+            tr { page-break-inside: avoid; }
+        }
+        
+        .data-type {
+            font-weight: bold;
+            color: #1565c0;
+        }
+        
+        .description {
+            color: #424242;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 DSPM Database Dictionary</h1>
+        
+        <div class="overview">
+            <h3>ภาพรวมฐานข้อมูล</h3>
+            <p><strong>ชื่อฐานข้อมูล:</strong> dspm_db</p>
+            <p><strong>Character Set:</strong> utf8mb4</p>
+            <p><strong>Collation:</strong> utf8mb4_unicode_ci</p>
+            <p><strong>วันที่อัปเดต:</strong> 7 กันยายน 2568</p>
+        </div>
+
+        <h2>👥 ตาราง: users</h2>
+        <div class="table-info">
+            <strong>จุดประสงค์:</strong> เก็บข้อมูลผู้ใช้งานระบบ (ผู้ปกครอง, เจ้าหน้าที่, ผู้ดูแลระบบ)
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Column</th>
+                    <th style="width: 15%;">Data Type</th>
+                    <th style="width: 25%;">Constraints</th>
+                    <th style="width: 40%;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>user_id</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td>
+                        <span class="constraint primary-key">PRIMARY KEY</span>
+                        <span class="constraint">AUTO_INCREMENT</span>
+                    </td>
+                    <td class="description">รหัสผู้ใช้ (Primary Key)</td>
+                </tr>
+                <tr>
+                    <td><strong>user_username</strong></td>
+                    <td><span class="data-type">VARCHAR(50)</span></td>
+                    <td>
+                        <span class="constraint unique">UNIQUE</span>
+                        <span class="constraint not-null">NOT NULL</span>
+                    </td>
+                    <td class="description">ชื่อผู้ใช้สำหรับเข้าสู่ระบบ</td>
+                </tr>
+                <tr>
+                    <td><strong>user_password</strong></td>
+                    <td><span class="data-type">VARCHAR(255)</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">รหัสผ่าน (Hashed)</td>
+                </tr>
+                <tr>
+                    <td><strong>user_fname</strong></td>
+                    <td><span class="data-type">VARCHAR(100)</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">ชื่อจริง</td>
+                </tr>
+                <tr>
+                    <td><strong>user_lname</strong></td>
+                    <td><span class="data-type">VARCHAR(100)</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">นามสกุล</td>
+                </tr>
+                <tr>
+                    <td><strong>user_phone</strong></td>
+                    <td><span class="data-type">VARCHAR(15)</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">หมายเลขโทรศัพท์</td>
+                </tr>
+                <tr>
+                    <td><strong>user_role</strong></td>
+                    <td><span class="data-type">ENUM</span></td>
+                    <td><span class="constraint">DEFAULT 'user'</span></td>
+                    <td class="description">บทบาทในระบบ ('user','admin','staff')</td>
+                </tr>
+                <tr>
+                    <td><strong>user_created_at</strong></td>
+                    <td><span class="data-type">TIMESTAMP</span></td>
+                    <td><span class="constraint">DEFAULT CURRENT_TIMESTAMP</span></td>
+                    <td class="description">วันเวลาที่สร้างบัญชี</td>
+                </tr>
+                <tr>
+                    <td><strong>user_updated_at</strong></td>
+                    <td><span class="data-type">TIMESTAMP</span></td>
+                    <td><span class="constraint">ON UPDATE CURRENT_TIMESTAMP</span></td>
+                    <td class="description">วันเวลาที่อัปเดตล่าสุด</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="business-rules">
+            <h4>📋 Business Rules</h4>
+            <ul>
+                <li>user_username ต้องไม่ซ้ำกัน</li>
+                <li>user_role: 'user' = ผู้ปกครอง, 'staff' = เจ้าหน้าที่, 'admin' = ผู้ดูแลระบบ</li>
+                <li>Index: idx_user_username, idx_user_phone</li>
+            </ul>
+        </div>
+
+        <div class="print-section">
+        <h2>👶 ตาราง: children</h2>
+        <div class="table-info">
+            <strong>จุดประสงค์:</strong> เก็บข้อมูลเด็กที่ลงทะเบียนในระบบ
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Column</th>
+                    <th style="width: 15%;">Data Type</th>
+                    <th style="width: 25%;">Constraints</th>
+                    <th style="width: 40%;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>chi_id</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td>
+                        <span class="constraint primary-key">PRIMARY KEY</span>
+                        <span class="constraint">AUTO_INCREMENT</span>
+                    </td>
+                    <td class="description">รหัสเด็ก (Primary Key)</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_user_id</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td>
+                        <span class="constraint not-null">NOT NULL</span>
+                        <span class="constraint foreign-key">FOREIGN KEY</span>
+                    </td>
+                    <td class="description">รหัสผู้ปกครอง (FK to users.user_id)</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_child_name</strong></td>
+                    <td><span class="data-type">VARCHAR(200)</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">ชื่อเด็ก</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_date_of_birth</strong></td>
+                    <td><span class="data-type">DATE</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">วันเกิด</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_age_years</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">อายุ (ปี)</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_age_months</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td><span class="constraint">DEFAULT 0</span></td>
+                    <td class="description">อายุ (เดือน)</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_weight</strong></td>
+                    <td><span class="data-type">DECIMAL(5,2)</span></td>
+                    <td><span class="constraint">NULL</span></td>
+                    <td class="description">น้ำหนัก (กิโลกรัม)</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_height</strong></td>
+                    <td><span class="data-type">DECIMAL(5,2)</span></td>
+                    <td><span class="constraint">NULL</span></td>
+                    <td class="description">ส่วนสูง (เซนติเมตร)</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_photo</strong></td>
+                    <td><span class="data-type">VARCHAR(255)</span></td>
+                    <td><span class="constraint">NULL</span></td>
+                    <td class="description">ชื่อไฟล์รูปภาพ</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_created_at</strong></td>
+                    <td><span class="data-type">TIMESTAMP</span></td>
+                    <td><span class="constraint">DEFAULT CURRENT_TIMESTAMP</span></td>
+                    <td class="description">วันเวลาที่ลงทะเบียน</td>
+                </tr>
+                <tr>
+                    <td><strong>chi_updated_at</strong></td>
+                    <td><span class="data-type">TIMESTAMP</span></td>
+                    <td><span class="constraint">ON UPDATE CURRENT_TIMESTAMP</span></td>
+                    <td class="description">วันเวลาที่อัปเดตล่าสุด</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="business-rules">
+            <h4>📋 Business Rules</h4>
+            <ul>
+                <li>เด็กหนึ่งคนต้องมีผู้ปกครองอย่างน้อย 1 คน</li>
+                <li>ไฟล์รูปภาพเก็บใน directory: uploads/children/</li>
+                <li>Foreign Key: chi_user_id REFERENCES users(user_id) ON DELETE CASCADE</li>
+                <li>Index: idx_chi_user_id, idx_chi_child_name</li>
+            </ul>
+        </div>
+        </div>
+
+        <div class="print-section">
+        <h2>📊 ตาราง: evaluations</h2>
+        <div class="table-info">
+            <strong>จุดประสงค์:</strong> เก็บผลการประเมินพัฒนาการเด็ก
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Column</th>
+                    <th style="width: 15%;">Data Type</th>
+                    <th style="width: 25%;">Constraints</th>
+                    <th style="width: 40%;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>eva_id</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td>
+                        <span class="constraint primary-key">PRIMARY KEY</span>
+                        <span class="constraint">AUTO_INCREMENT</span>
+                    </td>
+                    <td class="description">รหัสการประเมิน (Primary Key)</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_child_id</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td>
+                        <span class="constraint not-null">NOT NULL</span>
+                        <span class="constraint foreign-key">FOREIGN KEY</span>
+                    </td>
+                    <td class="description">รหัสเด็ก (FK to children.chi_id)</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_user_id</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td>
+                        <span class="constraint not-null">NOT NULL</span>
+                        <span class="constraint foreign-key">FOREIGN KEY</span>
+                    </td>
+                    <td class="description">รหัสผู้ประเมิน (FK to users.user_id)</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_age_range</strong></td>
+                    <td><span class="data-type">VARCHAR(10)</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">ช่วงอายุที่ประเมิน (เช่น "0-1", "1-2")</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_responses</strong></td>
+                    <td><span class="data-type">JSON</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">คำตอบการประเมิน (JSON format)</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_total_score</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td><span class="constraint">DEFAULT 0</span></td>
+                    <td class="description">คะแนนรวม/จำนวนข้อที่ผ่าน</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_total_questions</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td><span class="constraint">DEFAULT 0</span></td>
+                    <td class="description">จำนวนข้อคำถามทั้งหมด</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_evaluation_date</strong></td>
+                    <td><span class="data-type">DATE</span></td>
+                    <td><span class="constraint not-null">NOT NULL</span></td>
+                    <td class="description">วันที่ประเมิน</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_evaluation_time</strong></td>
+                    <td><span class="data-type">TIMESTAMP</span></td>
+                    <td><span class="constraint">DEFAULT CURRENT_TIMESTAMP</span></td>
+                    <td class="description">เวลาที่ประเมิน</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_version</strong></td>
+                    <td><span class="data-type">INT</span></td>
+                    <td><span class="constraint">DEFAULT 1</span></td>
+                    <td class="description">เวอร์ชันการประเมิน (สำหรับการประเมินซ้ำ)</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_notes</strong></td>
+                    <td><span class="data-type">TEXT</span></td>
+                    <td><span class="constraint">NULL</span></td>
+                    <td class="description">หมายเหตุเพิ่มเติม</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_created_at</strong></td>
+                    <td><span class="data-type">TIMESTAMP</span></td>
+                    <td><span class="constraint">DEFAULT CURRENT_TIMESTAMP</span></td>
+                    <td class="description">วันเวลาที่บันทึก</td>
+                </tr>
+                <tr>
+                    <td><strong>eva_updated_at</strong></td>
+                    <td><span class="data-type">TIMESTAMP</span></td>
+                    <td><span class="constraint">ON UPDATE CURRENT_TIMESTAMP</span></td>
+                    <td class="description">วันเวลาที่อัปเดตล่าสุด</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="business-rules">
+            <h4>📋 Business Rules</h4>
+            <ul>
+                <li>eva_responses เก็บเป็น JSON format: {"question_1": {"passed": 1, "failed": 0}, ...}</li>
+                <li>eva_version เพิ่มขึ้นเมื่อประเมินซ้ำในวันเดียวกัน</li>
+                <li>eva_age_range format: "X-Y" เช่น "0-1", "1-2", "2-3"</li>
+                <li>Foreign Keys: eva_child_id REFERENCES children(chi_id), eva_user_id REFERENCES users(user_id)</li>
+                <li>Index: idx_eva_child_evaluation, idx_eva_evaluation_date, idx_eva_evaluation_version</li>
+            </ul>
+        </div>
+        </div>
+
+        <div class="print-section">
+        <h2>🔗 ความสัมพันธ์ (Relationships)</h2>
+        <div class="relationships">
+            <h3>Entity Relationship Diagram</h3>
+            <div style="text-align: center; font-family: monospace; font-size: 14px; line-height: 2;">
+                <div>users (1) ----< children (M)</div>
+                <div>  |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|</div>
+                <div>  |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|</div>
+                <div>  +-------< evaluations (M)</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+----< children (1)</div>
+            </div>
+            <br>
+            <h4>ความสัมพันธ์:</h4>
+            <ol>
+                <li><strong>Users ↔ Children:</strong> ผู้ใช้หนึ่งคน สามารถมีเด็กได้หลายคน (One to Many)</li>
+                <li><strong>Users ↔ Evaluations:</strong> ผู้ใช้หนึ่งคน สามารถทำการประเมินได้หลายครั้ง (One to Many)</li>
+                <li><strong>Children ↔ Evaluations:</strong> เด็กหนึ่งคน สามารถมีการประเมินได้หลายครั้ง (One to Many)</li>
+            </ol>
+        </div>
+        </div>
+
+        <div class="print-section">
+        <h2>💻 ตัวอย่างการใช้งาน (Usage Examples)</h2>
+        
+        <h3>🔍 ค้นหาเด็กทั้งหมดของผู้ปกครอง</h3>
+        <div class="sample-data">
+SELECT * FROM children WHERE chi_user_id = ?
+        </div>
+        
+        <h3>📈 ค้นหาการประเมินล่าสุดของเด็ก</h3>
+        <div class="sample-data">
+SELECT * FROM evaluations 
+WHERE eva_child_id = ? 
+ORDER BY eva_evaluation_date DESC, eva_version DESC 
+LIMIT 1
+        </div>
+        
+        <h3>👨‍👩‍👧‍👦 ค้นหาเด็กทั้งหมดพร้อมผู้ปกครอง (สำหรับ Admin/Staff)</h3>
+        <div class="sample-data">
+SELECT c.*, u.user_fname, u.user_lname, u.user_phone
+FROM children c
+JOIN users u ON c.chi_user_id = u.user_id
+ORDER BY c.chi_created_at DESC
+        </div>
+        
+        <h3>📊 ข้อมูลตัวอย่าง (Sample Data)</h3>
+        
+        <h4>Users Table:</h4>
+        <div class="sample-data">
+INSERT INTO users VALUES 
+(1, 'admin', '[hashed_password]', 'ผู้ดูแลระบบ', 'DSMP', '0800000000', 'admin', NOW(), NOW()),
+(2, 'staff001', '[hashed_password]', 'เจ้าหน้าที่', 'คนที่ 1', '0800000001', 'staff', NOW(), NOW()),
+(3, 'parent001', '[hashed_password]', 'สมชาย', 'ใจดี', '0812345678', 'user', NOW(), NOW());
+        </div>
+        
+        <h4>Children Table:</h4>
+        <div class="sample-data">
+INSERT INTO children VALUES 
+(1, 3, 'เด็กหญิงสมหวัง', '2024-01-15', 0, 6, 7.5, 65.0, 'child1.jpg', NOW(), NOW());
+        </div>
+        
+        <h4>Evaluations Table:</h4>
+        <div class="sample-data">
+INSERT INTO evaluations VALUES 
+(1, 1, 3, '0-1', '{"question_1":{"passed":1,"failed":0},"question_2":{"passed":0,"failed":1}}', 
+3, 5, '2024-07-30', NOW(), 1, 'เด็กมีพัฒนาการปกติ', NOW(), NOW());
+        </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 50px; padding: 20px; background-color: #ecf0f1; border-radius: 8px;">
+            <p><strong>📝 DSPM Database Dictionary</strong></p>
+            <p>สร้างเมื่อ: 7 กันยายน 2568 | เวอร์ชัน: 1.0</p>
+            <p>ระบบเฝ้าระวังและส่งเสริมพัฒนาการเด็กปฐมวัย</p>
+        </div>
+    </div>
+</body>
+</html>

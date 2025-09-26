@@ -148,8 +148,9 @@ $conn->close();
                         <!-- แสดงแต่ละ version -->
                         <?php foreach ($group['versions'] as $index => $evaluation): ?>
                             <?php
-                            $total_questions = 5; // สำหรับช่วงอายุ 0-1 เดือน
-                            $percentage = ($evaluation['eva_total_score'] / $total_questions) * 100;
+                            // ใช้จำนวนข้อที่เก็บไว้ในฐานข้อมูล
+                            $total_questions = $evaluation['eva_total_questions'];
+                            $percentage = $total_questions > 0 ? ($evaluation['eva_total_score'] / $total_questions) * 100 : 0;
                             $badge_class = '';
                             if ($percentage >= 80) $badge_class = 'passed';
                             elseif ($percentage >= 50) $badge_class = 'partial';
@@ -164,7 +165,7 @@ $conn->close();
                                 <div class="col-md-8">
                                     <div class="d-flex align-items-center mb-2">
                                         <span class="badge score-badge <?php echo $badge_class; ?> me-2">
-                                            <?php echo $evaluation['eva_total_score']; ?>/<?php echo $total_questions; ?>
+                                            <?php echo $evaluation['eva_total_score']; ?>/<?php echo $evaluation['eva_total_questions']; ?>
                                         </span>
                                         <?php if ($version_label): ?>
                                             <span class="badge bg-secondary me-2"><?php echo $version_label; ?></span>
@@ -172,6 +173,7 @@ $conn->close();
                                         <small class="text-muted">
                                             <?php 
                                             // แสดงเวลาที่ถูกต้อง
+                                            //date_default_timezone_set('Asia/Bangkok'); // ตั้งเวลาเป็นโซนเวลาของไทย
                                             $eval_datetime = $evaluation['eva_evaluation_time'];
                                             if (strtotime($eval_datetime)) {
                                                 echo date('H:i', strtotime($eval_datetime));
@@ -185,7 +187,8 @@ $conn->close();
                                     <div class="mb-2">
                                         <span class="text-success">✓ ผ่าน: <?php echo $evaluation['eva_total_score']; ?> ข้อ</span> |
                                         <span class="text-danger">✗ ไม่ผ่าน: <?php echo ($evaluation['eva_total_questions'] - $evaluation['eva_total_score']); ?> ข้อ</span> |
-                                        <span class="text-info"><?php echo round($percentage, 1); ?>% ผ่าน</span>
+                                        <span class="text-info"><?php echo round($percentage, 1); ?>%</span> |
+                                        <span class="text-muted">รวม: <?php echo $evaluation['eva_total_questions']; ?> ข้อ</span>
                                     </div>
                                     
                                     <?php if ($evaluation['eva_notes']): ?>
@@ -199,7 +202,28 @@ $conn->close();
                                         <a href="view_evaluation_detail.php?id=<?php echo $evaluation['eva_id']; ?>" 
                                            class="btn btn-primary btn-sm">ดูรายละเอียด</a>
                                         <?php if ($index == 0): // แสดงปุ่มประเมินใหม่เฉพาะ version ล่าสุด ?>
-                                            <a href="evaluation1.php?child_id=<?php echo $child['chi_id']; ?>&age_range=<?php echo $evaluation['eva_age_range']; ?>" 
+                                            <?php 
+                                            // กำหนดไฟล์ evaluation ตามช่วงอายุ
+                                            $evaluation_file = 'evaluation1.php'; // default
+                                            switch ($evaluation['eva_age_range']) {
+                                                case '1-2':
+                                                    $evaluation_file = 'evaluation2.php';
+                                                    break;
+                                                case '2-3':
+                                                    $evaluation_file = 'evaluation3.php';
+                                                    break;
+                                                case '3-4':
+                                                    $evaluation_file = 'evaluation4.php';
+                                                    break;
+                                                case '5-6':
+                                                    $evaluation_file = 'evaluation5.php';
+                                                    break;
+                                                default:
+                                                    $evaluation_file = 'evaluation1.php';
+                                                    break;
+                                            }
+                                            ?>
+                                            <a href="<?php echo $evaluation_file; ?>?child_id=<?php echo $child['chi_id']; ?>&age_range=<?php echo $evaluation['eva_age_range']; ?>" 
                                                class="btn btn-warning btn-sm">ประเมินใหม่</a>
                                         <?php endif; ?>
                                         <button class="btn btn-danger btn-sm" 
@@ -221,15 +245,15 @@ $conn->close();
                         </div>
                         <div class="card-body">
                             <div class="row text-center">
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <h3 class="text-primary"><?php echo count($evaluations); ?></h3>
                                     <p>ครั้งที่ประเมิน</p>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <h3 class="text-success"><?php echo array_sum(array_column($evaluations, 'eva_total_score')); ?></h3>
                                     <p>ข้อที่ผ่านรวม</p>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <?php 
                                     $total_failed = 0;
                                     foreach($evaluations as $eval) {
@@ -239,8 +263,24 @@ $conn->close();
                                     <h3 class="text-danger"><?php echo $total_failed; ?></h3>
                                     <p>ข้อที่ไม่ผ่านรวม</p>
                                 </div>
-                                <div class="col-md-3">
-                                    <h3 class="text-info"><?php echo date('d/m/Y', strtotime($evaluations[0]['eva_evaluation_date'])); ?></h3>
+                                <div class="col-md-2">
+                                    <?php 
+                                    $total_all_questions = array_sum(array_column($evaluations, 'eva_total_questions'));
+                                    ?>
+                                    <h3 class="text-info"><?php echo $total_all_questions; ?></h3>
+                                    <p>ข้อทั้งหมด</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <?php 
+                                    $overall_percentage = $total_all_questions > 0 ? 
+                                        round((array_sum(array_column($evaluations, 'eva_total_score')) / $total_all_questions) * 100, 1) 
+                                        : 0;
+                                    ?>
+                                    <h3 class="text-warning"><?php echo $overall_percentage; ?>%</h3>
+                                    <p>เปอร์เซ็นต์รวม</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <h3 class="text-muted"><?php echo date('d/m/Y', strtotime($evaluations[0]['eva_evaluation_date'])); ?></h3>
                                     <p>ประเมินล่าสุด</p>
                                 </div>
                             </div>

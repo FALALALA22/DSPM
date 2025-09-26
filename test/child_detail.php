@@ -196,6 +196,11 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
         <!-- ส่วนเลือกช่วงอายุ -->
         <div class="section-header">
             <h3 class="text-center mb-3" style="color: #007bff;">เลือกช่วงอายุสำหรับการประเมิน</h3>
+            <div class="text-center mb-3">
+                <small class="text-muted">
+                    ช่วงอายุ 0-1 = แรกเกิด-1 เดือน | 1-2 = 1-2 เดือน | 3-4 = 3-4 เดือน | 5-6 = 5-6 เดือน | 7-8 = 7-8 เดือน | 9 = 9 เดือน | 10-12 = 10-12 เดือน
+                </small>
+            </div>
         </div>
 
         <!-- ช่วงอายุ 0-12 เดือน -->
@@ -219,13 +224,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                         </a>
                     </div>
                     <div class="col-auto">
-                        <a href="evaluation3.php?child_id=<?php echo $child['chi_id']; ?>&age_range=2-3" 
-                           class="age-button <?php echo ($current_age_months >= 2 && $current_age_months <= 3) ? 'current' : ''; ?>">
-                            2-3
-                        </a>
-                    </div>
-                    <div class="col-auto">
-                        <a href="evaluation4.php?child_id=<?php echo $child['chi_id']; ?>&age_range=3-4" 
+                        <a href="evaluation3.php?child_id=<?php echo $child['chi_id']; ?>&age_range=3-4" 
                            class="age-button <?php echo ($current_age_months >= 3 && $current_age_months <= 4) ? 'current' : ''; ?>">
                             3-4
                         </a>
@@ -234,52 +233,34 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 
                 <div class="row justify-content-center">
                     <!-- แถวที่ 2 -->
-                    <div class="col-auto">
-                        <a href="evaluation5.php?child_id=<?php echo $child['chi_id']; ?>&age_range=4-5" 
-                           class="age-button <?php echo ($current_age_months >= 4 && $current_age_months <= 5) ? 'current' : ''; ?>">
-                            4-5
-                        </a>
-                    </div>
-                    <div class="col-auto">
-                        <a href="#" class="age-button">
+                     <div class="col-auto">
+                        <a href="evaluation4.php?child_id=<?php echo $child['chi_id']; ?>&age_range=5-6" 
+                           class="age-button <?php echo ($current_age_months >= 5 && $current_age_months <= 6) ? 'current' : ''; ?>">
                             5-6
                         </a>
                     </div>
                     <div class="col-auto">
-                        <a href="#" class="age-button">
-                            6-7
-                        </a>
-                    </div>
-                    <div class="col-auto">
-                        <a href="#" class="age-button">
+                        <a href="evaluation5.php?child_id=<?php echo $child['chi_id']; ?>&age_range=7-8" 
+                           class="age-button <?php echo ($current_age_months >= 7 && $current_age_months <= 8) ? 'current' : ''; ?>">
                             7-8
                         </a>
                     </div>
+                    <div class="col-auto">
+                        <a href="evaluation6.php?child_id=<?php echo $child['chi_id']; ?>&age_range=9" 
+                           class="age-button <?php echo ($current_age_months >= 9) ? 'current' : ''; ?>">
+                            9
+                        </a>
+                    </div>
+                    
                 </div>
-                
                 <div class="row justify-content-center">
-                    <!-- แถวที่ 3 -->
                     <div class="col-auto">
-                        <a href="#" class="age-button">
-                            8-9
+                        <a href="evaluation7.php?child_id=<?php echo $child['chi_id']; ?>&age_range=10-12" 
+                           class="age-button <?php echo ($current_age_months >= 10 && $current_age_months <= 12) ? 'current' : ''; ?>">
+                            10-12
                         </a>
                     </div>
-                    <div class="col-auto">
-                        <a href="#" class="age-button">
-                            9-10
-                        </a>
-                    </div>
-                    <div class="col-auto">
-                        <a href="#" class="age-button">
-                            10-11
-                        </a>
-                    </div>
-                    <div class="col-auto">
-                        <a href="#" class="age-button">
-                            11-12
-                        </a>
-                    </div>
-                </div>
+                </div>                
             </div>
         </div>
 
