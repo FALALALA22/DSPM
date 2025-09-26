@@ -215,7 +215,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
         <div class="card mb-4">
             <div class="card-header bg-info text-white" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#ageRange0-12" aria-expanded="true" aria-controls="ageRange0-12">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">0-12 เดือน</h4>
+                    <h4 class="mb-0">แรกเกิด-1ปี (0-12 เดือน)</h4>
                     <i class="fas fa-chevron-down collapse-icon"></i>
                 </div>
             </div>
@@ -289,32 +289,32 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <a href="#" onclick="alert('แบบประเมินสำหรับช่วงอายุนี้ยังไม่พร้อมใช้งาน')" 
-                               class="age-button <?php echo ($current_age_months >= 12 && $current_age_months <= 15) ? 'current' : ''; ?>">
-                                12-15
+                            <a href="evaluation8.php?child_id=<?php echo $child['chi_id']; ?>&age_range=13-15" 
+                               class="age-button <?php echo ($current_age_months >= 13 && $current_age_months <= 15) ? 'current' : ''; ?>">
+                                13-15
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="#" onclick="alert('แบบประเมินสำหรับช่วงอายุนี้ยังไม่พร้อมใช้งาน')" 
-                               class="age-button <?php echo ($current_age_months >= 16 && $current_age_months <= 18) ? 'current' : ''; ?>">
-                                16-18
+                            <a href="evaluation9.php?child_id=<?php echo $child['chi_id']; ?>&age_range=16-17" 
+                               class="age-button <?php echo ($current_age_months >= 16 && $current_age_months <= 17) ? 'current' : ''; ?>">
+                                16-17
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="#" onclick="alert('แบบประเมินสำหรับช่วงอายุนี้ยังไม่พร้อมใช้งาน')" 
-                               class="age-button <?php echo ($current_age_months >= 19 && $current_age_months <= 21) ? 'current' : ''; ?>">
-                                19-21
+                            <a href="evaluation10.php?child_id=<?php echo $child['chi_id']; ?>&age_range=18" 
+                               class="age-button <?php echo ($current_age_months >= 18) ? 'current' : ''; ?>">
+                                18
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="#" onclick="alert('แบบประเมินสำหรับช่วงอายุนี้ยังไม่พร้อมใช้งาน')" 
-                               class="age-button <?php echo ($current_age_months >= 22 && $current_age_months <= 24) ? 'current' : ''; ?>">
-                                22-24
+                            <a href="evaluation11.php?child_id=<?php echo $child['chi_id']; ?>&age_range=19-24" 
+                               class="age-button <?php echo ($current_age_months >= 19 && $current_age_months <= 24) ? 'current' : ''; ?>">
+                                19-24
                             </a>
                         </div>
                     </div>
                     <div class="text-center mt-3">
-                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 1-2 ปี กำลังพัฒนา</small>
+                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 2-3 ปี กำลังพัฒนา</small>
                     </div>
                 </div>
             </div>
@@ -348,7 +348,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
         <!-- ปุ่มจัดการ -->
         <div class="text-center mt-4">
             <a href="children_list.php" class="btn btn-secondary me-2">กลับรายชื่อเด็ก</a>
-            <a href="edit_child.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-warning me-2">แก้ไขข้อมูล</a>
+            <!--<a href="edit_child.php?id=<?php //echo $child['chi_id']; ?>" class="btn btn-warning me-2">แก้ไขข้อมูล</a> -->
             <a href="mainpage.php" class="btn btn-primary">กลับหน้าหลัก</a>
         </div>
     </div>
