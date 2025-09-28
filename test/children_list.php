@@ -162,7 +162,7 @@ $conn->close();
                                         <div class="btn-group" role="group">
                                             <a href="child_detail.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-primary btn-sm">ดูรายละเอียด</a>
                                             <?php if ($user['user_role'] === 'user' || $user['user_role'] === 'admin'): ?>
-                                                <a href="edit_child.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-warning btn-sm">แก้ไข</a>
+                                                <!--<a href="edit_child.php?id=<?php //echo $child['chi_id']; ?>" class="btn btn-warning btn-sm">แก้ไข</a>-->
                                                 <a href="delete_child.php?id=<?php echo $child['chi_id']; ?>" 
                                                    class="btn btn-danger btn-sm" 
                                                    onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบข้อมูลเด็กคนนี้?')">ลบ</a>

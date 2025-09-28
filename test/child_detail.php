@@ -320,6 +320,154 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
             </div>
         </div>
 
+        <!-- ช่วงอายุ 2-3 ปี -->
+        <div class="card mb-4">
+            <div class="card-header  text-white" style="cursor: pointer; background-color: DodgerBlue;" data-bs-toggle="collapse" data-bs-target="#ageRange2-3years" aria-expanded="false" aria-controls="ageRange2-3years">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">2-3 ปี (24-36 เดือน)</h4>
+                    <i class="fas fa-chevron-down collapse-icon"></i>
+                </div>
+            </div>
+            <div id="ageRange2-3years" class="collapse">
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <a href="evaluation12.php?child_id=<?php echo $child['chi_id']; ?>&age_range=25-29" 
+                               class="age-button <?php echo ($current_age_months >= 25 && $current_age_months <= 29) ? 'current' : ''; ?>">
+                                25-29
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="evaluation13.php?child_id=<?php echo $child['chi_id']; ?>&age_range=30" 
+                               class="age-button <?php echo ($current_age_months >= 30) ? 'current' : ''; ?>">
+                                30
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="evaluation14.php?child_id=<?php echo $child['chi_id']; ?>&age_range=31-36" 
+                               class="age-button <?php echo ($current_age_months >= 31 && $current_age_months <= 36) ? 'current' : ''; ?>">
+                                31-36
+                            </a>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 3-4 ปี กำลังพัฒนา</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ช่วงอายุ 3-4 ปี -->
+        <div class="card mb-4">
+            <div class="card-header  text-white" style="cursor: pointer; background-color: Aquamarine;" data-bs-toggle="collapse" data-bs-target="#ageRange3-4years" aria-expanded="false" aria-controls="ageRange3-4years">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">3-4 ปี (37-48 เดือน)</h4>
+                    <i class="fas fa-chevron-down collapse-icon"></i>
+                </div>
+            </div>
+            <div id="ageRange3-4years" class="collapse">
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <a href="evaluation15.php?child_id=<?php echo $child['chi_id']; ?>&age_range=37-41" 
+                               class="age-button <?php echo ($current_age_months >= 37 && $current_age_months <= 41) ? 'current' : ''; ?>">
+                                37-41
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="evaluation16.php?child_id=<?php echo $child['chi_id']; ?>&age_range=42" 
+                               class="age-button <?php echo ($current_age_months >= 42) ? 'current' : ''; ?>">
+                                42
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="evaluation17.php?child_id=<?php echo $child['chi_id']; ?>&age_range=43-48" 
+                               class="age-button <?php echo ($current_age_months >= 43 && $current_age_months <= 48) ? 'current' : ''; ?>">
+                                43-48
+                            </a>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 4-5 ปี กำลังพัฒนา</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ช่วงอายุ 4-5 ปี -->
+        <div class="card mb-4">
+            <div class="card-header  text-white" style="cursor: pointer; background-color: Chocolate;" data-bs-toggle="collapse" data-bs-target="#ageRange4-5years" aria-expanded="false" aria-controls="ageRange4-5years">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">4-5 ปี (49-60 เดือน)</h4>
+                    <i class="fas fa-chevron-down collapse-icon"></i>
+                </div>
+            </div>
+            <div id="ageRange4-5years" class="collapse">
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <a href="evaluation18.php?child_id=<?php echo $child['chi_id']; ?>&age_range=49-54" 
+                               class="age-button <?php echo ($current_age_months >= 49 && $current_age_months <= 54) ? 'current' : ''; ?>">
+                                49-54
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="evaluation19.php?child_id=<?php echo $child['chi_id']; ?>&age_range=55-59" 
+                               class="age-button <?php echo ($current_age_months >= 55 && $current_age_months <= 59) ? 'current' : ''; ?>">
+                                55-59
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="evaluation20.php?child_id=<?php echo $child['chi_id']; ?>&age_range=60" 
+                               class="age-button <?php echo ($current_age_months >= 60) ? 'current' : ''; ?>">
+                                60
+                            </a>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 5-6.6 ปี กำลังพัฒนา</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ช่วงอายุ 5-6 ปี -->
+        <div class="card mb-4">
+            <div class="card-header  text-white" style="cursor: pointer; background-color: DarkOrange;" data-bs-toggle="collapse" data-bs-target="#ageRange5-6years" aria-expanded="false" aria-controls="ageRange5-6years">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">5-6ปี 6เดือน (61-78 เดือน)</h4>
+                    <i class="fas fa-chevron-down collapse-icon"></i>
+                </div>
+            </div>
+            <div id="ageRange5-6years" class="collapse">
+                <div class="card-body">
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <a href="evaluation18.php?child_id=<?php echo $child['chi_id']; ?>&age_range=61-66" 
+                               class="age-button <?php echo ($current_age_months >= 61 && $current_age_months <= 66) ? 'current' : ''; ?>">
+                                61-66
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="evaluation19.php?child_id=<?php echo $child['chi_id']; ?>&age_range=67-72" 
+                               class="age-button <?php echo ($current_age_months >= 67 && $current_age_months <= 72) ? 'current' : ''; ?>">
+                                67-72
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="evaluation20.php?child_id=<?php echo $child['chi_id']; ?>&age_range=73-78" 
+                               class="age-button <?php echo ($current_age_months >= 73 && $current_age_months <= 78) ? 'current' : ''; ?>">
+                                73-78
+                            </a>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 5-6.6 ปี กำลังพัฒนา</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ปุ่มเรียกดูผลย้อนหลัง -->
         <div class="section-header">
             <h3 class="text-center mb-3" style="color: #28a745;">เรียกดูผลการประเมินย้อนหลัง</h3>
