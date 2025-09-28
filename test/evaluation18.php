@@ -1,0 +1,743 @@
+<?php
+//session_start();
+require_once '../check_session.php';
+require_once '../db_conn.php';
+
+checkLogin(); // ตรวจสอบว่าล็อกอินแล้วหรือยัง
+$user = getUserInfo();
+
+// รับข้อมูลจาก URL
+$child_id = isset($_GET['child_id']) ? (int)$_GET['child_id'] : 0;
+$age_range = isset($_GET['age_range']) ? $_GET['age_range'] : '49-54';
+
+if ($child_id == 0) {
+    header("Location: children_list.php");
+    exit();
+}
+
+// ดึงข้อมูลเด็ก
+$sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ii", $child_id, $user['user_id']);
+$stmt->execute();
+$result = $stmt->get_result();
+$child = $result->fetch_assoc();
+
+if (!$child) {
+    $_SESSION['error'] = "ไม่พบข้อมูลเด็กที่ต้องการ";
+    header("Location: children_list.php");
+    exit();
+}
+
+// ตรวจสอบว่ามีการส่งข้อมูลการประเมินมาหรือไม่
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $evaluation_data = array();
+    $total_passed = 0;
+    $total_failed = 0;
+
+    // รับข้อมูลการประเมินจากฟอร์ม (ข้อ 107-111)
+    for ($i = 107; $i <= 111; $i++) {
+        $passed = isset($_POST["q{$i}_pass"]) ? 1 : 0;
+        $failed = isset($_POST["q{$i}_fail"]) ? 1 : 0;
+        
+        $evaluation_data["question_{$i}"] = array(
+            'passed' => $passed,
+            'failed' => $failed
+        );
+        
+        if ($passed) $total_passed++;
+        if ($failed) $total_failed++;
+    }
+    
+    $evaluation_date = date('Y-m-d');
+    $evaluation_time = date('Y-m-d H:i:s');
+    $evaluation_json = json_encode($evaluation_data);
+    $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
+    
+    // หาเวอร์ชันล่าสุดสำหรับการประเมินนี้
+    $version_sql = "SELECT MAX(eva_version) as max_version FROM evaluations WHERE eva_child_id = ? AND eva_age_range = ? AND eva_evaluation_date = ?";
+    $version_stmt = $conn->prepare($version_sql);
+    $version_stmt->bind_param("iss", $child_id, $age_range, $evaluation_date);
+    $version_stmt->execute();
+    $version_result = $version_stmt->get_result()->fetch_assoc();
+    $next_version = ($version_result['max_version'] ?? 0) + 1;
+    $version_stmt->close();
+    
+    // เพิ่มข้อมูลใหม่เสมอ (ไม่แทนที่)
+    $insert_sql = "INSERT INTO evaluations (eva_child_id, eva_user_id, eva_age_range, eva_responses, eva_total_score, eva_total_questions, eva_evaluation_date, eva_evaluation_time, eva_version, eva_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($insert_sql);
+    $total_questions = 5; // แบบประเมินมีทั้งหมด 5 ข้อ (ข้อ 107-111)
+    $stmt->bind_param("iisssissis", $child_id, $user['user_id'], $age_range, $evaluation_json, $total_passed, $total_questions, $evaluation_date, $evaluation_time, $next_version, $notes);
+    
+    if ($stmt->execute()) {
+        $evaluation_id = $conn->insert_id;
+        if ($next_version > 1) {
+            $_SESSION['success'] = "บันทึกผลการประเมินครั้งที่ {$next_version} เรียบร้อยแล้ว (อัพเดทจากครั้งก่อน)";
+        } else {
+            $_SESSION['success'] = "บันทึกผลการประเมินเรียบร้อยแล้ว";
+        }
+        $stmt->close();
+        $conn->close();
+        header("Location: child_detail.php?id={$child_id}");
+        exit();
+    } else {
+        $_SESSION['error'] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล";
+    }
+    $stmt->close();
+}
+
+// ดึงการประเมินล่าสุดถ้ามี (สำหรับแสดงข้อมูลเดิม)
+$latest_evaluation = null;
+$latest_sql = "SELECT * FROM evaluations WHERE eva_child_id = ? AND eva_age_range = ? ORDER BY eva_evaluation_date DESC, eva_version DESC LIMIT 1";
+$latest_stmt = $conn->prepare($latest_sql);
+$latest_stmt->bind_param("is", $child_id, $age_range);
+$latest_stmt->execute();
+$latest_result = $latest_stmt->get_result();
+$latest_evaluation = $latest_result->fetch_assoc();
+$latest_stmt->close();
+
+$stmt->close();
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แบบประเมิน ช่วงอายุ 49 ถึง 54 เดือน - <?php echo htmlspecialchars($child['chi_child_name']); ?></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/eva.css">
+  <link rel="stylesheet" href="../css/test.css">
+</head>
+<body class="bg-light">
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="mainpage.php">DSPM System</a>
+      <div class="navbar-nav ms-auto">
+        <span class="navbar-text me-3">
+          กำลังประเมิน: <?php echo htmlspecialchars($child['chi_child_name']); ?>
+        </span>
+        <a class="btn btn-outline-light btn-sm" href="child_detail.php?id=<?php echo $child['chi_id']; ?>">กลับ</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <h1 class="text-center mb-4">คู่มือเฝ้าระวังและส่งเสริมพัฒนาการเด็กปฐมวัย</h1>
+    <h2 class="text-center mb-4" style="color: #149ee9;">
+      เด็ก: <?php echo htmlspecialchars($child['chi_child_name']); ?> | ช่วงอายุ: 49 - 54 เดือน
+    </h2>
+
+    <!-- แสดงข้อมูลการประเมินก่อนหน้า -->
+    <?php if ($latest_evaluation): ?>
+      <div class="alert alert-info">
+        <h5><i class="fas fa-history"></i> การประเมินครั้งล่าสุด</h5>
+        <div class="row">
+          <div class="col-md-6">
+            <strong>วันที่:</strong> <?php echo date('d/m/Y', strtotime($latest_evaluation['eva_evaluation_date'])); ?><br>
+            <strong>เวลา:</strong> <?php 
+            $eval_datetime = $latest_evaluation['eva_evaluation_time'];
+            if (strtotime($eval_datetime)) {
+                echo date('H:i', strtotime($eval_datetime));
+            } else {
+                echo "ไม่ระบุเวลา";
+            }
+            ?> น.
+          </div>
+          <div class="col-md-6">
+            <strong>ผลการประเมิน:</strong> 
+            <span class="badge bg-success"><?php echo $latest_evaluation['eva_total_score']; ?> ผ่าน</span>
+            <span class="badge bg-danger"><?php echo ($latest_evaluation['eva_total_questions'] - $latest_evaluation['eva_total_score']); ?> ไม่ผ่าน</span><br>
+            <strong>ครั้งที่:</strong> <?php echo $latest_evaluation['eva_version']; ?>
+          </div>
+        </div>
+        <?php if ($latest_evaluation['eva_notes']): ?>
+          <div class="mt-2">
+            <strong>หมายเหตุ:</strong> <?php echo htmlspecialchars($latest_evaluation['eva_notes']); ?>
+          </div>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+
+    <!-- แสดงข้อความแจ้งเตือน -->
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger" role="alert">
+            <?php echo htmlspecialchars($_SESSION['error']); ?>
+        </div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <form method="POST" action="">
+      <!-- Desktop version -->
+      <div class="table-responsive d-none d-md-block">
+        <table class="table table-bordered table-striped align-middle">
+          <thead class="table-color">
+            <tr>
+              <th><strong>อายุ</strong><br>(เดือน)</th>
+              <th><strong>ข้อที่</strong></th>
+              <th><strong>ทักษะ</strong></th>
+              <th><strong>วิธีประเมิน เฝ้าระวัง</strong><br>โดย พ่อแม่ ผู้ปกครอง เจ้าหน้าที่ ครู และผู้ดูแลเด็ก</th>
+              <th><strong>วิธีฝึกทักษะ</strong><br>โดย พ่อแม่ ผู้ปกครอง ครู และผู้ดูแลเด็ก</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- ข้อ 107-111 สำหรับ 49-54 เดือน -->
+            <tr>
+              <td rowspan="5">49 - 54 เดือน</td>
+              <td>107<br>
+                  <input type="checkbox" id="q107_pass" name="q107_pass" value="1">
+                  <label for="q107_pass">ผ่าน</label><br>
+                  <input type="checkbox" id="q107_fail" name="q107_fail" value="1">
+                  <label for="q107_fail">ไม่ผ่าน</label><br>
+              </td>
+              <td>กระโดดสองเท้าพร้อมกันไปข้างหน้าและถอยหลังได้ (GM)<br><br>
+              </td>
+              <td>
+                กระโดดไปข้างหน้าระยะ 18 นิ้ว และกระโดดถอยหลัง ให้เด็กดู แล้วบอกให้เด็กทำตาม<br>
+                <strong>ผ่าน:</strong> เด็กสามารถกระโดดไปข้างหน้าได้ระยะ 18 นิ้ว และกระโดดถอยหลังได้โดยเท้าทั้ง 2 ข้างไปพร้อมกัน
+              </td>
+              <td>
+               1. กระโดดไปข้างหน้าระยะ 18 นิ้ว ออกเสียงให้เด็กดูเด็กดู<br>
+               2. ยืนตรงหน้าเด็กแล้วบอกว่า “พร้อมกันนะ” “กระโดดไปข้างหน้า กระโดดไปทางขวา กระโดดถอยหลัง” พร้อมกับประคองมือเด็กให้กระโดดไปในทิศทางตามที่บอก<br>
+               3. ชวนเด็กเล่นเกมกระโดดตามคำสั่ง<br>
+               4. พ่อแม่ ผู้ปกครองหรือผู้ดูแลเด็ก ควรระมัดระวังไม่กระทบการกระโดด
+              </td>
+            </tr>
+
+            <tr>
+              <td>108<br>
+                  <input type="checkbox" id="q108_pass" name="q108_pass" value="1">
+                  <label for="q107_pass">ผ่าน</label><br>
+                  <input type="checkbox" id="q108_fail" name="q108_fail" value="1">
+                  <label for="q108_fail">ไม่ผ่าน</label><br>
+              </td>
+              <td>ประกอบชิ้นส่วนของรูปภาพที่ตัดออกเป็นส่วน ๆ 8 ชิ้นได้ (FM)<br><br>
+              <strong>อุปกรณ์:</strong>รูปภาพที่มีส่วนตัดเป็น 8 ชิ้น 1 รูป
+                </td>
+              <td>
+                1. นำรูปภาพที่ตัดแล้วให้วางหน้ากลับแล้วพูดกับเด็กว่า “หนูดูรูปภาพนี้”<br>
+                2. นำชิ้นส่วนรูปภาพตามลำดับแล้วบอกกับเด็กว่า “ต่อให้เป็นรูปภาพนะ”<br>
+                <strong>ผ่าน:</strong>  เด็กประกอบชิ้นส่วนรูปภาพให้ถูกต้องทั้งหมด 8 ชิ้น
+              </td>
+              <td>
+                1. วางรูปที่ตัดออกเป็น 8 ชิ้น ตรงหน้าเด็กให้เด็กสังเกตภาพรวมชิ้น<br>
+                2. แยกรูปภาพทั้ง 8 ชิ้น ออกจากกันโดยการวางอย่างกระจายต่อหน้าเด็ก<br>
+                3. ชี้ให้เด็กดูชิ้นที่คล้ายเป็นภาพคนหรือสัตว์<br>
+                4. ชี้ให้เด็กดูพื้นหลังว่าควรเป็นท้องฟ้า พื้นหญ้า ฯลฯ<br>
+                5. ส่งเสริมเด็กให้ประกอบภาพ โดยอาจจะใช้คำพูดกระตุ้นให้เด็กประกอบภาพ เช่น “ชิ้นนี้จะวางตรงไหนนะ”<br>
+                6. หากเด็กทำผิด หรือทำไม่สำเร็จบ่อย ๆ ให้เด็กลองประกอบภาพกับคนอื่น<br>
+                7. หากเด็กต่อภาพได้คล่องแล้วให้เด็กเลือกเล่นต่อที่มีชิ้นส่วนเป็น 8 ชิ้น<br>
+              </td>
+            </tr>
+
+            <tr>
+              <td>109<br>
+                  <input type="checkbox" id="q109_pass" name="q109_pass" value="1">
+                  <label for="q109_pass">ผ่าน</label><br>
+                  <input type="checkbox" id="q109_fail" name="q109_fail" value="1">
+                  <label for="q109_fail">ไม่ผ่าน</label><br>
+              </td>
+              <td>เลือกรูปภาพที่แสดงเวลากลางวัน กลางคืน (RL)<br><br>
+              <strong>อุปกรณ์:</strong>1. เวลากลางวัน 3 รูป 2. เวลากลางคืน 3 รูป
+            </td>
+              <td>
+                1. หยิบรูปกลางวัน 1 รูป กลางคืน 1 รูป ตรงหน้าเด็กแล้วบอกเด็กว่า “ชี้รูปที่เป็นเวลากลางวัน” “ชี้รูปที่เป็นเวลากลางคืน”<br>
+                2. ให้เด็กทำต่อจนครบ 3 ชุด รวม 3 ชุดที่มีสลับเวลากลางวันและกลางคืน<br>
+                <strong>ผ่าน:</strong>  เด็กสามารถชี้ภาพกลางวันและกลางคืนได้ถูกต้องอย่างน้อย 2 ใน 3 ชุด
+              </td>
+              <td>
+                1. ปรุงรูปภาพที่แสดงเวลากลางวัน และกลางคืนอย่างละ 3 รูป ให้เด็กพูดพร้อมกับชี้บรรยายว่าเป็นเวลากลางวันหรือกลางคืน<br>
+                2. บอกให้เด็กดูภาพ เช่น กลางวันมีแสงแดด ให้บรรยายเกี่ยวกับลักษณะในรูปภาพและเวลาที่เด็กเห็นภาพนั้น ๆ ให้สังเกตว่าภาพที่เห็นเป็นเวลากลางวัน กลางคืนในสถานการณ์จริง<br>
+                <span style="color: red;"><strong>วัสดุที่ใช้แทนได้:</strong> สภาพแวดล้อมหรือสถานการณ์จริง</span>
+              </td>
+            </tr>
+
+            <tr>
+              <td>110<br>
+                  <input type="checkbox" id="q110_pass" name="q110_pass" value="1">
+                  <label for="q110_pass">ผ่าน</label><br>
+                  <input type="checkbox" id="q110_fail" name="q110_fail" value="1">
+                  <label for="q110_fail">ไม่ผ่าน</label><br>
+              </td>
+              <td>ตอบคำถามได้ถูกต้องเมื่อถามว่า “ถ้ารู้สึกร้อน” “ไม่สบาย” “หิว” จะทำอย่างไร (EL)<br><br>
+              </td>
+              <td>
+                ถามเด็กว่า “ถ้าหนูรู้สึกร้อนจะทำอย่างไร” “ถ้าหนูไม่สบายจะทำอย่างไร” “ถ้าหนูหิวจะทำอย่างไร”<br>
+                <strong>ผ่าน:</strong> เด็กสามารถตอบถูก 2 ใน 3 คำถาม
+
+              </td>
+              <td>
+                1. ฝึกเด็กให้รู้จักสังเกตและบอกความรู้สึกของตนเอง เช่น ร้อน หิว ไม่สบาย ให้พ่อแม่ ผู้ปกครองชวนเด็กเล่าว่า “ถ้าหนูร้อนจะทำอย่างไร” เพื่อกระตุ้นคำตอบ<br>
+                2. ให้เด็กเห็นความแตกต่างของความรู้สึกต่าง ๆ เช่น ร้อนหนูจะต้องถอดเสื้อคลุม ถ้าหิวให้กินข้าว ถ้าไม่สบายให้บอกพ่อแม่<br>
+                3. ฝึกให้เด็กบอกความรู้สึกของตนเองให้คนอื่นรับรู้ และให้สื่อสารกับคนรอบข้างอย่างเหมาะสม<br>
+              </td>
+            </tr>
+
+            <tr>
+              <td>111<br>
+                  <input type="checkbox" id="q111_pass" name="q111_pass" value="1">
+                  <label for="q111_pass">ผ่าน</label><br>
+                  <input type="checkbox" id="q111_fail" name="q111_fail" value="1">
+                  <label for="q111_fail">ไม่ผ่าน</label><br>
+              </td>
+              <td>ทำความสะอาดตนเองหลังจากอุจจาระได้ (PS)<br><br>
+                </td>
+              <td>
+                ถามจากพ่อแม่ ผู้ปกครองว่า“เมื่อเด็กอุจจาระแล้วเด็กสามารถทำความสะอาดตนเองได้โดยการล้างก้นและเช็ดได้หรือไม่”<br>
+                <strong>ผ่าน:</strong> เด็กสามารถทำความสะอาดตนเองได้โดยการล้างก้น ล้างมือ หลังจากที่ขับถ่ายอุจจาระได้
+              </td>
+              <td>
+               1. ฝึกเด็กหลังขับถ่าย โดยจับมือสร้างพฤติกรรมที่ดีให้ล้างก้นหรือเช็ดก้นให้สะอาด ใช้สบู่ล้างมือให้สะอาด<br>
+               2. ถ้าเด็กไม่พร้อมหรือยังทำได้ไม่ดี ควรช่วยเหลือหรือทำร่วมกัน<br>
+               3. พูดให้เด็กเห็นความสำคัญ และฝึกซ้ำต่อเนื่อง โดยจับมือเด็กทำทุกขั้นตอน จนเด็กสามารถทำได้เอง<br>
+               
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="d-flex justify-content-center mt-4">
+          <button type="button" class="btn btn-primary btn-lg px-5 rounded-pill" data-bs-toggle="modal" data-bs-target="#confirmModal">
+            ยืนยันแบบประเมิน
+          </button>
+        </div>
+      </div>
+
+      <!-- ช่องหมายเหตุ -->
+      <div class="card mt-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0"><i class="fas fa-sticky-note"></i> หมายเหตุ (ไม่บังคับ)</h5>
+        </div>
+        <div class="card-body">
+          <textarea class="form-control" name="notes" rows="3" placeholder="เพิ่มหมายเหตุสำหรับการประเมินครั้งนี้ เช่น พฤติกรรมที่สังเกต สภาพแวดล้อม หรือข้อสังเกตอื่นๆ"></textarea>
+        </div>
+      </div>
+
+      <!-- Mobile version -->
+      <div class="d-block d-md-none">
+        <!-- Card ข้อที่ 107 -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bgeva1 text-white">
+            <h5 class="mb-0">ข้อที่ 107 - กระโดดสองเท้าพร้อมกันไปข้างหน้าและถอยหลังได้ (GM)</h5>
+          </div>
+          <div class="card-body bg-white">
+            <div class="mb-3">
+              <strong>อายุ:</strong> 49 - 54 เดือน
+            </div>
+            <div class="mb-3">
+              <strong>ผลการประเมิน:</strong><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q107_pass_mobile" name="q107_pass" value="1">
+                <label class="form-check-label text-success" for="q107_pass_mobile">
+                  <strong>ผ่าน</strong>
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q107_fail_mobile" name="q107_fail" value="1">
+                <label class="form-check-label text-danger" for="q107_fail_mobile">
+                  <strong>ไม่ผ่าน</strong>
+                </label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <strong>วิธีประเมิน:</strong><br>
+              <p class="text-muted">กระโดดไปข้างหน้าระยะ 18 นิ้ว และกระโดดถอยหลัง ให้เด็กดู แล้วบอกให้เด็กทำตาม</p>
+              <p><strong>ผ่าน:</strong> เด็กสามารถกระโดดไปข้างหน้าได้ระยะ 18 นิ้ว และกระโดดถอยหลังได้โดยเท้าทั้ง 2 ข้างไปพร้อมกัน</p>
+            </div>
+            <div class="accordion" id="training107">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading107">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse107">
+                    <strong>วิธีฝึกทักษะ</strong>
+                  </button>
+                </h2>
+                <div id="collapse107" class="accordion-collapse collapse" data-bs-parent="#training107">
+                  <div class="accordion-body">
+                    1. กระโดดไปข้างหน้าระยะ 18 นิ้ว ออกเสียงให้เด็กดูเด็กดู<br>
+                    2. ยืนตรงหน้าเด็กแล้วบอกว่า "พร้อมกันนะ" "กระโดดไปข้างหน้า กระโดดไปทางขวา กระโดดถอยหลัง" พร้อมกับประคองมือเด็กให้กระโดดไปในทิศทางตามที่บอก<br>
+                    3. ชวนเด็กเล่นเกมกระโดดตามคำสั่ง<br>
+                    4. พ่อแม่ ผู้ปกครองหรือผู้ดูแลเด็ก ควรระมัดระวังไม่กระทบการกระโดด
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card ข้อที่ 108 -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bgeva1 text-white">
+            <h5 class="mb-0">ข้อที่ 108 - ประกอบชิ้นส่วนของรูปภาพที่ตัดออกเป็นส่วน ๆ 8 ชิ้นได้ (FM)</h5>
+          </div>
+          <div class="card-body bg-white">
+            <div class="mb-3">
+              <strong>อายุ:</strong> 49 - 54 เดือน
+            </div>
+            <div class="mb-3">
+              <strong>อุปกรณ์:</strong> รูปภาพที่มีส่วนตัดเป็น 8 ชิ้น 1 รูป
+            </div>
+            <div class="mb-3">
+              <strong>ผลการประเมิน:</strong><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q108_pass_mobile" name="q108_pass" value="1">
+                <label class="form-check-label text-success" for="q108_pass_mobile">
+                  <strong>ผ่าน</strong>
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q108_fail_mobile" name="q108_fail" value="1">
+                <label class="form-check-label text-danger" for="q108_fail_mobile">
+                  <strong>ไม่ผ่าน</strong>
+                </label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <strong>วิธีประเมิน:</strong><br>
+              <p class="text-muted">1. นำรูปภาพที่ตัดแล้วให้วางหน้ากลับแล้วพูดกับเด็กว่า "หนูดูรูปภาพนี้"<br>
+              2. นำชิ้นส่วนรูปภาพตามลำดับแล้วบอกกับเด็กว่า "ต่อให้เป็นรูปภาพนะ"</p>
+              <p><strong>ผ่าน:</strong> เด็กประกอบชิ้นส่วนรูปภาพให้ถูกต้องทั้งหมด 8 ชิ้น</p>
+            </div>
+            <div class="accordion" id="training108">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading108">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse108">
+                    <strong>วิธีฝึกทักษะ</strong>
+                  </button>
+                </h2>
+                <div id="collapse108" class="accordion-collapse collapse" data-bs-parent="#training108">
+                  <div class="accordion-body">
+                    1. วางรูปที่ตัดออกเป็น 8 ชิ้น ตรงหน้าเด็กให้เด็กสังเกตภาพรวมชิ้น<br>
+                    2. แยกรูปภาพทั้ง 8 ชิ้น ออกจากกันโดยการวางอย่างกระจายต่อหน้าเด็ก<br>
+                    3. ชี้ให้เด็กดูชิ้นที่คล้ายเป็นภาพคนหรือสัตว์<br>
+                    4. ชี้ให้เด็กดูพื้นหลังว่าควรเป็นท้องฟ้า พื้นหญ้า ฯลฯ<br>
+                    5. ส่งเสริมเด็กให้ประกอบภาพ โดยอาจจะใช้คำพูดกระตุ้นให้เด็กประกอบภาพ เช่น "ชิ้นนี้จะวางตรงไหนนะ"<br>
+                    6. หากเด็กทำผิด หรือทำไม่สำเร็จบ่อย ๆ ให้เด็กลองประกอบภาพกับคนอื่น<br>
+                    7. หากเด็กต่อภาพได้คล่องแล้วให้เด็กเลือกเล่นต่อที่มีชิ้นส่วนเป็น 8 ชิ้น
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card ข้อที่ 109 -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bgeva1 text-white">
+            <h5 class="mb-0">ข้อที่ 109 - วาดรูปคนให้มีลำตัว แขน ขาและส่วนหัว (FM)</h5>
+          </div>
+          <div class="card-body bg-white">
+            <div class="mb-3">
+              <strong>อายุ:</strong> 49 - 54 เดือน
+            </div>
+            <div class="mb-3">
+              <strong>อุปกรณ์:</strong> 1. ดินสอ 2. กระดาษ
+            </div>
+            <div class="mb-3">
+              <strong>ผลการประเมิน:</strong><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q109_pass_mobile" name="q109_pass" value="1">
+                <label class="form-check-label text-success" for="q109_pass_mobile">
+                  <strong>ผ่าน</strong>
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q109_fail_mobile" name="q109_fail" value="1">
+                <label class="form-check-label text-danger" for="q109_fail_mobile">
+                  <strong>ไม่ผ่าน</strong>
+                </label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <strong>วิธีประเมิน:</strong><br>
+              <p class="text-muted">1. ให้กระดาษและดินสอแล้วบอกให้เด็กวาดรูปคน<br>
+              2. ถ้าเด็กไม่เข้าใจ หรือขอให้วาดให้ดู ให้วาดคร่าว ๆ ให้ดู โดยการวาดส่วนหัวเป็นวงกลม แล้วให้เด็กวาดตาม</p>
+              <p><strong>ผ่าน:</strong> เด็กสามารถวาดรูปคนให้มีส่วนหัว ลำตัว แขน และขา อย่างน้อย 1 ชิ้นต่อส่วน และเป็นรูปคนที่พออธิบายได้</p>
+            </div>
+            <div class="accordion" id="training109">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading109">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse109">
+                    <strong>วิธีฝึกทักษะ</strong>
+                  </button>
+                </h2>
+                <div id="collapse109" class="accordion-collapse collapse" data-bs-parent="#training109">
+                  <div class="accordion-body">
+                    1. ให้เด็กดูตัวเองในกระจกและบอกส่วนต่าง ๆ ของร่างกาย เช่น หัว ตัว แขน ขา<br>
+                    2. วาดรูปคนคร่าว ๆ ให้เด็กดูแล้วชี้บอกส่วนต่าง ๆ ของร่างกาย<br>
+                    3. เริ่มจากการให้เด็กวาดวงกลมเป็นหัว<br>
+                    4. ฝึกให้เด็กวาดเส้นแนวตั้งจากหัวลงมาเป็นตัว<br>
+                    5. ฝึกให้เด็กวาดเส้นแนวนอนบริเวณตัวเป็นแขน<br>
+                    6. ฝึกให้เด็กวาดเส้นแนวตั้งลงมาจากตัวเป็นขา<br>
+                    7. เมื่อเด็กวาดได้ทีละส่วนแล้ว ให้เด็กวาดรูปคนที่สมบูรณ์<br>
+                    8. ใช้หนังสือภาพหรือรูปภาพคนให้เด็กดูแล้วลองวาดตาม
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card ข้อที่ 110 -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bgeva1 text-white">
+            <h5 class="mb-0">ข้อที่ 110 - สร้างคำใหม่ได้ด้วยการผสมคำ เช่น ลิงโลด ครอบบิน กบทอง เป็นต้น (EL)</h5>
+          </div>
+          <div class="card-body bg-white">
+            <div class="mb-3">
+              <strong>อายุ:</strong> 49 - 54 เดือน
+            </div>
+            <div class="mb-3">
+              <strong>ผลการประเมิน:</strong><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q110_pass_mobile" name="q110_pass" value="1">
+                <label class="form-check-label text-success" for="q110_pass_mobile">
+                  <strong>ผ่าน</strong>
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q110_fail_mobile" name="q110_fail" value="1">
+                <label class="form-check-label text-danger" for="q110_fail_mobile">
+                  <strong>ไม่ผ่าน</strong>
+                </label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <strong>วิธีประเมิน:</strong><br>
+              <p class="text-muted">1. สังเกตการพูดของเด็กว่าเด็กสร้างคำใหม่ด้วยการผสมคำหรือไม่ ตลอดช่วงเวลาของการประเมิน<br>
+              2. ถ้าไม่ได้ยิน ให้ถามพ่อแม่ว่าเด็กสร้างคำใหม่ ๆ ด้วยการเอาคำต่าง ๆ มาผสมกันหรือไม่<br>
+              3. ถ้าไม่มีข้อมูลจากข้อ 1 และ 2 ให้ทำการทดสอบโดยให้เด็กดูรูปสัตว์ที่ผสมกัน เช่น เป็ดนก หรือกบปลา แล้วถามเด็กว่า "นี่คืออะไร"</p>
+              <p><strong>ผ่าน:</strong> เด็กสร้างคำใหม่ได้ด้วยการผสมคำ เช่น ลิงโลด ครอบบิน กบทอง เป็นต้น</p>
+            </div>
+            <div class="accordion" id="training110">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading110">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse110">
+                    <strong>วิธีฝึกทักษะ</strong>
+                  </button>
+                </h2>
+                <div id="collapse110" class="accordion-collapse collapse" data-bs-parent="#training110">
+                  <div class="accordion-body">
+                    1. เล่นเกมสร้างคำใหม่กับเด็ก เช่น นกกบ กบนก กบปลา ปลากบ<br>
+                    2. ใช้รูปภาพสัตว์หลาย ๆ ชนิด ให้เด็กผสมชื่อสัตว์เข้าด้วยกัน<br>
+                    3. สร้างนิทานเกี่ยวกับสัตว์แปลก ๆ ที่มีชื่อเป็นการผสมคำ<br>
+                    4. ให้เด็กดูรูปภาพสัตว์ที่แปลก ๆ แล้วให้เด็กตั้งชื่อเอง<br>
+                    5. ฝึกเด็กในเกมการสร้างคำใหม่ในชีวิตประจำวัน เช่น ชื่อของเล่น ชื่อเพื่อนสมมติ
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card ข้อที่ 111 -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header bgeva1 text-white">
+            <h5 class="mb-0">ข้อที่ 111 - ใช้อนาคตกาลได้ถูกต้อง เช่น จะไป จะมา จะทำ (EL)</h5>
+          </div>
+          <div class="card-body bg-white">
+            <div class="mb-3">
+              <strong>อายุ:</strong> 49 - 54 เดือน
+            </div>
+            <div class="mb-3">
+              <strong>ผลการประเมิน:</strong><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q111_pass_mobile" name="q111_pass" value="1">
+                <label class="form-check-label text-success" for="q111_pass_mobile">
+                  <strong>ผ่าน</strong>
+                </label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="q111_fail_mobile" name="q111_fail" value="1">
+                <label class="form-check-label text-danger" for="q111_fail_mobile">
+                  <strong>ไม่ผ่าน</strong>
+                </label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <strong>วิธีประเมิน:</strong><br>
+              <p class="text-muted">1. สังเกตการพูดของเด็กตลอดเวลาการประเมิน<br>
+              2. ถ้าไม่ได้ยิน ให้ถามพ่อแม่ว่าเด็กพูดใช้คำว่า "จะ" ในความหมายอนาคตกาลหรือไม่<br>
+              3. ถ้าไม่มีข้อมูลจากข้อ 1 และ 2 ให้ทดสอบโดยถามเด็กว่า "พรุ่งนี้หนูจะทำอะไร" หรือ "เสร็จแล้วหนูจะเล่นอะไร"</p>
+              <p><strong>ผ่าน:</strong> เด็กใช้อนาคตกาลได้ถูกต้อง เช่น จะไป จะมา จะทำ จะเล่น</p>
+            </div>
+            <div class="accordion" id="training111">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="heading111">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse111">
+                    <strong>วิธีฝึกทักษะ</strong>
+                  </button>
+                </h2>
+                <div id="collapse111" class="accordion-collapse collapse" data-bs-parent="#training111">
+                  <div class="accordion-body">
+                    1. พูดคุยกับเด็กเกี่ยวกับแผนการในอนาคต เช่น "พรุ่งนี้เราจะไปเที่ยว" "หนูจะไปโรงเรียน"<br>
+                    2. ฝึกให้เด็กพูดเกี่ยวกับสิ่งที่จะเกิดขึ้น เช่น "เสร็จแล้วจะไปเล่น" "กินข้าวเสร็จแล้วจะดูการ์ตูน"<br>
+                    3. ใช้คำถามนำทางให้เด็กพูดในรูปอนาคตกาล เช่น "หนูจะทำอะไรต่อไป" "เดี๋ยวจะเล่นอะไร"<br>
+                    4. อ่านหนังสือเล่าเรื่องที่มีการใช้อนาคตกาล และให้เด็กเล่าต่อ<br>
+                    5. ฝึกให้เด็กวางแผนกิจกรรมง่าย ๆ เช่น "หนูจะเล่นอะไรก่อน" "แล้วจะทำอะไรต่อ"
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ปุ่มยืนยันสำหรับ Mobile -->
+        <div class="d-grid gap-2 mt-4">
+          <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#confirmModal">
+            ยืนยันแบบประเมิน
+          </button>
+        </div>
+
+        <!-- ช่องหมายเหตุสำหรับ Mobile -->
+        <div class="card mt-3">
+          <div class="card-header bg-light">
+            <h6 class="mb-0"><i class="fas fa-sticky-note"></i> หมายเหตุ (ไม่บังคับ)</h6>
+          </div>
+          <div class="card-body">
+            <textarea class="form-control" name="notes" rows="3" placeholder="เพิ่มหมายเหตุสำหรับการประเมินครั้งนี้"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="confirmModalLabel">ยืนยันการส่งแบบประเมิน</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>คุณแน่ใจหรือไม่ว่าต้องการส่งแบบประเมินของ <strong><?php echo htmlspecialchars($child['chi_child_name']); ?></strong>?</p>
+              
+              <?php if ($latest_evaluation): ?>
+                <div class="alert alert-warning">
+                  <small><i class="fas fa-info-circle"></i> 
+                  <strong>หมายเหตุ:</strong> การประเมินนี้จะถูกบันทึกเป็นครั้งที่ <?php echo ($latest_evaluation['eva_version'] + 1); ?> 
+                  สำหรับวันที่ <?php echo date('d/m/Y'); ?> (ข้อมูลเก่าจะยังคงอยู่)</small>
+                </div>
+              <?php endif; ?>
+              
+              <div id="evaluation-summary" class="mt-3" style="display: none;">
+                <h6>สรุปผลการประเมิน:</h6>
+                <div class="row">
+                  <div class="col-6">
+                    <span class="badge bg-success" id="passed-count">0 ผ่าน</span>
+                  </div>
+                  <div class="col-6">
+                    <span class="badge bg-danger" id="failed-count">0 ไม่ผ่าน</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+              <button type="submit" class="btn btn-primary">ยืนยัน</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ป้องกันการเลือก checkbox ทั้งผ่านและไม่ผ่านพร้อมกัน
+    document.addEventListener('DOMContentLoaded', function() {
+      // Desktop version
+      for (let i = 107; i <= 111; i++) {
+        const passCheckbox = document.getElementById(`q${i}_pass`);
+        const failCheckbox = document.getElementById(`q${i}_fail`);
+        
+        if (passCheckbox && failCheckbox) {
+          passCheckbox.addEventListener('change', function() {
+            if (this.checked) failCheckbox.checked = false;
+            updateSummary();
+          });
+          
+          failCheckbox.addEventListener('change', function() {
+            if (this.checked) passCheckbox.checked = false;
+            updateSummary();
+          });
+        }
+      }
+
+      // Mobile version
+      for (let i = 107; i <= 111; i++) {
+        const passCheckboxMobile = document.getElementById(`q${i}_pass_mobile`);
+        const failCheckboxMobile = document.getElementById(`q${i}_fail_mobile`);
+        const passCheckboxDesktop = document.getElementById(`q${i}_pass`);
+        const failCheckboxDesktop = document.getElementById(`q${i}_fail`);
+        
+        if (passCheckboxMobile && failCheckboxMobile) {
+          // Mobile checkbox events
+          passCheckboxMobile.addEventListener('change', function() {
+            if (this.checked) {
+              failCheckboxMobile.checked = false;
+              // Sync with desktop
+              if (passCheckboxDesktop) passCheckboxDesktop.checked = true;
+              if (failCheckboxDesktop) failCheckboxDesktop.checked = false;
+            }
+            updateSummary();
+          });
+          
+          failCheckboxMobile.addEventListener('change', function() {
+            if (this.checked) {
+              passCheckboxMobile.checked = false;
+              // Sync with desktop
+              if (failCheckboxDesktop) failCheckboxDesktop.checked = true;
+              if (passCheckboxDesktop) passCheckboxDesktop.checked = false;
+            }
+            updateSummary();
+          });
+
+          // Sync desktop to mobile
+          if (passCheckboxDesktop) {
+            passCheckboxDesktop.addEventListener('change', function() {
+              if (this.checked) {
+                passCheckboxMobile.checked = true;
+                failCheckboxMobile.checked = false;
+              }
+              updateSummary();
+            });
+          }
+
+          if (failCheckboxDesktop) {
+            failCheckboxDesktop.addEventListener('change', function() {
+              if (this.checked) {
+                failCheckboxMobile.checked = true;
+                passCheckboxMobile.checked = false;
+              }
+              updateSummary();
+            });
+          }
+        }
+      }
+
+      // แสดงสรุปผลเมื่อเปิด Modal
+      document.getElementById('confirmModal').addEventListener('show.bs.modal', function() {
+        updateSummary();
+        document.getElementById('evaluation-summary').style.display = 'block';
+      });
+    });
+
+    function updateSummary() {
+      let passedCount = 0;
+      let failedCount = 0;
+
+      for (let i = 107; i <= 111; i++) {
+        const passCheckbox = document.getElementById(`q${i}_pass`);
+        const failCheckbox = document.getElementById(`q${i}_fail`);
+        
+        if (passCheckbox && passCheckbox.checked) passedCount++;
+        if (failCheckbox && failCheckbox.checked) failedCount++;
+      }
+
+      document.getElementById('passed-count').textContent = passedCount + ' ผ่าน';
+      document.getElementById('failed-count').textContent = failedCount + ' ไม่ผ่าน';
+    }
+  </script>
+</body>
+</html>
