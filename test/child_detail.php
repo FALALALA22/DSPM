@@ -443,19 +443,19 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <a href="evaluation18.php?child_id=<?php echo $child['chi_id']; ?>&age_range=61-66" 
+                            <a href="evaluation21.php?child_id=<?php echo $child['chi_id']; ?>&age_range=61-66" 
                                class="age-button <?php echo ($current_age_months >= 61 && $current_age_months <= 66) ? 'current' : ''; ?>">
                                 61-66
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation19.php?child_id=<?php echo $child['chi_id']; ?>&age_range=67-72" 
+                            <a href="evaluation22.php?child_id=<?php echo $child['chi_id']; ?>&age_range=67-72" 
                                class="age-button <?php echo ($current_age_months >= 67 && $current_age_months <= 72) ? 'current' : ''; ?>">
                                 67-72
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation20.php?child_id=<?php echo $child['chi_id']; ?>&age_range=73-78" 
+                            <a href="evaluation23.php?child_id=<?php echo $child['chi_id']; ?>&age_range=73-78" 
                                class="age-button <?php echo ($current_age_months >= 73 && $current_age_months <= 78) ? 'current' : ''; ?>">
                                 73-78
                             </a>

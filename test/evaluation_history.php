@@ -209,14 +209,68 @@ $conn->close();
                                                 case '1-2':
                                                     $evaluation_file = 'evaluation2.php';
                                                     break;
-                                                case '2-3':
+                                                case '3-4':
                                                     $evaluation_file = 'evaluation3.php';
                                                     break;
-                                                case '3-4':
+                                                case '5-6':
                                                     $evaluation_file = 'evaluation4.php';
                                                     break;
-                                                case '5-6':
+                                                case '7-8':
                                                     $evaluation_file = 'evaluation5.php';
+                                                    break;
+                                                case '9':
+                                                    $evaluation_file = 'evaluation6.php';
+                                                    break;
+                                                case '10-12':
+                                                    $evaluation_file = 'evaluation7.php';
+                                                    break;
+                                                case '13-15':
+                                                    $evaluation_file = 'evaluation8.php';
+                                                    break;
+                                                case '16-17':
+                                                    $evaluation_file = 'evaluation9.php';
+                                                    break;
+                                                case '18':
+                                                    $evaluation_file = 'evaluation10.php';
+                                                    break;
+                                                case '19-24':
+                                                    $evaluation_file = 'evaluation11.php';
+                                                    break;
+                                                case '25-29':
+                                                    $evaluation_file = 'evaluation12.php';
+                                                    break;
+                                                case '30':
+                                                    $evaluation_file = 'evaluation13.php';
+                                                    break;
+                                                case '31-36':
+                                                    $evaluation_file = 'evaluation14.php';
+                                                    break;
+                                                case '37-41':
+                                                    $evaluation_file = 'evaluation15.php';
+                                                    break;
+                                                case '42':
+                                                    $evaluation_file = 'evaluation16.php';
+                                                    break;
+                                                case '43-48':
+                                                    $evaluation_file = 'evaluation17.php';
+                                                    break;
+                                                case '49-54':
+                                                    $evaluation_file = 'evaluation18.php';
+                                                    break;
+                                                case '55-59':
+                                                    $evaluation_file = 'evaluation19.php';
+                                                    break;
+                                                case '60':
+                                                    $evaluation_file = 'evaluation20.php';
+                                                    break;
+                                                case '61-66':
+                                                    $evaluation_file = 'evaluation21.php';
+                                                    break;
+                                                case '67-72':
+                                                    $evaluation_file = 'evaluation22.php';
+                                                    break;
+                                                case '73-78':
+                                                    $evaluation_file = 'evaluation23.php';
                                                     break;
                                                 default:
                                                     $evaluation_file = 'evaluation1.php';

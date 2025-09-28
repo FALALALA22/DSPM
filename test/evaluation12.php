@@ -15,10 +15,18 @@ if ($child_id == 0) {
     exit();
 }
 
-// ดึงข้อมูลเด็ก
-$sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $child_id, $user['user_id']);
+// ดึงข้อมูลเด็ก - ตรวจสอบสิทธิ์ตาม role
+if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
+    // Admin และ Staff สามารถประเมินได้ทุกคน
+    $sql = "SELECT * FROM children WHERE chi_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $child_id);
+} else {
+    // User ปกติประเมินได้เฉพาะเด็กของตัวเอง
+    $sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $child_id, $user['user_id']);
+}
 $stmt->execute();
 $result = $stmt->get_result();
 $child = $result->fetch_assoc();
