@@ -6,23 +6,73 @@ require_once '../db_conn.php';
 checkLogin(); // ตรวจสอบว่าล็อกอินแล้วหรือยัง
 $user = getUserInfo();
 
-// ดึงข้อมูลเด็ก - ถ้าเป็น staff หรือ admin ให้ดูข้อมูลทุกคน
+// รับค่าการค้นหาและฟิลเตอร์
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$filter_user = isset($_GET['filter_user']) ? $_GET['filter_user'] : '';
+
+// สร้าง WHERE clause สำหรับการค้นหาและฟิลเตอร์
+$whereConditions = [];
+$params = [];
+$paramTypes = '';
+
+// ถ้าเป็น user ปกติ ให้ดูเฉพาะของตัวเอง
+if ($user['user_role'] === 'user') {
+    $whereConditions[] = "c.chi_user_id = ?";
+    $params[] = $user['user_id'];
+    $paramTypes .= 'i';
+}
+
+// เพิ่มเงื่อนไขการค้นหาชื่อ
+if (!empty($search)) {
+    $whereConditions[] = "c.chi_child_name LIKE ?";
+    $params[] = '%' . $search . '%';
+    $paramTypes .= 's';
+}
+
+// เพิ่มฟิลเตอร์ user_id (เฉพาะ admin และ staff)
+if (!empty($filter_user) && ($user['user_role'] === 'admin' || $user['user_role'] === 'staff')) {
+    $whereConditions[] = "c.chi_user_id = ?";
+    $params[] = $filter_user;
+    $paramTypes .= 'i';
+}
+
+// สร้าง SQL query
 if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     // Admin และ Staff ดูได้ทุกคน พร้อมข้อมูลผู้ปกครอง
     $sql = "SELECT c.*, u.user_fname, u.user_lname, u.user_phone 
             FROM children c 
-            JOIN users u ON c.chi_user_id = u.user_id 
-            ORDER BY c.chi_created_at DESC";
-    $stmt = $conn->prepare($sql);
+            JOIN users u ON c.chi_user_id = u.user_id";
+    
+    if (!empty($whereConditions)) {
+        $sql .= " WHERE " . implode(" AND ", $whereConditions);
+    }
+    
+    $sql .= " ORDER BY c.chi_created_at DESC";
 } else {
     // User ปกติดูได้เฉพาะของตัวเอง
-    $sql = "SELECT * FROM children WHERE chi_user_id = ? ORDER BY chi_created_at DESC";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user['user_id']);
+    $sql = "SELECT * FROM children c WHERE " . implode(" AND ", $whereConditions);
+    $sql .= " ORDER BY c.chi_created_at DESC";
+}
+
+$stmt = $conn->prepare($sql);
+if (!empty($params)) {
+    $stmt->bind_param($paramTypes, ...$params);
 }
 $stmt->execute();
 $result = $stmt->get_result();
 $children = $result->fetch_all(MYSQLI_ASSOC);
+
+// ดึงรายชื่อผู้ใช้ทั้งหมดสำหรับฟิลเตอร์ (เฉพาะ admin และ staff)
+$users_list = [];
+if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
+    $users_sql = "SELECT user_id, user_fname, user_lname FROM users WHERE user_role = 'user' ORDER BY user_fname, user_lname";
+    $users_stmt = $conn->prepare($users_sql);
+    $users_stmt->execute();
+    $users_result = $users_stmt->get_result();
+    $users_list = $users_result->fetch_all(MYSQLI_ASSOC);
+    $users_stmt->close();
+}
+
 $stmt->close();
 $conn->close();
 ?>
@@ -111,13 +161,82 @@ $conn->close();
                     <?php unset($_SESSION['success']); ?>
                 <?php endif; ?>
 
+                <!-- ฟอร์มค้นหาและฟิลเตอร์ -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="GET" action="" class="row g-3">
+                            <div class="col-md-6">
+                                <label for="search" class="form-label">ค้นหาชื่อเด็ก</label>
+                                <input type="text" class="form-control" id="search" name="search" 
+                                       value="<?php echo htmlspecialchars($search); ?>" 
+                                       placeholder="กรอกชื่อเด็กที่ต้องการค้นหา">
+                            </div>
+                            <?php if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff'): ?>
+                            <div class="col-md-4">
+                                <label for="filter_user" class="form-label">ฟิลเตอร์ตามผู้ปกครอง</label>
+                                <select class="form-select" id="filter_user" name="filter_user">
+                                    <option value="">-- แสดงทั้งหมด --</option>
+                                    <?php foreach ($users_list as $usr): ?>
+                                        <option value="<?php echo $usr['user_id']; ?>" 
+                                                <?php echo ($filter_user == $usr['user_id']) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($usr['user_fname'] . ' ' . $usr['user_lname']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                            <?php else: ?>
+                            <div class="col-md-6">
+                            <?php endif; ?>
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> ค้นหา
+                                    </button>
+                                    <a href="children_list.php" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> ล้าง
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- แสดงผลการค้นหา -->
+                        <?php if (!empty($search) || !empty($filter_user)): ?>
+                            <div class="mt-3">
+                                <div class="alert alert-info mb-0">
+                                    <strong>ผลการค้นหา:</strong>
+                                    <?php if (!empty($search)): ?>
+                                        ค้นหา "<strong><?php echo htmlspecialchars($search); ?></strong>"
+                                    <?php endif; ?>
+                                    <?php if (!empty($filter_user)): ?>
+                                        <?php
+                                        $selected_user = array_filter($users_list, function($u) use ($filter_user) {
+                                            return $u['user_id'] == $filter_user;
+                                        });
+                                        if (!empty($selected_user)) {
+                                            $selected_user = reset($selected_user);
+                                            echo (!empty($search) ? ' และ' : '') . ' ฟิลเตอร์ผู้ปกครอง "<strong>' . htmlspecialchars($selected_user['user_fname'] . ' ' . $selected_user['user_lname']) . '</strong>"';
+                                        }
+                                        ?>
+                                    <?php endif; ?>
+                                    | พบ <strong><?php echo count($children); ?></strong> รายการ
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
                 <?php if (empty($children)): ?>
                     <!-- ถ้าไม่มีข้อมูลเด็ก -->
                     <div class="text-center py-5">
                         <div class="mb-4">
                             <img src="../image/baby-33253_1280.png" alt="No children" style="max-width: 200px; opacity: 0.5;">
                         </div>
-                        <?php if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff'): ?>
+                        <?php if (!empty($search) || !empty($filter_user)): ?>
+                            <h3 class="text-muted">ไม่พบข้อมูลที่ค้นหา</h3>
+                            <p class="text-muted">ลองเปลี่ยนคำค้นหาหรือฟิลเตอร์ใหม่</p>
+                            <a href="children_list.php" class="btn btn-secondary">ดูทั้งหมด</a>
+                        <?php elseif ($user['user_role'] === 'admin' || $user['user_role'] === 'staff'): ?>
                             <h3 class="text-muted">ยังไม่มีข้อมูลเด็กในระบบ</h3>
                             <p class="text-muted">รอให้ผู้ใช้ลงทะเบียนข้อมูลเด็ก</p>
                         <?php else: ?>
@@ -178,7 +297,16 @@ $conn->close();
                     <div class="row mt-4">
                         <div class="col-12">
                             <div class="alert alert-info">
-                                <strong>สถิติ:</strong> คุณมีข้อมูลเด็กทั้งหมด <?php echo count($children); ?> คน
+                                <strong>สถิติ:</strong> 
+                                <?php if (!empty($search) || !empty($filter_user)): ?>
+                                    แสดงผลการค้นหา <?php echo count($children); ?> รายการ
+                                <?php else: ?>
+                                    <?php if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff'): ?>
+                                        มีข้อมูลเด็กทั้งหมดในระบบ <?php echo count($children); ?> คน
+                                    <?php else: ?>
+                                        คุณมีข้อมูลเด็กทั้งหมด <?php echo count($children); ?> คน
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
