@@ -231,7 +231,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                     </div>
                     <div class="col-auto">
                         <a href="evaluation2.php?child_id=<?php echo $child['chi_id']; ?>&age_range=1-2" 
-                           class="age-button <?php echo ($current_age_months >= 1 && $current_age_months <= 2) ? 'current' : ''; ?>">
+                           class="age-button <?php echo ($current_age_months >= 2 && $current_age_months <= 2) ? 'current' : ''; ?>">
                             1-2
                         </a>
                     </div>
@@ -259,7 +259,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                     </div>
                     <div class="col-auto">
                         <a href="evaluation6.php?child_id=<?php echo $child['chi_id']; ?>&age_range=9" 
-                           class="age-button <?php echo ($current_age_months >= 9) ? 'current' : ''; ?>">
+                           class="age-button <?php echo ($current_age_months == 9) ? 'current' : ''; ?>">
                             9
                         </a>
                     </div>
@@ -302,7 +302,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                         </div>
                         <div class="col-auto">
                             <a href="evaluation10.php?child_id=<?php echo $child['chi_id']; ?>&age_range=18" 
-                               class="age-button <?php echo ($current_age_months >= 18) ? 'current' : ''; ?>">
+                               class="age-button <?php echo ($current_age_months == 18) ? 'current' : ''; ?>">
                                 18
                             </a>
                         </div>
@@ -312,9 +312,6 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                                 19-24
                             </a>
                         </div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 2-3 ปี กำลังพัฒนา</small>
                     </div>
                 </div>
             </div>
@@ -339,7 +336,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                         </div>
                         <div class="col-auto">
                             <a href="evaluation13.php?child_id=<?php echo $child['chi_id']; ?>&age_range=30" 
-                               class="age-button <?php echo ($current_age_months >= 30) ? 'current' : ''; ?>">
+                               class="age-button <?php echo ($current_age_months == 30) ? 'current' : ''; ?>">
                                 30
                             </a>
                         </div>
@@ -349,9 +346,6 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                                 31-36
                             </a>
                         </div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 3-4 ปี กำลังพัฒนา</small>
                     </div>
                 </div>
             </div>
@@ -376,7 +370,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                         </div>
                         <div class="col-auto">
                             <a href="evaluation16.php?child_id=<?php echo $child['chi_id']; ?>&age_range=42" 
-                               class="age-button <?php echo ($current_age_months >= 42) ? 'current' : ''; ?>">
+                               class="age-button <?php echo ($current_age_months == 42) ? 'current' : ''; ?>">
                                 42
                             </a>
                         </div>
@@ -386,9 +380,6 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                                 43-48
                             </a>
                         </div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 4-5 ปี กำลังพัฒนา</small>
                     </div>
                 </div>
             </div>
@@ -419,13 +410,10 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                         </div>
                         <div class="col-auto">
                             <a href="evaluation20.php?child_id=<?php echo $child['chi_id']; ?>&age_range=60" 
-                               class="age-button <?php echo ($current_age_months >= 60) ? 'current' : ''; ?>">
+                               class="age-button <?php echo ($current_age_months == 60) ? 'current' : ''; ?>">
                                 60
                             </a>
                         </div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 5-6.6 ปี กำลังพัฒนา</small>
                     </div>
                 </div>
             </div>
@@ -460,9 +448,6 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                                 73-78
                             </a>
                         </div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <small class="text-muted">แบบประเมินสำหรับช่วงอายุ 5-6.6 ปี กำลังพัฒนา</small>
                     </div>
                 </div>
             </div>
