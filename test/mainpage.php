@@ -194,8 +194,103 @@ $user = getUserInfo();
     }
     
     function editProfile() {
-      // ฟังก์ชันสำหรับแก้ไขข้อมูลส่วนตัว (สามารถพัฒนาต่อได้)
-      alert('ฟีเจอร์แก้ไขข้อมูลส่วนตัวจะเปิดให้ใช้งานในอนาคต');
+      // ซ่อน modal ข้อมูลส่วนตัว
+      closeProfile();
+      
+      // เปิด modal แก้ไขข้อมูล
+      setTimeout(() => {
+        openEditModal();
+      }, 300);
+    }
+    
+    function openEditModal() {
+      const modal = document.getElementById('editProfileModal');
+      if (modal) {
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        backdrop.id = 'edit-modal-backdrop';
+        document.body.appendChild(backdrop);
+      }
+    }
+    
+    function closeEditModal() {
+      const modal = document.getElementById('editProfileModal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+        
+        const backdrop = document.getElementById('edit-modal-backdrop');
+        if (backdrop) {
+          backdrop.remove();
+        }
+      }
+    }
+    
+    function saveProfile() {
+      const form = document.getElementById('editProfileForm');
+      const formData = new FormData(form);
+      
+      // ปิดการใช้งานปุ่ม
+      const saveBtn = document.querySelector('#editProfileModal .btn-primary');
+      const originalText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>กำลังบันทึก...';
+      saveBtn.disabled = true;
+      
+      console.log('Sending data to update_profile.php');
+      
+      fetch('../update_profile.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+      })
+      .then(text => {
+        console.log('Raw response:', text);
+        try {
+          const data = JSON.parse(text);
+          if (data.success) {
+            // อัปเดตข้อมูลในหน้า
+            updateProfileDisplay(data.data);
+            closeEditModal();
+            alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+            location.reload(); // รีเฟรชหน้าเพื่อแสดงข้อมูลใหม่
+          } else {
+            alert('เกิดข้อผิดพลาด: ' + data.message);
+          }
+        } catch (e) {
+          console.error('JSON parse error:', e);
+          alert('ข้อผิดพลาดในการประมวลผลข้อมูล: ' + text);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message);
+      })
+      .finally(() => {
+        // คืนค่าปุ่ม
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+      });
+    }
+    
+    function updateProfileDisplay(data) {
+      // อัปเดตข้อมูลใน navigation bar
+      const navbarText = document.querySelector('.navbar-text');
+      if (navbarText) {
+        navbarText.textContent = `สวัสดี, ${data.fname} ${data.lname}`;
+      }
     }
     
     console.log('Functions declared in head - openProfile type:', typeof openProfile);
@@ -313,7 +408,6 @@ $user = getUserInfo();
           $result = $stmt->get_result();
           $additional_info = $result->fetch_assoc();
           $stmt->close();
-          $conn->close();
           ?>
           <div class="row mb-3 align-items-center">
             <div class="col-12 col-sm-4 col-md-3"><strong class="text-primary">เบอร์โทรศัพท์:</strong></div>
@@ -330,6 +424,74 @@ $user = getUserInfo();
           </button>
           <button type="button" class="btn btn-primary w-100 w-sm-auto" onclick="editProfile()">
             <i class="fas fa-edit me-1"></i>แก้ไขข้อมูล
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal สำหรับแก้ไขข้อมูลส่วนตัว -->
+  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title fw-bold" id="editProfileModalLabel">
+            <i class="fas fa-edit me-2"></i>แก้ไขข้อมูลส่วนตัว
+          </h5>
+          <button type="button" class="btn-close btn-close-white" onclick="closeEditModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="editProfileForm">
+            <div class="row mb-3">
+              <label for="edit_fname" class="col-sm-3 col-form-label fw-bold text-success">ชื่อ:</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" id="edit_fname" name="fname" 
+                       value="<?php echo htmlspecialchars($user['fname']); ?>" required>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="edit_lname" class="col-sm-3 col-form-label fw-bold text-success">นามสกุล:</label>
+              <div class="col-sm-9">
+                <input type="text" class="form-control" id="edit_lname" name="lname" 
+                       value="<?php echo htmlspecialchars($user['lname']); ?>" required>
+              </div>
+            </div>
+            <?php
+            // ใช้ connection เดียวกันที่เปิดไว้แล้ว
+            $sql_edit = "SELECT user_phone FROM users WHERE user_id = ?";
+            $stmt_edit = $conn->prepare($sql_edit);
+            $stmt_edit->bind_param("i", $user['user_id']);
+            $stmt_edit->execute();
+            $result_edit = $stmt_edit->get_result();
+            $edit_info = $result_edit->fetch_assoc();
+            $stmt_edit->close();
+            $conn->close(); // ปิด connection ครั้งเดียวที่ท้าย
+            ?>
+            <div class="row mb-3">
+              <label for="edit_phone" class="col-sm-3 col-form-label fw-bold text-success">เบอร์โทรศัพท์:</label>
+              <div class="col-sm-9">
+                <input type="tel" class="form-control" id="edit_phone" name="phone" 
+                       value="<?php echo htmlspecialchars($edit_info['user_phone']); ?>" 
+                       pattern="[0-9]{10}" maxlength="10" required>
+                <div class="form-text">กรุณากรอกเบอร์โทรศัพท์ 10 หลัก</div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="edit_password" class="col-sm-3 col-form-label fw-bold text-success">รหัสผ่านใหม่:</label>
+              <div class="col-sm-9">
+                <input type="password" class="form-control" id="edit_password" name="password" 
+                       placeholder="ไม่ต้องกรอกหากไม่ต้องการเปลี่ยนรหัสผ่าน">
+                <div class="form-text">เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน</div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer bg-light d-flex flex-column flex-sm-row gap-2">
+          <button type="button" class="btn btn-secondary w-100 w-sm-auto" onclick="closeEditModal()">
+            <i class="fas fa-times me-1"></i>ยกเลิก
+          </button>
+          <button type="button" class="btn btn-primary w-100 w-sm-auto" onclick="saveProfile()">
+            <i class="fas fa-save me-1"></i>บันทึกข้อมูล
           </button>
         </div>
       </div>
