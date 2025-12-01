@@ -36,8 +36,11 @@ if (!$child) {
     exit();
 }
 
-// ดึงผลการประเมินทั้งหมดของเด็กคนนี้
-$sql = "SELECT *, DATE(eva_evaluation_date) as eval_date FROM evaluations WHERE eva_child_id = ? ORDER BY eva_evaluation_date DESC, eva_version DESC";
+$sql = "SELECT e.*, DATE(e.eva_evaluation_date) as eval_date, u.user_fname, u.user_lname, u.user_role as evaluator_role
+    FROM evaluations e
+    LEFT JOIN users u ON e.eva_user_id = u.user_id
+    WHERE e.eva_child_id = ?
+    ORDER BY e.eva_evaluation_date DESC, e.eva_version DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $child_id);
 $stmt->execute();
@@ -172,8 +175,6 @@ $conn->close();
                                         <?php endif; ?>
                                         <small class="text-muted">
                                             <?php 
-                                            // แสดงเวลาที่ถูกต้อง
-                                            //date_default_timezone_set('Asia/Bangkok'); // ตั้งเวลาเป็นโซนเวลาของไทย
                                             $eval_datetime = $evaluation['eva_evaluation_time'];
                                             if (strtotime($eval_datetime)) {
                                                 echo date('H:i', strtotime($eval_datetime));
@@ -181,6 +182,13 @@ $conn->close();
                                                 echo "ไม่ระบุเวลา";
                                             }
                                             ?> น.
+                                        </small>
+                                        <br>
+                                        <small class="text-muted">
+                                            ผู้ประเมิน: <?php echo htmlspecialchars(trim(($evaluation['user_fname'] ?? '') . ' ' . ($evaluation['user_lname'] ?? '')) ?: 'ไม่ระบุ'); ?>
+                                            <?php if (!empty($evaluation['evaluator_role'])): ?>
+                                                (<?php echo htmlspecialchars($evaluation['evaluator_role']); ?>)
+                                            <?php endif; ?>
                                         </small>
                                     </div>
                                     
