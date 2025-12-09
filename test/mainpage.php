@@ -342,7 +342,7 @@ $user = getUserInfo();
 
         <!-- Hero Image -->
         <div class="mb-4 d-flex justify-content-center">
-          <img src="../image/baby-33253_1280.png" alt="Family" 
+          <img src="../image/family-non1.png" alt="Family" 
                class="img-fluid rounded shadow-lg" 
                style="max-width: min(500px, 90vw); height: auto;" />
         </div>
@@ -357,12 +357,12 @@ $user = getUserInfo();
         <!-- Menu Buttons -->
         <div class="button-container">
           <a href="kidinfo.php" class="btn btn-primary circle-button border-0 shadow">
-            <img src="../image/baby-310259_1280.png" alt="Kid Info" />
+            <img src="../image/regis.png" alt="Kid Info" />
             <h3 class="fw-bold text-white">กรอกข้อมูลเด็ก</h3>
           </a>
           
           <a href="children_list.php" class="btn btn-success circle-button border-0 shadow">
-            <img src="../image/babies-2028267_1280.png" alt="Kid List" />
+            <img src="../image/kids.png" alt="Kid List" />
             <h3 class="fw-bold text-white">รายชื่อเด็ก</h3>
           </a>
         </div>
