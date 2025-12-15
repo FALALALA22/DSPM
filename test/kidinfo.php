@@ -10,8 +10,9 @@ $user = getUserInfo();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $child_name = trim($_POST['child_name']);
     $date_of_birth = $_POST['date_of_birth'];
-    $age_years = (int)$_POST['age_years'];
-    $age_months = (int)$_POST['age_months'];
+  // อายุจะคำนวณจากวันเกิด (chi_date_of_birth เป็น source-of-truth)
+  $age_years = 0;
+  $age_months = 0;
     
     $errors = array();
     
@@ -22,17 +23,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($date_of_birth)) {
         $errors[] = "กรุณากรอกวันเกิด";
     }
-    if ($age_years < 0 || $age_years > 6) {
-        $errors[] = "อายุต้องอยู่ระหว่าง 0-6 ปี";
-    }
-    if ($age_months < 0 || $age_months > 11) {
-        $errors[] = "เดือนต้องอยู่ระหว่าง 0-11 เดือน";
-    }
+    // ไม่ใช้ค่าที่ผู้ใช้ป้อนสำหรับอายุเพื่อป้องกันความไม่สอดคล้อง
     
     // จัดการไฟล์รูปภาพ
     $photo_path = null;
     if (isset($_FILES['child_photo']) && $_FILES['child_photo']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = '../uploads/children/';
+      // ไดเรกทอรีบนไฟล์ซิสเต็ม
+      $upload_dir_fs = __DIR__ . '/../uploads/children/';
+      if (!is_dir($upload_dir_fs)) {
+        mkdir($upload_dir_fs, 0755, true);
+      }
         $file_extension = strtolower(pathinfo($_FILES['child_photo']['name'], PATHINFO_EXTENSION));
         $allowed_extensions = array('jpg', 'jpeg', 'png', 'gif');
         
@@ -41,10 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             // สร้างชื่อไฟล์ใหม่เพื่อป้องกันชื่อซ้ำ
             $new_filename = 'child_' . $user['user_id'] . '_' . time() . '.' . $file_extension;
-            $upload_path = $upload_dir . $new_filename;
+            $upload_path_fs = $upload_dir_fs . $new_filename;
             
-            if (move_uploaded_file($_FILES['child_photo']['tmp_name'], $upload_path)) {
-                $photo_path = 'uploads/children/' . $new_filename;
+            if (move_uploaded_file($_FILES['child_photo']['tmp_name'], $upload_path_fs)) {
+              $photo_path = 'uploads/children/' . $new_filename;
             } else {
                 $errors[] = "เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ";
             }
@@ -53,9 +53,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // ถ้าไม่มีข้อผิดพลาด ทำการบันทึกข้อมูล
     if (empty($errors)) {
-        $insert_sql = "INSERT INTO children (chi_user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($insert_sql);
-        $stmt->bind_param("isssis", $user['user_id'], $child_name, $date_of_birth, $age_years, $age_months, $photo_path);
+          // คำนวณอายุจากวันเกิด (ใช้เป็น source-of-truth)
+          require_once __DIR__ . '/../includes/utils.php';
+          $age = calculateAgeFromDOB($date_of_birth);
+          $age_years = $age['years'];
+          $age_months = $age['months'];
+
+          // หากไม่มีรูป ให้เป็นค่าว่างเพื่อ bind
+          $photo_path = $photo_path ?: '';
+
+          $insert_sql = "INSERT INTO children (chi_user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo) VALUES (?, ?, ?, ?, ?, ?)";
+          $stmt = $conn->prepare($insert_sql);
+          $stmt->bind_param("issiis", $user['user_id'], $child_name, $date_of_birth, $age_years, $age_months, $photo_path);
         
         if ($stmt->execute()) {
             $_SESSION['success'] = "บันทึกข้อมูลเด็กเรียบร้อยแล้ว";

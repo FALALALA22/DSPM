@@ -3,9 +3,9 @@
 date_default_timezone_set('Asia/Bangkok');
 
 $servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "dspm_db";
+$username = "zteypszw_dspm";
+$password = "DSPMDB123321";
+$dbname = "zteypszw_dspm_db";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

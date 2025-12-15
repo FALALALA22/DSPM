@@ -206,7 +206,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
             <h3 class="text-center mb-3" style="color: #007bff;">เลือกช่วงอายุสำหรับการประเมิน</h3>
             <div class="text-center mb-3">
                 <small class="text-muted">
-                    ช่วงอายุ 0-1 = แรกเกิด-1 เดือน | 1-2 = 1-2 เดือน | 3-4 = 3-4 เดือน | 5-6 = 5-6 เดือน | 7-8 = 7-8 เดือน | 9 = 9 เดือน | 10-12 = 10-12 เดือน
+                    
                 </small>
             </div>
         </div>
