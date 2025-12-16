@@ -60,7 +60,34 @@ if ($stmt2) {
     }
     $stmt2->close();
 }
-$conn->close();
+    $latest_eval = null;
+    // ดึงสรุปผลการประเมินล่าสุดสำหรับเด็กคนนี้ (ถ้าเป็น admin หรือ staff)
+    if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
+        $stmt3 = $conn->prepare("SELECT e.*, u.user_fname, u.user_lname FROM evaluations e LEFT JOIN users u ON e.eva_user_id = u.user_id WHERE e.eva_child_id = ? ORDER BY e.eva_evaluation_date DESC, e.eva_evaluation_time DESC, e.eva_version DESC LIMIT 1");
+        if ($stmt3) {
+            $stmt3->bind_param('i', $child_id);
+            $stmt3->execute();
+            $res3 = $stmt3->get_result();
+            $latest_eval = $res3->fetch_assoc();
+            $stmt3->close();
+        }
+    }
+    $conn->close();
+
+    // ดึงสถิติโดยรวมของการประเมินสำหรับเด็กคนนี้ (สำหรับการแสดงสรุป)
+    $summary = null;
+    $conn2 = new mysqli('localhost', 'root', '', 'dspm_db');
+    if ($conn2->connect_errno === 0) {
+        $s = $conn2->prepare("SELECT COUNT(*) AS cnt, COALESCE(SUM(eva_total_score),0) AS total_score, COALESCE(SUM(eva_total_questions),0) AS total_questions, MAX(eva_evaluation_date) AS latest_date FROM evaluations WHERE eva_child_id = ?");
+        if ($s) {
+            $s->bind_param('i', $child_id);
+            $s->execute();
+            $res = $s->get_result();
+            $summary = $res->fetch_assoc();
+            $s->close();
+        }
+        $conn2->close();
+    }
 ?>
 
 <!DOCTYPE html>
@@ -151,6 +178,29 @@ $conn->close();
         [data-bs-toggle="collapse"]:not(.collapsed) .collapse-icon {
             transform: rotate(180deg);
         }
+        /* Blue gradient headers for age-range cards */
+        .age-range-header {
+            cursor: pointer;
+            color: #fff;
+        }
+        .age-range-header.blue-1 { background: #0d6efd; }
+        .age-range-header.blue-2 { background: #0b5ed7; }
+        .age-range-header.blue-3 { background: #0a58ca; }
+        .age-range-header.blue-4 { background: #1c7ed6; }
+        .age-range-header.blue-5 { background: #3fa9ff; }
+        .age-range-header.blue-6 { background: #9fd8ff; color: #000; }
+        /* History button styling to match page theme */
+        .history-btn {
+            background-color: #149ee9;
+            border-color: #149ee9;
+            color: #fff;
+        }
+        .history-btn:hover {
+            background-color: #0f8bd0;
+            border-color: #0f8bd0;
+            color: #fff;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -169,6 +219,10 @@ $conn->close();
     </nav>
 
     <div class="container mt-4">
+        <!-- หัวข้อหลัก -->
+        <div class="text-center mb-4">
+            <h1 style="color: #149ee9;">แบบประเมินพัฒนาการเด็ก</h1>
+        </div>
         <!-- ข้อมูลเด็ก -->
         <div class="child-profile">
             <div class="row align-items-center">
@@ -203,9 +257,66 @@ $conn->close();
             </div>
         </div>
 
-        <!-- หัวข้อหลัก -->
-        <div class="text-center mb-4">
-            <h1 style="color: #149ee9;">รายชื่อเด็ก</h1>
+        <!-- สรุปผลการประเมินล่าสุด (สำหรับ admin/staff) -->
+        <?php if (($user['user_role'] === 'admin' || $user['user_role'] === 'staff')): ?>
+            <div class="mb-4">
+                <?php if ($summary && $summary['cnt'] > 0):
+                    $total_evals = (int)$summary['cnt'];
+                    $total_score = (int)$summary['total_score'];
+                    $total_questions = (int)$summary['total_questions'];
+                    $total_failed = $total_questions - $total_score;
+                    $overall_pct = $total_questions > 0 ? round(($total_score / $total_questions) * 100, 1) : 0;
+                    $latest_dt = !empty($summary['latest_date']) ? date('d/m/Y', strtotime($summary['latest_date'])) : '';
+                ?>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">สรุปผลการประเมินทั้งหมด</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-2">
+                                            <h3 class="text-primary"><?php echo $total_evals; ?></h3>
+                                            <p>ครั้งที่ประเมิน</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <h3 class="text-success"><?php echo $total_score; ?></h3>
+                                            <p>ข้อที่ผ่านรวม</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <h3 class="text-danger"><?php echo $total_failed; ?></h3>
+                                            <p>ข้อที่ไม่ผ่านรวม</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <h3 class="text-info"><?php echo $total_questions; ?></h3>
+                                            <p>ข้อทั้งหมด</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <h3 class="text-warning"><?php echo $overall_pct; ?>%</h3>
+                                            <p>เปอร์เซ็นต์รวม</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <h3 class="text-muted"><?php echo $latest_dt; ?></h3>
+                                            <p>ประเมินล่าสุด</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-secondary">ยังไม่มีการประเมินสำหรับเด็กคนนี้</div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- ปุ่มเรียกดูผลย้อนหลัง (ย้ายขึ้นมาเป็นปุ่มด้านบน) -->
+        <div class="mb-4 text-center">
+            <h3 class="text-center mb-3" style="color: #008cffff;">เรียกดูผลการประเมินที่ทำไปแล้ว</h3>
+            <a href="evaluation_history.php?child_id=<?php echo $child['chi_id']; ?>" class="btn history-btn btn-lg">
+                <i class="fas fa-history"></i> ผลการประเมินย้อนหลัง
+            </a>
         </div>
 
         <!-- ส่วนเลือกช่วงอายุ -->
@@ -217,10 +328,9 @@ $conn->close();
                 </small>
             </div>
         </div>
-
         <!-- ช่วงอายุ 0-12 เดือน -->
         <div class="card mb-4">
-            <div class="card-header bg-info text-white" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#ageRange0-12" aria-expanded="true" aria-controls="ageRange0-12">
+            <div class="card-header age-range-header blue-1 text-white" data-bs-toggle="collapse" data-bs-target="#ageRange0-12" aria-expanded="true" aria-controls="ageRange0-12">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">แรกเกิด-1ปี (0-12 เดือน)</h4>
                     <i class="fas fa-chevron-down collapse-icon"></i>
@@ -286,7 +396,7 @@ $conn->close();
 
         <!-- ช่วงอายุ 1-2 ปี -->
         <div class="card mb-4">
-            <div class="card-header bg-success text-white" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#ageRange1-2years" aria-expanded="false" aria-controls="ageRange1-2years">
+            <div class="card-header age-range-header blue-2 text-white" data-bs-toggle="collapse" data-bs-target="#ageRange1-2years" aria-expanded="false" aria-controls="ageRange1-2years">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">1-2 ปี (12-24 เดือน)</h4>
                     <i class="fas fa-chevron-down collapse-icon"></i>
@@ -326,7 +436,7 @@ $conn->close();
 
         <!-- ช่วงอายุ 2-3 ปี -->
         <div class="card mb-4">
-            <div class="card-header  text-white" style="cursor: pointer; background-color: DodgerBlue;" data-bs-toggle="collapse" data-bs-target="#ageRange2-3years" aria-expanded="false" aria-controls="ageRange2-3years">
+            <div class="card-header age-range-header blue-3 text-white" data-bs-toggle="collapse" data-bs-target="#ageRange2-3years" aria-expanded="false" aria-controls="#ageRange2-3years">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">2-3 ปี (24-36 เดือน)</h4>
                     <i class="fas fa-chevron-down collapse-icon"></i>
@@ -360,7 +470,7 @@ $conn->close();
 
         <!-- ช่วงอายุ 3-4 ปี -->
         <div class="card mb-4">
-            <div class="card-header  text-white" style="cursor: pointer; background-color: Aquamarine;" data-bs-toggle="collapse" data-bs-target="#ageRange3-4years" aria-expanded="false" aria-controls="ageRange3-4years">
+            <div class="card-header age-range-header blue-4 text-white" data-bs-toggle="collapse" data-bs-target="#ageRange3-4years" aria-expanded="false" aria-controls="#ageRange3-4years">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">3-4 ปี (37-48 เดือน)</h4>
                     <i class="fas fa-chevron-down collapse-icon"></i>
@@ -394,7 +504,7 @@ $conn->close();
 
         <!-- ช่วงอายุ 4-5 ปี -->
         <div class="card mb-4">
-            <div class="card-header  text-white" style="cursor: pointer; background-color: Chocolate;" data-bs-toggle="collapse" data-bs-target="#ageRange4-5years" aria-expanded="false" aria-controls="ageRange4-5years">
+            <div class="card-header age-range-header blue-5 text-white" data-bs-toggle="collapse" data-bs-target="#ageRange4-5years" aria-expanded="false" aria-controls="#ageRange4-5years">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">4-5 ปี (49-60 เดือน)</h4>
                     <i class="fas fa-chevron-down collapse-icon"></i>
@@ -428,7 +538,7 @@ $conn->close();
 
         <!-- ช่วงอายุ 5-6 ปี -->
         <div class="card mb-4">
-            <div class="card-header  text-white" style="cursor: pointer; background-color: DarkOrange;" data-bs-toggle="collapse" data-bs-target="#ageRange5-6years" aria-expanded="false" aria-controls="ageRange5-6years">
+            <div class="card-header age-range-header blue-6 text-white" data-bs-toggle="collapse" data-bs-target="#ageRange5-6years" aria-expanded="false" aria-controls="#ageRange5-6years">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">5-6ปี 6เดือน (61-78 เดือน)</h4>
                     <i class="fas fa-chevron-down collapse-icon"></i>
@@ -460,19 +570,7 @@ $conn->close();
             </div>
         </div>
 
-        <!-- ปุ่มเรียกดูผลย้อนหลัง -->
-        <div class="section-header">
-            <h3 class="text-center mb-3" style="color: #28a745;">เรียกดูผลการประเมินย้อนหลัง</h3>
-        </div>
-
-        <div class="card mb-4">
-            <div class="card-body text-center">
-                <p class="mb-3">ดูผลการประเมินที่ผ่านมาของ <strong><?php echo htmlspecialchars($child['chi_child_name']); ?></strong></p>
-                <a href="evaluation_history.php?child_id=<?php echo $child['chi_id']; ?>" class="btn btn-success btn-lg">
-                    <i class="fas fa-history"></i> ดูผลการประเมินย้อนหลัง
-                </a>
-            </div>
-        </div>
+        
 
         <!-- คำแนะนำ -->
         <div class="alert alert-info">

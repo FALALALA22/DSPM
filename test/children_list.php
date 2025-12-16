@@ -262,7 +262,7 @@ $conn->close();
                         <?php foreach ($children as $child): ?>
                             <div class="col-md-6 col-lg-4 mb-4">
                                 <div class="card child-card h-100 shadow-sm">
-                                    <?php if ($user['user_role'] === 'user' || $user['user_role'] === 'admin'): ?>
+                                    <?php if ($user['user_role'] === 'user' || $user['user_role'] === 'admin' || $user['user_role'] === 'staff'): ?>
                                         <a href="edit_child.php?id=<?php echo $child['chi_id']; ?>" 
                                            class="btn btn-sm btn-outline-warning edit-icon" 
                                            title="แก้ไขข้อมูลเด็ก">
@@ -300,7 +300,7 @@ $conn->close();
                                         <!-- ปุ่มจัดการ -->
                                         <div class="btn-group" role="group">
                                             <a href="child_detail.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-primary btn-sm">ดูรายละเอียด</a>
-                                            <?php if ($user['user_role'] === 'user' || $user['user_role'] === 'admin'): ?>
+                                            <?php if ($user['user_role'] === 'user' || $user['user_role'] === 'admin' || $user['user_role'] === 'staff'): ?>
                                                 <!--<a href="edit_child.php?id=<?php //echo $child['chi_id']; ?>" class="btn btn-warning btn-sm">แก้ไข</a>-->
                                                 <a href="delete_child.php?id=<?php echo $child['chi_id']; ?>" 
                                                    class="btn btn-danger btn-sm" 

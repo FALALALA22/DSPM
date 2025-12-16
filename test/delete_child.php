@@ -17,17 +17,10 @@ if ($child_id == 0) {
 
 // ตรวจสอบสิทธิ์การลบ
 // - User สามารถลบเฉพาะเด็กของตัวเองได้
-// - Admin สามารถลบได้ทุกคน
-// - Staff ไม่สามารถลบได้ แต่สามารถประเมินและดูข้อมูลได้
-if ($user['user_role'] === 'staff') {
-    $_SESSION['error'] = "คุณไม่มีสิทธิ์ในการลบข้อมูลเด็ก แต่สามารถประเมินและดูข้อมูลได้";
-    header("Location: children_list.php");
-    exit();
-}
+// - Admin และ Staff สามารถลบได้ทุกคน
 
-// ดึงข้อมูลเด็กเพื่อตรวจสอบ
-if ($user['user_role'] === 'admin') {
-    // Admin สามารถลบได้ทุกคน
+// ดึงข้อมูลเด็กเพื่อตรวจสอบ (Admin/Staff ดูได้ทุกคน, User เฉพาะของตัวเอง)
+if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     $sql = "SELECT c.*, u.user_fname, u.user_lname 
             FROM children c 
             JOIN users u ON c.chi_user_id = u.user_id 
@@ -35,7 +28,6 @@ if ($user['user_role'] === 'admin') {
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $child_id);
 } else {
-    // User ปกติลบได้เฉพาะของตัวเอง
     $sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $child_id, $user['user_id']);
