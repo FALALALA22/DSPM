@@ -358,7 +358,7 @@ $user = getUserInfo();
         <div class="button-container">
           <a href="kidinfo.php" class="btn btn-primary circle-button border-0 shadow">
             <img src="../image/regis.png" alt="Kid Info" />
-            <h3 class="fw-bold text-white">กรอกข้อมูลเด็ก</h3>
+            <h3 class="fw-bold text-white">ลงทะเบียนข้อมูลเด็ก</h3>
           </a>
           
           <a href="children_list.php" class="btn btn-success circle-button border-0 shadow">

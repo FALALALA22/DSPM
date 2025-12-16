@@ -40,13 +40,27 @@ if (!$child) {
 }
 
 $stmt->close();
-$conn->close();
+
 
 // คำนวณอายุปัจจุบันของเด็ก
 $birth_date = new DateTime($child['chi_date_of_birth']);
 $current_date = new DateTime();
 $age_diff = $birth_date->diff($current_date);
 $current_age_months = ($age_diff->y * 12) + $age_diff->m;
+
+// ดึงรายการช่วงอายุที่มีการประเมินแล้วสำหรับเด็กคนนี้
+$completed_ranges = [];
+$stmt2 = $conn->prepare("SELECT DISTINCT eva_age_range FROM evaluations WHERE eva_child_id = ?");
+if ($stmt2) {
+    $stmt2->bind_param('i', $child_id);
+    $stmt2->execute();
+    $res2 = $stmt2->get_result();
+    while ($r = $res2->fetch_assoc()) {
+        $completed_ranges[] = $r['eva_age_range'];
+    }
+    $stmt2->close();
+}
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -82,22 +96,15 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
         }
         
         .age-button.available {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        /* กำหนดสไตล์สำหรับช่วงอายุที่ประเมินแล้ว (สีเขียว) */
+        .age-button.completed {
             background-color: #28a745;
             color: white;
             border-color: #28a745;
-        }
-        
-        .age-button.current {
-            background-color: #ffc107;
-            color: #212529;
-            border-color: #ffc107;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
         }
         
         .child-profile {
@@ -225,19 +232,19 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                     <!-- แถวที่ 1 -->
                     <div class="col-auto">
                         <a href="evaluation1.php?child_id=<?php echo $child['chi_id']; ?>&age_range=0-1" 
-                           class="age-button <?php echo ($current_age_months >= 0 && $current_age_months <= 1) ? 'current' : ''; ?>">
+                           class="age-button <?php echo in_array('0-1', $completed_ranges) ? 'completed' : ''; ?>">
                             0-1
                         </a>
                     </div>
                     <div class="col-auto">
                         <a href="evaluation2.php?child_id=<?php echo $child['chi_id']; ?>&age_range=1-2" 
-                           class="age-button <?php echo ($current_age_months >= 2 && $current_age_months <= 2) ? 'current' : ''; ?>">
+                           class="age-button <?php echo in_array('1-2', $completed_ranges) ? 'completed' : ''; ?>">
                             1-2
                         </a>
                     </div>
                     <div class="col-auto">
                         <a href="evaluation3.php?child_id=<?php echo $child['chi_id']; ?>&age_range=3-4" 
-                           class="age-button <?php echo ($current_age_months >= 3 && $current_age_months <= 4) ? 'current' : ''; ?>">
+                           class="age-button <?php echo in_array('3-4', $completed_ranges) ? 'completed' : ''; ?>">
                             3-4
                         </a>
                     </div>
@@ -247,19 +254,19 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                     <!-- แถวที่ 2 -->
                      <div class="col-auto">
                         <a href="evaluation4.php?child_id=<?php echo $child['chi_id']; ?>&age_range=5-6" 
-                           class="age-button <?php echo ($current_age_months >= 5 && $current_age_months <= 6) ? 'current' : ''; ?>">
+                           class="age-button <?php echo in_array('5-6', $completed_ranges) ? 'completed' : ''; ?>">
                             5-6
                         </a>
                     </div>
                     <div class="col-auto">
                         <a href="evaluation5.php?child_id=<?php echo $child['chi_id']; ?>&age_range=7-8" 
-                           class="age-button <?php echo ($current_age_months >= 7 && $current_age_months <= 8) ? 'current' : ''; ?>">
+                           class="age-button <?php echo in_array('7-8', $completed_ranges) ? 'completed' : ''; ?>">
                             7-8
                         </a>
                     </div>
                     <div class="col-auto">
                         <a href="evaluation6.php?child_id=<?php echo $child['chi_id']; ?>&age_range=9" 
-                           class="age-button <?php echo ($current_age_months == 9) ? 'current' : ''; ?>">
+                           class="age-button <?php echo in_array('9', $completed_ranges) ? 'completed' : ''; ?>">
                             9
                         </a>
                     </div>
@@ -268,7 +275,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="row justify-content-center">
                     <div class="col-auto">
                         <a href="evaluation7.php?child_id=<?php echo $child['chi_id']; ?>&age_range=10-12" 
-                           class="age-button <?php echo ($current_age_months >= 10 && $current_age_months <= 12) ? 'current' : ''; ?>">
+                           class="age-button <?php echo in_array('10-12', $completed_ranges) ? 'completed' : ''; ?>">
                             10-12
                         </a>
                     </div>
@@ -289,26 +296,26 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <a href="evaluation8.php?child_id=<?php echo $child['chi_id']; ?>&age_range=13-15" 
-                               class="age-button <?php echo ($current_age_months >= 13 && $current_age_months <= 15) ? 'current' : ''; ?>">
+                               <a href="evaluation8.php?child_id=<?php echo $child['chi_id']; ?>&age_range=13-15" 
+                                   class="age-button <?php echo in_array('13-15', $completed_ranges) ? 'completed' : ''; ?>">
                                 13-15
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation9.php?child_id=<?php echo $child['chi_id']; ?>&age_range=16-17" 
-                               class="age-button <?php echo ($current_age_months >= 16 && $current_age_months <= 17) ? 'current' : ''; ?>">
+                                     <a href="evaluation9.php?child_id=<?php echo $child['chi_id']; ?>&age_range=16-17" 
+                                         class="age-button <?php echo in_array('16-17', $completed_ranges) ? 'completed' : ''; ?>">
                                 16-17
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation10.php?child_id=<?php echo $child['chi_id']; ?>&age_range=18" 
-                               class="age-button <?php echo ($current_age_months == 18) ? 'current' : ''; ?>">
+                                     <a href="evaluation10.php?child_id=<?php echo $child['chi_id']; ?>&age_range=18" 
+                                         class="age-button <?php echo in_array('18', $completed_ranges) ? 'completed' : ''; ?>">
                                 18
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation11.php?child_id=<?php echo $child['chi_id']; ?>&age_range=19-24" 
-                               class="age-button <?php echo ($current_age_months >= 19 && $current_age_months <= 24) ? 'current' : ''; ?>">
+                                     <a href="evaluation11.php?child_id=<?php echo $child['chi_id']; ?>&age_range=19-24" 
+                                         class="age-button <?php echo in_array('19-24', $completed_ranges) ? 'completed' : ''; ?>">
                                 19-24
                             </a>
                         </div>
@@ -329,20 +336,20 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <a href="evaluation12.php?child_id=<?php echo $child['chi_id']; ?>&age_range=25-29" 
-                               class="age-button <?php echo ($current_age_months >= 25 && $current_age_months <= 29) ? 'current' : ''; ?>">
+                                     <a href="evaluation12.php?child_id=<?php echo $child['chi_id']; ?>&age_range=25-29" 
+                                         class="age-button <?php echo in_array('25-29', $completed_ranges) ? 'completed' : ''; ?>">
                                 25-29
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation13.php?child_id=<?php echo $child['chi_id']; ?>&age_range=30" 
-                               class="age-button <?php echo ($current_age_months == 30) ? 'current' : ''; ?>">
+                                     <a href="evaluation13.php?child_id=<?php echo $child['chi_id']; ?>&age_range=30" 
+                                         class="age-button <?php echo in_array('30', $completed_ranges) ? 'completed' : ''; ?>">
                                 30
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation14.php?child_id=<?php echo $child['chi_id']; ?>&age_range=31-36" 
-                               class="age-button <?php echo ($current_age_months >= 31 && $current_age_months <= 36) ? 'current' : ''; ?>">
+                                     <a href="evaluation14.php?child_id=<?php echo $child['chi_id']; ?>&age_range=31-36" 
+                                         class="age-button <?php echo in_array('31-36', $completed_ranges) ? 'completed' : ''; ?>">
                                 31-36
                             </a>
                         </div>
@@ -363,20 +370,20 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <a href="evaluation15.php?child_id=<?php echo $child['chi_id']; ?>&age_range=37-41" 
-                               class="age-button <?php echo ($current_age_months >= 37 && $current_age_months <= 41) ? 'current' : ''; ?>">
+                                     <a href="evaluation15.php?child_id=<?php echo $child['chi_id']; ?>&age_range=37-41" 
+                                         class="age-button <?php echo in_array('37-41', $completed_ranges) ? 'completed' : ''; ?>">
                                 37-41
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation16.php?child_id=<?php echo $child['chi_id']; ?>&age_range=42" 
-                               class="age-button <?php echo ($current_age_months == 42) ? 'current' : ''; ?>">
+                                     <a href="evaluation16.php?child_id=<?php echo $child['chi_id']; ?>&age_range=42" 
+                                         class="age-button <?php echo in_array('42', $completed_ranges) ? 'completed' : ''; ?>">
                                 42
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation17.php?child_id=<?php echo $child['chi_id']; ?>&age_range=43-48" 
-                               class="age-button <?php echo ($current_age_months >= 43 && $current_age_months <= 48) ? 'current' : ''; ?>">
+                                     <a href="evaluation17.php?child_id=<?php echo $child['chi_id']; ?>&age_range=43-48" 
+                                         class="age-button <?php echo in_array('43-48', $completed_ranges) ? 'completed' : ''; ?>">
                                 43-48
                             </a>
                         </div>
@@ -397,20 +404,20 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <a href="evaluation18.php?child_id=<?php echo $child['chi_id']; ?>&age_range=49-54" 
-                               class="age-button <?php echo ($current_age_months >= 49 && $current_age_months <= 54) ? 'current' : ''; ?>">
+                                     <a href="evaluation18.php?child_id=<?php echo $child['chi_id']; ?>&age_range=49-54" 
+                                         class="age-button <?php echo in_array('49-54', $completed_ranges) ? 'completed' : ''; ?>">
                                 49-54
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation19.php?child_id=<?php echo $child['chi_id']; ?>&age_range=55-59" 
-                               class="age-button <?php echo ($current_age_months >= 55 && $current_age_months <= 59) ? 'current' : ''; ?>">
+                                     <a href="evaluation19.php?child_id=<?php echo $child['chi_id']; ?>&age_range=55-59" 
+                                         class="age-button <?php echo in_array('55-59', $completed_ranges) ? 'completed' : ''; ?>">
                                 55-59
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation20.php?child_id=<?php echo $child['chi_id']; ?>&age_range=60" 
-                               class="age-button <?php echo ($current_age_months == 60) ? 'current' : ''; ?>">
+                                     <a href="evaluation20.php?child_id=<?php echo $child['chi_id']; ?>&age_range=60" 
+                                         class="age-button <?php echo in_array('60', $completed_ranges) ? 'completed' : ''; ?>">
                                 60
                             </a>
                         </div>
@@ -431,20 +438,20 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
                 <div class="card-body">
                     <div class="row justify-content-center">
                         <div class="col-auto">
-                            <a href="evaluation21.php?child_id=<?php echo $child['chi_id']; ?>&age_range=61-66" 
-                               class="age-button <?php echo ($current_age_months >= 61 && $current_age_months <= 66) ? 'current' : ''; ?>">
+                                     <a href="evaluation21.php?child_id=<?php echo $child['chi_id']; ?>&age_range=61-66" 
+                                         class="age-button <?php echo in_array('61-66', $completed_ranges) ? 'completed' : ''; ?>">
                                 61-66
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation22.php?child_id=<?php echo $child['chi_id']; ?>&age_range=67-72" 
-                               class="age-button <?php echo ($current_age_months >= 67 && $current_age_months <= 72) ? 'current' : ''; ?>">
+                                     <a href="evaluation22.php?child_id=<?php echo $child['chi_id']; ?>&age_range=67-72" 
+                                         class="age-button <?php echo in_array('67-72', $completed_ranges) ? 'completed' : ''; ?>">
                                 67-72
                             </a>
                         </div>
                         <div class="col-auto">
-                            <a href="evaluation23.php?child_id=<?php echo $child['chi_id']; ?>&age_range=73-78" 
-                               class="age-button <?php echo ($current_age_months >= 73 && $current_age_months <= 78) ? 'current' : ''; ?>">
+                                     <a href="evaluation23.php?child_id=<?php echo $child['chi_id']; ?>&age_range=73-78" 
+                                         class="age-button <?php echo in_array('73-78', $completed_ranges) ? 'completed' : ''; ?>">
                                 73-78
                             </a>
                         </div>
@@ -471,8 +478,8 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
         <div class="alert alert-info">
             <h5><i class="fas fa-info-circle"></i> คำแนะนำ:</h5>
             <ul class="mb-0">
-                <li><span class="badge bg-warning text-dark">สีเหลือง</span> = ช่วงอายุที่เหมาะสมสำหรับการประเมินปัจจุบัน</li>
-                <li><span class="badge bg-primary">สีน้ำเงิน</span> = ช่วงอายุที่สามารถประเมินได้</li>
+                <li><span class="badge bg-success">สีเขียว</span> = แบบประเมินที่ทำไปแล้ว</li>
+                <li><span class="badge bg-primary">สีน้ำเงิน</span> = ช่วงอายุที่สามารถประเมินได้ (ยังไม่ทำ)</li>
                 <li>คลิกที่หัวข้อช่วงอายุเพื่อพับ/กางการแสดงผล</li>
                 <li>คลิกที่ช่วงอายุเพื่อเข้าสู่แบบประเมิน</li>
             </ul>
