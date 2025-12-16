@@ -88,6 +88,7 @@ $conn->close();
     <style>
         .child-card {
             transition: transform 0.2s;
+            position: relative;
         }
         .child-card:hover {
             transform: translateY(-5px);
@@ -109,6 +110,16 @@ $conn->close();
             color: #666;
             font-size: 12px;
         }
+        .edit-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 5;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .edit-icon svg { vertical-align: middle; }
     </style>
 </head>
 <body class="bg-light">
@@ -251,6 +262,15 @@ $conn->close();
                         <?php foreach ($children as $child): ?>
                             <div class="col-md-6 col-lg-4 mb-4">
                                 <div class="card child-card h-100 shadow-sm">
+                                    <?php if ($user['user_role'] === 'user' || $user['user_role'] === 'admin'): ?>
+                                        <a href="edit_child.php?id=<?php echo $child['chi_id']; ?>" 
+                                           class="btn btn-sm btn-outline-warning edit-icon" 
+                                           title="แก้ไขข้อมูลเด็ก">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                              <path d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708l-9.793 9.793a.5.5 0 0 1-.168.11l-4 1.5a.5.5 0 0 1-.65-.65l1.5-4a.5.5 0 0 1 .11-.168L12.146.854zM11.207 2L3 10.207V13h2.793L14 4.793 11.207 2z"/>
+                                            </svg>
+                                        </a>
+                                    <?php endif; ?>
                                     <div class="card-body text-center">
                                         <!-- รูปภาพเด็ก -->
                                         <div class="mb-3">

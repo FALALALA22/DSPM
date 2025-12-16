@@ -49,6 +49,28 @@ if ($result->num_rows == 0) {
 $evaluation = $result->fetch_assoc();
 $responses = json_decode($evaluation['eva_responses'], true);
 
+// Prepare a web-accessible photo path. The DB may store: full URL, a relative path like 'uploads/children/..', or just the filename.
+$photo_web = '';
+if (!empty($evaluation['photo'])) {
+    $raw = $evaluation['photo'];
+    if (preg_match('#^https?://#i', $raw)) {
+        $photo_web = $raw;
+    } else {
+        // Candidate filesystem paths
+        $cand1 = __DIR__ . '/../' . ltrim($raw, '/'); // e.g. 'uploads/children/xxx'
+        $cand2 = __DIR__ . '/../uploads/children/' . basename($raw); // e.g. just filename
+        $cand3 = __DIR__ . '/../' . ltrim('uploads/children/' . $raw, '/');
+
+        if (file_exists($cand1)) {
+            $photo_web = ltrim(str_replace(__DIR__ . '/../', '', $cand1), '/');
+        } elseif (file_exists($cand2)) {
+            $photo_web = ltrim(str_replace(__DIR__ . '/../', '', $cand2), '/');
+        } elseif (file_exists($cand3)) {
+            $photo_web = ltrim(str_replace(__DIR__ . '/../', '', $cand3), '/');
+        }
+    }
+}
+
 $stmt->close();
 $conn->close();
 
@@ -1540,9 +1562,12 @@ $questions = getQuestionsByAgeRange($evaluation['eva_age_range']);
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-md-3 text-center mb-3 mb-md-0">
-                                <?php if ($evaluation['photo']): ?>
-                                    <img src="../uploads/children/<?= htmlspecialchars($evaluation['photo']) ?>" 
-                                         alt="รูปเด็ก" class="child-photo">
+                                <?php if (!empty($photo_web)): ?>
+                                    <?php if (preg_match('#^https?://#i', $photo_web)): ?>
+                                        <img src="<?= htmlspecialchars($photo_web) ?>" alt="รูปเด็ก" class="child-photo">
+                                    <?php else: ?>
+                                        <img src="../<?= htmlspecialchars($photo_web) ?>" alt="รูปเด็ก" class="child-photo">
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <div class="child-photo bg-light d-flex align-items-center justify-content-center">
                                         <i class="fas fa-user fa-2x text-muted"></i>
