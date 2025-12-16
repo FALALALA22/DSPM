@@ -47,19 +47,39 @@ $stmt->execute();
 $result = $stmt->get_result();
 $evaluations = $result->fetch_all(MYSQLI_ASSOC);
 
-// จัดกลุ่มตามวันที่และช่วงอายุ
+// จัดกลุ่มตามช่วงอายุ (eva_age_range)
 $grouped_evaluations = array();
 foreach ($evaluations as $evaluation) {
-    $key = $evaluation['eval_date'] . '_' . $evaluation['eva_age_range'];
-    if (!isset($grouped_evaluations[$key])) {
-        $grouped_evaluations[$key] = array(
-            'date' => $evaluation['eval_date'],
-            'age_range' => $evaluation['eva_age_range'],
-            'versions' => array()
+    $age = $evaluation['eva_age_range'];
+    if (!isset($grouped_evaluations[$age])) {
+        $grouped_evaluations[$age] = array(
+            'age_range' => $age,
+            'versions' => array(),
+            'latest' => 0
         );
     }
-    $grouped_evaluations[$key]['versions'][] = $evaluation;
+    $grouped_evaluations[$age]['versions'][] = $evaluation;
 }
+
+// สำหรับแต่ละกลุ่ม: เรียงเวอร์ชันภายในกลุ่มจากใหม่ไปเก่า และหาวันที่ล่าสุดของกลุ่ม
+$grouped_list = array_values($grouped_evaluations);
+foreach ($grouped_list as &$g) {
+    usort($g['versions'], function($a, $b) {
+        $tA = strtotime($a['eva_evaluation_date']);
+        $tB = strtotime($b['eva_evaluation_date']);
+        if ($tA === $tB) {
+            return ($b['eva_version'] ?? 0) <=> ($a['eva_version'] ?? 0);
+        }
+        return $tB <=> $tA; // ใหม่ก่อน
+    });
+    $g['latest'] = isset($g['versions'][0]) ? strtotime($g['versions'][0]['eva_evaluation_date']) : 0;
+}
+unset($g);
+
+// เรียงกลุ่มตามวันที่ล่าสุดของแต่ละช่วงอายุ (กลุ่มที่มีการประเมินล่าสุดขึ้นก่อน)
+usort($grouped_list, function($a, $b) {
+    return $b['latest'] <=> $a['latest'];
+});
 
 $stmt->close();
 $conn->close();
@@ -130,14 +150,67 @@ $conn->close();
                 <a href="child_detail.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-primary btn-lg">เริ่มประเมิน</a>
             </div>
         <?php else: ?>
-            <!-- แสดงผลการประเมิน -->
-            <?php foreach ($grouped_evaluations as $group): ?>
+            <!-- สรุปผลรวม -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">สรุปผลการประเมินทั้งหมด</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-2">
+                                    <h3 class="text-primary"><?php echo count($evaluations); ?></h3>
+                                    <p>ครั้งที่ประเมิน</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <h3 class="text-success"><?php echo array_sum(array_column($evaluations, 'eva_total_score')); ?></h3>
+                                    <p>ข้อที่ผ่านรวม</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <?php 
+                                    $total_failed = 0;
+                                    foreach($evaluations as $eval) {
+                                        $total_failed += ($eval['eva_total_questions'] - $eval['eva_total_score']);
+                                    }
+                                    ?>
+                                    <h3 class="text-danger"><?php echo $total_failed; ?></h3>
+                                    <p>ข้อที่ไม่ผ่านรวม</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <?php 
+                                    $total_all_questions = array_sum(array_column($evaluations, 'eva_total_questions'));
+                                    ?>
+                                    <h3 class="text-info"><?php echo $total_all_questions; ?></h3>
+                                    <p>ข้อทั้งหมด</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <?php 
+                                    $overall_percentage = $total_all_questions > 0 ? 
+                                        round((array_sum(array_column($evaluations, 'eva_total_score')) / $total_all_questions) * 100, 1) 
+                                        : 0;
+                                    ?>
+                                    <h3 class="text-warning"><?php echo $overall_percentage; ?>%</h3>
+                                    <p>เปอร์เซ็นต์รวม</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <h3 class="text-muted"><?php echo date('d/m/Y', strtotime($evaluations[0]['eva_evaluation_date'])); ?></h3>
+                                    <p>ประเมินล่าสุด</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <!-- แสดงผลการประเมิน (เรียงจากใหม่ไปเก่า) -->
+            <?php foreach ($grouped_list as $group): ?>
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-primary text-white">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">ช่วงอายุ: <?php echo htmlspecialchars($group['age_range']); ?> เดือน</h5>
                             <span class="badge bg-light text-dark">
-                                <?php echo date('d/m/Y', strtotime($group['date'])); ?>
+                                <?php echo !empty($group['latest']) ? date('d/m/Y', $group['latest']) : ''; ?>
                             </span>
                         </div>
                     </div>
@@ -298,58 +371,7 @@ $conn->close();
                 </div>
             <?php endforeach; ?>
 
-            <!-- สรุปผลรวม -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0">สรุปผลการประเมินทั้งหมด</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col-md-2">
-                                    <h3 class="text-primary"><?php echo count($evaluations); ?></h3>
-                                    <p>ครั้งที่ประเมิน</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <h3 class="text-success"><?php echo array_sum(array_column($evaluations, 'eva_total_score')); ?></h3>
-                                    <p>ข้อที่ผ่านรวม</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <?php 
-                                    $total_failed = 0;
-                                    foreach($evaluations as $eval) {
-                                        $total_failed += ($eval['eva_total_questions'] - $eval['eva_total_score']);
-                                    }
-                                    ?>
-                                    <h3 class="text-danger"><?php echo $total_failed; ?></h3>
-                                    <p>ข้อที่ไม่ผ่านรวม</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <?php 
-                                    $total_all_questions = array_sum(array_column($evaluations, 'eva_total_questions'));
-                                    ?>
-                                    <h3 class="text-info"><?php echo $total_all_questions; ?></h3>
-                                    <p>ข้อทั้งหมด</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <?php 
-                                    $overall_percentage = $total_all_questions > 0 ? 
-                                        round((array_sum(array_column($evaluations, 'eva_total_score')) / $total_all_questions) * 100, 1) 
-                                        : 0;
-                                    ?>
-                                    <h3 class="text-warning"><?php echo $overall_percentage; ?>%</h3>
-                                    <p>เปอร์เซ็นต์รวม</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <h3 class="text-muted"><?php echo date('d/m/Y', strtotime($evaluations[0]['eva_evaluation_date'])); ?></h3>
-                                    <p>ประเมินล่าสุด</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         <?php endif; ?>
 
         <!-- ปุ่มจัดการ -->
