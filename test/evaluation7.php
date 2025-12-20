@@ -382,8 +382,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>วัตถุขนาดเล็ก ขนาด 1 ซม.</p>
+              <strong>อุปกรณ์:</strong> วัตถุชิ้นเล็ก ขนาด 1 ซม.<br>
+              <img src="../image/evaluation_pic/วัสดุขนาดเล็ก 1 ซม.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -529,8 +529,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>ของเล่น 4 ชนิด ได้แก่หวี/ช้อน/แก้วน้ำ/แปรงสีฟัน</p>
+              <strong>อุปกรณ์:</strong> ของเล่น 4 ชนิด ได้แก่หวี/ช้อน/แก้วน้ำ/แปรงสีฟัน<br>
+              <img src="../image/evaluation_pic/ของเล่น 4 ชนิด หวี ช้อน แก้วน่ำ แปรงสีฟัน.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>

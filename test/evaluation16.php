@@ -553,6 +553,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> ลูกบอลขนาดเส้นผ่านศูนย์กลาง 15 - 20 เซนติเมตร
+              <img src="../image/evaluation_pic/ball_15_20.png" alt="Ball" class="img-fluid mb-2" style="max-width: 150px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -610,7 +611,8 @@ $conn->close();
               <strong>อุปกรณ์:</strong> รูปทรงเรขาคณิตที่มีสีเดียวกันทั้งหมด ได้แก่<br>
               1. รูปทรงกระบอกสั้น 3 ชิ้น<br>
               2. รูปทรงสามเหลี่ยม 3 ชิ้น<br>
-              3. รูปทรงสี่เหลี่ยม 3 ชิ้น
+              3. รูปทรงสี่เหลี่ยม 3 ชิ้น<br>
+              <img src="../image/evaluation_pic/รูปทรงเรขาคณิต.png" alt="Geometric Shapes" class="img-fluid mb-2" style="max-width: 200px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -669,6 +671,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> รูปภาพตัดออกเป็น3 ชิ้น 1 รูป
+              <img src="../image/evaluation_pic/รูปภาพตัดออกเป็น 3 ชิ้น.png" alt="Picture Puzzle" class="img-fluid mb-2" style="max-width: 200px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -723,6 +726,7 @@ $conn->close();
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> 1.ดินสอ 2.กระดาษ<br>
               3. กระดาษที่มีรูปวงกลมขนาดเส้นผ่านศูนย์กลาง 2.5 ซม.ตามแบบ (ใช้สีเส้นวงกลมหนา ๆบนกระดาษขาว)
+              <img src="../image/evaluation_pic/ดินสอ กระดาษ กระดาษรูปวงกลม.png" alt="Circle Drawing" class="img-fluid mb-2" style="max-width: 200px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -775,6 +779,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> 1. ตุ๊กตาผ้า 1 ตัว 2. ก้อนไม้สี่เหลี่ยมลูกบาศก์ 1 ก้อน
+              <img src="../image/evaluation_pic/ตุ๊กตาผ้า ก้อนไม้ 1 ก้อน.png" alt="Doll and Cube" class="img-fluid mb-2" style="max-width: 200px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -830,7 +835,8 @@ $conn->close();
               <strong>อุปกรณ์:</strong> ชุดจัดประเภทสิ่งของ<br>
               1. บัตรภาพสัตว์ 3 ชนิด<br>
               2. บัตรภาพอาหาร 3 ชนิด<br>
-              3. บัตรภาพเสื้อผ้า 3 ชนิด
+              3. บัตรภาพเสื้อผ้า 3 ชนิด<br>
+              <img src="../image/evaluation_pic/บัตรภาพจัดประเภทสิ่งของ.png" alt="Clothing Cards" class="img-fluid mb-2" style="max-width: 200px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>

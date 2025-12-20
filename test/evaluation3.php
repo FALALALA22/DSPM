@@ -351,6 +351,7 @@ $conn->close();
             </div>
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -403,7 +404,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong> ลูกบอลผ้าเสียงครง
+              <strong>อุปกรณ์:</strong> ลูกบอลผ้าสีแดง
+              <img src="../image/Screenshot 2025-07-06 114822.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -461,6 +463,7 @@ $conn->close();
             </div>
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>

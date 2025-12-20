@@ -421,8 +421,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>สิ่งที่กระตุ้นให้เด็กสนใจอยากลุกขึ้นนั่ง เช่นลูกบอล หรือ กรุ๊งกริ๊ง</p>
+              <strong>อุปกรณ์:</strong> สิ่งที่กระตุ้นให้เด็กสนใจอยากลุกขึ้นนั่ง เช่นลูกบอล หรือ กรุ๊งกริ๊ง<br>
+              <img src="../image/evaluation_pic/ballandgru.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -474,8 +474,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>สิ่งที่กระตุ้นให้เด็กสนใจอยากเกาะยืน เช่นลูกบอล หรือ กรุ๊งกริ๊ง</p>
+              <strong>อุปกรณ์:</strong> สิ่งที่กระตุ้นให้เด็กสนใจอยากลุกขึ้นนั่ง เช่นลูกบอล หรือ กรุ๊งกริ๊ง<br>
+              <img src="../image/evaluation_pic/ballandgru.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -528,8 +528,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>ก้อนไม้สี่เหลี่ยมลูกบาศก์ 2 ก้อน</p>
+              <strong>อุปกรณ์:</strong> ก้อนไม้สี่เหลี่ยม ลูกบาศก์ 2 ก้อน<br>
+              <img src="../image/evaluation_pic/ก้อนไม้สี่เหลี่ยมลูกบาก 2 ก้อน.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -582,8 +582,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>วัตถุชิ้นเล็ก ขนาด 2 ซม.</p>
+              <strong>อุปกรณ์:</strong> วัตถุชิ้นเล็ก ขนาด 2 ซม.<br>
+              <img src="../image/evaluation_pic/วัสดุขนาดเล็ก 2 ซม.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>

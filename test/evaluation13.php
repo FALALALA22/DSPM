@@ -453,6 +453,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> เชือก
+              <img src="../image/evaluation_pic/เชือก.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -508,6 +509,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> ลูกบอลยาง วัดขนาดเส้นผ่านศูนย์กลางประมาณ 7 เซนติเมตร
+              <img src="../image/evaluation_pic/ball_7.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -561,6 +563,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> ก้อนไม้สี่เหลี่ยมลูกบาศก์ 8 ก้อน
+              <img src="../image/evaluation_pic/ก้อนไม้สี่เหลี่ยมลูกบาก 8 ก้อน v2.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -616,6 +619,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> ชุดก้อนไม้สี่เหลี่ยม ลูกบาศก์ 3 ก้อน
+              <img src="../image/evaluation_pic/ก้อนไม้สี่เหลี่ยมลูกบาก 3 ก้อน.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -670,6 +674,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> หนังสือนิทานสำหรับเด็กที่มีรูปภาพและคำอธิบายประกอบหน้าละประมาณ 20 - 30 คำ และอ่านจบใน 5 นาที
+              <img src="../image/evaluation_pic/หนังสือนิทาน.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -722,6 +727,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> ก้อนไม้สี่เหลี่ยมลูกบาศก์ 1 ก้อน
+              <img src="../image/evaluation_pic/ก้อนไม้สี่เหลี่ยมลูกบาก 1 ก้อน.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -776,6 +782,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> ตุ๊กตาผ้า
+              <img src="../image/evaluation_pic/ตุ๊กตาผ้า.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -876,6 +883,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> 1. ก้อนไม้ 4 ก้อน 2. ถ้วยสำหรับใส่ก้อนไม้ 1 ใบ
+              <img src="../image/evaluation_pic/ถ้วยและก้อนไม้ 4 ก้อน.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>

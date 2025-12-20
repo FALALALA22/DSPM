@@ -471,6 +471,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>ลูกบอลเส้นผ่านศูนย์กลาง 15 - 20 เซนติเมตร</p>
+              <img src="../image/evaluation_pic/ball_15_20.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -523,6 +524,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>ลูกบอลเส้นผ่านศูนย์กลาง 15 - 20 เซนติเมตร</p>
+              <img src="../image/evaluation_pic/ball_15_20.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -578,6 +580,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>หนังสือรูปภาพทำด้วยกระดาษแข็ง</p>
+              <img src="../image/evaluation_pic/หนังสือรูปภาพ.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -632,6 +635,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>ก้อนไม้สี่เหลี่ยม ลูกบาศก์ 4 ก้อน</p>
+              <img src="../image/evaluation_pic/ก้อนไม้สี่เหลี่ยมลูกบาก 4 ก้อน.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 120px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -688,6 +692,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>ตุ๊กตาผ้า บอล รถ</p>
+              <img src="../image/evaluation_pic/doll_ball_car.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 120px;">
               <p><strong>หมายเหตุ:</strong> ในกรณีที่มีข้อขัดข้องทางสังคมและวัฒนธรรมให้ใช้ถ้วยหรือหนังสือที่เป็นชุดอุปกรณ์ DSPM แทนได้</p>
             </div>
             <div class="mb-3">
@@ -942,6 +947,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>ถ้วยฝึกดื่มมีหูใส่น้ำ 1/4 ถ้วย</p>
+              <img src="../image/evaluation_pic/ถ้วยฝึกดื่ม.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>

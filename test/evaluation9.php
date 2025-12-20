@@ -355,8 +355,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>กล่องพลาสติกผูกเชือก</p>
+              <strong>อุปกรณ์:</strong>กล่องพลาสติกผูกเชือก<br>
+              <img src="../image/evaluation_pic/กล่องพลาสติกผูกเชือก.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -408,8 +408,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>1. ดินสอ<br>2. กระดาษ</p>
+              <strong>อุปกรณ์:</strong><br>1. ดินสอ<br>2. กระดาษ<br>
+              <img src="../image/evaluation_pic/ดินสอ กระดาษ.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -461,8 +461,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>ของเล่นเด็ก เช่น ตุ๊กตาผ้า บอล รถ</p>
+              <strong>อุปกรณ์:</strong>ของเล่นเด็ก เช่น ตุ๊กตาผ้า บอล รถ<br>
+              <img src="../image/evaluation_pic/ชุดทดสอบการเลือก.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -516,8 +516,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>ของเล่นเด็ก เช่น ตุ๊กตาผ้า บอล รถ</p>
+              <strong>อุปกรณ์:</strong>ของเล่นเด็ก เช่น ตุ๊กตาผ้า บอล รถ<br>
+              <img src="../image/evaluation_pic/ชุดทดสอบการเลือก.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>

@@ -386,8 +386,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>1. ดินสอ<br>2. กระดาษ</p>
+              <strong>อุปกรณ์:</strong> 1. ดินสอ<br>2. กระดาษ<br>
+              <img src="../image/evaluation_pic/ดินสอ กระดาษ.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -438,8 +438,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>ชุดทดสอบการเลือกสิ่งของ เช่น บอล ตุ๊กตาผ้า ถ้วย รถ</p>
+              <strong>อุปกรณ์:</strong>ชุดทดสอบการเลือกสิ่งของ เช่น บอล ตุ๊กตาผ้า ถ้วย รถ<br>
+              <img src="../image/evaluation_pic/ชุดทดสอบการเลือก.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>

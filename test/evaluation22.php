@@ -523,6 +523,7 @@ $conn->close();
                 <li>หมวดเสื้อผ้า: เสื้อยืด, กระโปรง, กางเกง</li>
                 <li>หมวดอาหาร: ปลาทู, ไข่ดาว, ผัดผัก</li>
               </ul>
+              <img src="../image/evaluation_pic/บัตรภาพจัดประเภทสิ่งของ.png" alt="Three Categories of Items" style="width: 150px; height: 120px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>

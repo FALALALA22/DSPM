@@ -383,7 +383,8 @@ $conn->close();
               <strong>อายุ:</strong> 61 - 66 เดือน
             </div>
             <div class="mb-3">
-              <strong>อุปกรณ์:</strong> 1. กระดาษที่มีเส้นตรงยาว 15 ซม.จากขอบ 2.กรรไกรปลายมนสำหรับเด็ก
+              <strong>อุปกรณ์:</strong> 1. กระดาษที่มีเส้นตรงยาว 15 ซม.จากขอบ 2.กรรไกรปลายมนสำหรับเด็ก<br>
+              <img src="../image/evaluation_pic/กระดาษ เส้นตรงยาว กรรไกรปลายมน.png" alt="Child-safe Scissors" style="width: 150px; height: 110px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>

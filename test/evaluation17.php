@@ -421,7 +421,9 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> 1. กรรไกรปลายมนสำหรับเด็ก<br>
-              2. กระดาษสี่เหลี่ยมจัตุรัสขนาด 10 ซม.
+              2. กระดาษสี่เหลี่ยมจัตุรัสขนาด 10 ซม.<br>
+              <img src="../image/evaluation_pic/กรรไกร กระดาษ 10 ซม.png" alt="Shapes" style="width: 200px; height: 120px;">
+
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -475,7 +477,8 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> 1. ดินสอ<br>
-              2. กระดาษ
+              2. กระดาษ<br>
+              <img src="../image/evaluation_pic/ดินสอ กระดาษ.png" alt="Family" style="width: 150px; height: 160px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -527,7 +530,9 @@ $conn->close();
               <strong>อายุ:</strong> 43 - 48 เดือน
             </div>
             <div class="mb-3">
-              <strong>อุปกรณ์:</strong> ชุดวัตถุ 3 ขนาด สีเดียวกัน จำนวน 3 ชุด (ทรงกระบอกสั้น สี่เหลี่ยม และสามเหลี่ยม)
+              <strong>อุปกรณ์:</strong> ชุดวัตถุ 3 ขนาด สีเดียวกัน จำนวน 3 ชุด (ทรงกระบอกสั้น สี่เหลี่ยม และสามเหลี่ยม)<br>
+              <img src="../image/evaluation_pic/รูปทรงเรขาคณิต.png" alt="Shapes" style="width: 200px; height: 120px;">
+
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -632,7 +637,8 @@ $conn->close();
               <strong>อายุ:</strong> 43 - 48 เดือน
             </div>
             <div class="mb-3">
-              <strong>อุปกรณ์:</strong> ตุ๊กตาผ้าที่มีกระดุมขนาดใหญ่ อย่างน้อย 2 ซม.
+              <strong>อุปกรณ์:</strong> ตุ๊กตาผ้าที่มีกระดุมขนาดใหญ่ อย่างน้อย 2 ซม.<br>
+              <img src="../image/evaluation_pic/ตุ๊กตาผ้า.png" alt="Doll with Buttons" style="width: 100px; height: 160px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>

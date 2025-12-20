@@ -380,8 +380,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>กรุ๊งกริ๊ง</p>
+              <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -433,8 +433,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>กรุ๊งกริ๊ง</p>
+              <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -489,8 +489,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>หนังสือรูปภาพ</p>
+              <strong>อุปกรณ์:</strong> หนังสือรูปภาพ
+              <img src="../image/evaluation_pic/หนังสือรูปภาพ.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -635,8 +635,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>ผ้าขนาด 30x30 ซม. มีรูอยู่ตรงกลาง</p>
+              <strong>อุปกรณ์:</strong> ผ้าขนาด 30x30 ซม. มีรูอยู่ตรงกลาง
+              <img src="../image/evaluation_pic/ผ้ามีรูอยู่ตรงกลาง.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>

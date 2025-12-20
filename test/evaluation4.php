@@ -348,6 +348,10 @@ $conn->close();
                 </label>
               </div>
             </div>
+            <div class="mb-3 text-center">
+              <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
+            </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
               <p class="text-muted">จัดให้เด็กอยู่ในท่านอนคว่ำ เขย่ากรุ๊งกริ๊งด้านหน้าเด็ก กระตุ้นให้เด็กมองสนใจแล้วเคลื่อนขึ้นด้านบน กระตุ้นให้เด็กมองตาม</p>
@@ -398,8 +402,8 @@ $conn->close();
               </div>
             </div>
             <div class="mb-3 text-center">
-              <strong>อุปกรณ์:</strong><br>
-              <p>กรุ๊งกริ๊ง</p>
+              <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -544,6 +548,10 @@ $conn->close();
                   <strong>ไม่ผ่าน</strong>
                 </label>
               </div>
+            </div>
+            <div class="mb-3 text-center">
+              <strong>อุปกรณ์:</strong> ตุ๊กตาผ้า
+              <img src="../image/evaluation_pic/ตุ๊กตาผ้า.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>

@@ -400,6 +400,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> 1. ดินสอ 2. กระดาษ
+              <img src="../image/evaluation_pic/ดินสอ กระดาษ.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -453,6 +454,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> วัตถุที่เด็กรู้จัก 6 ชนิด เช่น แปรงสีฟัน หวี ช้อน ถ้วย ตุ๊กตาผ้า บอล
+              <img src="../image/evaluation_pic/doll_6pc.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>

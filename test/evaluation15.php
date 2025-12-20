@@ -414,6 +414,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> 1. ดินสอ 2. กระดาษ
+              <img src="../image/evaluation_pic/ดินสอ กระดาษ.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -465,6 +466,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> ของเล่น เช่น หวี ตุ๊กตาผ้า บอล ช้อน
+              <img src="../image/evaluation_pic/หวี ตุ๊กตา บอล ช้อน.png" alt="อุปกรณ์" class="img-fluid mb-2" style="max-width: 100px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>

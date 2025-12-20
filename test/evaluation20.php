@@ -480,7 +480,8 @@ $conn->close();
               <strong>อายุ:</strong> 60 เดือน
             </div>
             <div class="mb-3">
-              <strong>อุปกรณ์:</strong> 1. รูปสี่เหลี่ยมผืนผ้า ขนาด 2.5 x 5.25 เซนติเมตร บนกระดาษขาวหนา (เส้นขอบหนาขนาดความกว้างเส้น 2 มิลลิเมตร) 2. ดินสอ
+              <strong>อุปกรณ์:</strong> 1. รูปสี่เหลี่ยมผืนผ้า ขนาด 2.5 x 5.25 เซนติเมตร บนกระดาษขาวหนา (เส้นขอบหนาขนาดความกว้างเส้น 2 มิลลิเมตร)<br>
+              <img src="../image/evaluation_pic/รูปสี่เหลี่ยมจัตุรัส ขนาด 2.5 x 2.5.png" alt="Rectangle" style="width: 150px; height: 110px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -531,7 +532,8 @@ $conn->close();
               <strong>อายุ:</strong> 60 เดือน
             </div>
             <div class="mb-3">
-              <strong>อุปกรณ์:</strong> กระดาษและดินสอ
+              <strong>อุปกรณ์:</strong> กระดาษและดินสอ<br>
+              <img src="../image/evaluation_pic/ดินสอ กระดาษ.png" alt="Family" style="width: 150px; height: 160px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -584,7 +586,8 @@ $conn->close();
               <strong>อายุ:</strong> 60 เดือน
             </div>
             <div class="mb-3">
-              <strong>อุปกรณ์:</strong> หนังสือนิทานในสวน
+              <strong>อุปกรณ์:</strong> หนังสือนิทานในสวน<br>
+              <img src="../image/evaluation_pic/นิทานในสวน.png" alt="Storybook" style="width: 150px; height: 120px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -636,7 +639,8 @@ $conn->close();
               <strong>อายุ:</strong> 60 เดือน
             </div>
             <div class="mb-3">
-              <strong>อุปกรณ์:</strong> ก้อนไม้ 8 ก้อนและกระดาษ 1 แผ่น
+              <strong>อุปกรณ์:</strong> ก้อนไม้ 8 ก้อนและกระดาษ 1 แผ่น<br>
+              <img src="../image/evaluation_pic/ก้อนไม้ 8 ก้อน กระดาษ.png" alt="Wooden Blocks" style="width: 150px; height: 120px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -688,7 +692,8 @@ $conn->close();
               <strong>อายุ:</strong> 60 เดือน
             </div>
             <div class="mb-3">
-              <strong>อุปกรณ์:</strong> แผ่นพยัญชนะ "ก" "ง" "ด" "น" "ย"
+              <strong>อุปกรณ์:</strong> แผ่นพยัญชนะ "ก" "ง" "ด" "น" "ย"<br>
+              <img src="../image/evaluation_pic/แผ่นพยัญชนะ.png" alt="Thai Alphabets" style="width: 150px; height: 120px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>

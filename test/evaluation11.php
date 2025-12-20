@@ -361,6 +361,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>ลูกบอลเส้นผ่านศูนย์กลาง 15 - 20 เซนติเมตร</p>
+              <img src="../image/evaluation_pic/ball_15_20.png" alt="Family" style="width: 90px; height: 90px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -416,6 +417,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>ก้อนไม้สี่เหลี่ยมลูกบาศก์ 8 ก้อน</p>
+              <img src="../image/evaluation_pic/ก้อนไม้สี่เหลี่ยมลูกบาก 8 ก้อน.png" alt="Family" style="width: 120px; height: 150px;">
             </div>
             <div class="mb-3">
               <strong>วิธีประเมิน:</strong><br>
@@ -473,6 +475,7 @@ $conn->close();
             <div class="mb-3 text-center">
               <strong>อุปกรณ์:</strong><br>
               <p>ของเล่นเด็ก ตุ๊กตาผ้า บอล รถ ถ้วย</p>
+              <img src="../image/evaluation_pic/ชุดทดสอบการเลือก.png" alt="Family" style="width: 120px; height: 90px;">
               <p><strong>หมายเหตุ:</strong> ในกรณีที่มีข้อขัดข้องทางสังคมและวัฒนธรรมให้ใช้หนังสือที่เป็นชุดอุปกรณ์DSPM แทนได้</p>
             </div>
             <div class="mb-3">

@@ -389,6 +389,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> 1. ดินสอ 2. กระดาษ
+            <img src="../image/evaluation_pic/ดินสอ กระดาษ.png" alt="Family" style="width: 150px; height: 160px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
@@ -439,6 +440,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <strong>อุปกรณ์:</strong> ก้อนไม้ 10 สี 10 ก้อน
+            <img src="../image/evaluation_pic/ก้อนไม้ 10 สี 10 ก้อน.png" alt="Color Blocks" style="width: 200px; height: 120px;">
             </div>
             <div class="mb-3">
               <strong>ผลการประเมิน:</strong><br>
