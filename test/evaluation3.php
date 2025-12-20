@@ -201,7 +201,9 @@ $conn->close();
                   <label for="q11_fail">ไม่ผ่าน</label><br>
               </td>
               <td>ท่านอนคว่ำยกศีรษะและอกพ้นพื้น (GM)<br><br>
-                <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง</td>
+                <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="Family" style="width: 90px; height: 90px;"><br></td>
+
               <td>
                 1. จัดให้เด็กอยู่ในท่านอนคว่ำบนพื้นราบ<br>
                 2. เขย่ากรุ๊งกริ๊งด้านหน้าเด็กเพื่อให้เด็กสนใจ แล้วเคลื่อนขึ้นด้านบน กระตุ้นให้เด็กมองตาม<br>
@@ -223,7 +225,8 @@ $conn->close();
                   <label for="q12_fail">ไม่ผ่าน</label><br>
               </td>
               <td>มองตามได้ 180 องศา (FM)<br><br>
-                <strong>อุปกรณ์:</strong> ลูกบอลผ้าเสียงครง</td>
+                <strong>อุปกรณ์:</strong> ลูกบอลผ้าสีแดง
+                <img src="../image/Screenshot 2025-07-06 114822.png" alt="Family" style="width: 90px; height: 90px;"><br></td>
               <td>
                 1. จัดให้เด็กอยู่ในท่านอนหงาย<br>
                 2. ถือลูกบอลผ้าเสียงครงห่างจากหน้าเด็กประมาณ 30 ซม.<br>
@@ -249,7 +252,8 @@ $conn->close();
                   <label for="q13_fail">ไม่ผ่าน</label><br>
               </td>
               <td>หันตามเสียงได้ (RL)<br><br>
-                <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง</td>
+                <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง
+                <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="Family" style="width: 90px; height: 90px;"><br></td>
               <td>
                 1. จัดให้เด็กอยู่ในท่านอนหงายหรืออุ้มเด็ก หันหน้าออกจากผู้ประเมิน<br>
                 2. เขย่ากรุ๊งกริ๊งด้านข้างหูข้างหนึ่งประมาณ 60 ซม. และไม่ให้เด็กเห็น<br>

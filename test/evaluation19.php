@@ -223,7 +223,8 @@ $conn->close();
                   <label for="q113_fail">ไม่ผ่าน</label><br>
               </td>
               <td>จับดินสอได้ถูกต้อง (FM)<br><br>
-              <strong>อุปกรณ์:</strong>1.ดินสอ  2.กระดาษ
+              <strong>อุปกรณ์:</strong>1.ดินสอ  2.กระดาษ<br>
+              <img src="../image/evaluation_pic/ดินสอ กระดาษ.png" alt="Family" style="width: 150px; height: 160px;">
                 </td>
               <td>
                 1. ยื่นกระดาษและดินสอให้เด็ก และบอกให้วาด “หูของตัวเอง” บนกระดาษ<br>
@@ -245,7 +246,8 @@ $conn->close();
                   <label for="q114_fail">ไม่ผ่าน</label><br>
               </td>
               <td>เลือกสีได้ 8 สี ตามคำสั่ง (RL)<br><br>
-              <strong>อุปกรณ์:</strong>ก้อนไม้ 10 สี 10 ก้อน
+              <strong>อุปกรณ์:</strong>ก้อนไม้ 10 สี 10 ก้อน<br>
+              <img src="../image/evaluation_pic/ก้อนไม้ 10 สี 10 ก้อน.png" alt="Color Blocks" style="width: 200px; height: 120px;">
             </td>
               <td>
                 1. ยื่นก้อนไม้ 10 ก้อน บอกชื่อสีต่าง ๆ ของก้อนไม้ เช่น ก้อนนี้สีแดง ก้อนนี้สีเหลือง 

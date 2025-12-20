@@ -201,7 +201,8 @@ $conn->close();
                   <label for="q60_fail">ไม่ผ่าน</label><br>
               </td>
               <td>เหวี่ยงขาเตะลูกบอลได้ (GM)<br><br>
-                <strong>อุปกรณ์:</strong>  ลูกบอลเส้นผ่านศูนย์กลาง 15 - 20 เซนติเมตร
+                <strong>อุปกรณ์:</strong>  ลูกบอลเส้นผ่านศูนย์กลาง 15 - 20 เซนติเมตร<br>
+                <img src="../image/evaluation_pic/ball_15_20.png" alt="Family" style="width: 90px; height: 90px;"><br></td>
               <td>
                 1. เตะลูกบอลให้เด็กดู<br>
                 2. วางลูกบอลไว้ตรงหน้าห่างจากเด็กประมาณ 15 ซม. และบอกให้เด็กเตะลูกบอล<br>
@@ -224,7 +225,8 @@ $conn->close();
                   <label for="q61_fail">ไม่ผ่าน</label><br>
               </td>
               <td>ต่อก้อนไม้ 4 ชั้น (FM)<br><br>
-                <strong>อุปกรณ์:</strong> ก้อนไม้สี่เหลี่ยมลูกบาศก์ 8 ก้อน </td>
+                <strong>อุปกรณ์:</strong> ก้อนไม้สี่เหลี่ยมลูกบาศก์ 8 ก้อน<br>
+                <img src="../image/evaluation_pic/ก้อนไม้สี่เหลี่ยมลูกบาก 8 ก้อน.png" alt="Family" style="width: 120px; height: 150px;"><br></td>
               <td>
                 1. วางก้อนไม้ 8 ก้อนไว้บนโต๊ะ<br>
                 2. ต่อก้อนไม้เป็นหอสูง 4 ชั้น ให้เด็กดูแล้วรื้อแบบออก<br>
@@ -249,7 +251,8 @@ $conn->close();
                   <label for="q62_fail">ไม่ผ่าน</label><br>
               </td>
               <td>เลือกวัตถุตามคำสั่ง (ตัวเลือก4 ชนิด) (RL)<br><br>
-              <strong>อุปกรณ์:</strong> ของเล่นเด็ก ตุ๊กตาผ้า บอล รถ ถ้วย
+              <strong>อุปกรณ์:</strong> ของเล่นเด็ก ตุ๊กตาผ้า บอล รถ ถ้วย<br>
+              <img src="../image/evaluation_pic/ชุดทดสอบการเลือก.png" alt="Family" style="width: 120px; height: 90px;"><br>
               <strong>หมายเหตุ:</strong> ในกรณีที่มีข้อขัดข้องทางสังคมและวัฒนธรรมให้ใช้หนังสือที่เป็นชุดอุปกรณ์DSPM แทนได้
             </td>
               <td>

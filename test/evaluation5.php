@@ -201,6 +201,7 @@ $conn->close();
               </td>
               <td>นั่งได้มั่นคง และเอี้ยวตัวใช้มือเล่นได้อย่างอิสระ (sit stable)(GM)<br><br>
               <strong>อุปกรณ์:</strong> กรุ้งกริ้ง<br>
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="Family" style="width: 90px; height: 90px;"><br></td>
             </td>
             <td>
               1. จัดเด็กอยู่ในท่านั่ง<br>
@@ -224,6 +225,7 @@ $conn->close();
               </td>
               <td>ยืนเกาะ เครื่องเรือนสูงระดับอกได้ (GM)<br><br>
               <strong>อุปกรณ์:</strong> กรุ๊งกริ๊ง<br>
+              <img src="../image/evaluation_pic/6.กรุ้งกริ้ง.png" alt="Family" style="width: 90px; height: 90px;"><br></td>
             </td>
             <td>
               1. วางกรุ๊งกริ๊งไว้บนเครื่องเรือน เช่น โต๊ะหรือเก้าอี้<br>
@@ -250,6 +252,7 @@ $conn->close();
               </td>
               <td>จ้องมองไปที่หนังสือพร้อมกับผู้ใหญ่นาน 2 - 3 วินาที (FM)<br><br>
               <strong>อุปกรณ์:</strong> หนังสือรูปภาพ<br>
+              <img src="../image/evaluation_pic/หนังสือรูปภาพ.png" alt="Family" style="width: 90px; height: 90px;"><br></td>
             </td>
             <td>
               จัดเด็กนั่งบนตัก ให้พ่อแม่ ผู้ปกครองหรือผู้ดูแลเด็กเปิดหนังสือ ชี้ชวนและพูดกับเด็กเกี่ยวกับรูปภาพนั้น ๆ<br>
@@ -313,6 +316,7 @@ $conn->close();
               <td>เด็กเล่นจ๊ะเอ๋ได้และมองหาหน้าของผู้เล่นได้ถูกทิศทาง (PS)<br><br>
               <strong>อุปกรณ์:</strong> ผ้าขนาด 30x30 ซม.
               มีรูอยู่ตรงกลาง<br>
+              <img src="../image/evaluation_pic/ผ้ามีรูอยู่ตรงกลาง.png" alt="Family" style="width: 90px; height: 90px;"><br></td>
             </td>
             <td>
               1. ให้เด็กมองผู้ประเมิน<br>
