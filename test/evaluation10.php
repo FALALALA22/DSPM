@@ -117,8 +117,15 @@ $conn->close();
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/eva.css">
   <link rel="stylesheet" href="../css/test.css">
+  <style>
+    /* Page-specific styles for evaluation10.php: yellow background, green text */
+    .page-eva10 .table-color { background-color: #FFEB3B !important; color: #0b6623 !important; text-align: center; }
+    .page-eva10 table { color: #0b6623 !important; }
+    .page-eva10 .bgeva1 { background-color: #FFEB3B !important; color: #0b6623 !important; }
+    .page-eva10 .card-header.bgeva1.text-white { color: #0b6623 !important; }
+  </style>
 </head>
-<body class="bg-light">
+<body class="bg-light page-eva10">
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
@@ -825,7 +832,9 @@ $conn->close();
         <!-- Card ข้อที่ 57 -->
         <div class="card mb-4 shadow-sm">
           <div class="card-header bgeva1 text-white">
-            <h5 class="mb-0">ข้อที่ 57 - พูดเป็นคำๆ ได้ 4 คำ เรียกชื่อสิ่งของหรือทักทาย (EL)</h5>
+            <h5 class="mb-0">ข้อที่ 57 - พูดเป็นคำๆ ได้ 4 คำ เรียกชื่อสิ่งของหรือทักทาย<br>
+            (ต้องเป็นคำอื่นที่ไม่ใช่คำว่าพ่อแม่ ชื่อของคนคุ้นเคย หรือชื่อของสัตว์เลี้ยงในบ้าน)(EL)
+          </h5>
           </div>
           <div class="card-body bg-white">
             <div class="mb-3">
