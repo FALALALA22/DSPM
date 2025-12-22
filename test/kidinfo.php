@@ -93,7 +93,7 @@ $conn->close();
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>กรอกข้อมูลเด็ก</title>
+  <title>ลงทะเบียนข้อมูลเด็ก</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     .circle-image-wrapper {
@@ -144,7 +144,7 @@ $conn->close();
 
   <div class="container d-flex align-items-center justify-content-center min-vh-100">
     <div class="col-12 col-sm-10 col-md-6 col-lg-4">
-      <h1 class="text-center mb-4" style="color: #149ee9;">กรอกข้อมูลเด็ก</h1>
+      <h1 class="text-center mb-4" style="color: #149ee9;">ลงทะเบียนข้อมูลเด็ก</h1>
       
       <!-- แสดงข้อความแจ้งเตือน -->
       <?php if (isset($_SESSION['errors'])): ?>
@@ -162,7 +162,7 @@ $conn->close();
         <!-- รูปภาพวงกลม -->
         <div class="mb-3 text-center">
           <div class="circle-image-wrapper mb-2" id="previewContainer">
-            <img id="previewImage" src="https://via.placeholder.com/150" alt="Preview Image" />
+            <img id="previewImage" src="../image/kid_preview.png" alt="รูปตัวอย่างเด็ก" />
           </div>
           <label for="imageInput" class="upload-label">เพิ่มรูปภาพ</label>
           <input type="file" id="imageInput" name="child_photo" accept="image/*">

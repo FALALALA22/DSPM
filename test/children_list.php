@@ -89,6 +89,7 @@ $conn->close();
         .child-card {
             transition: transform 0.2s;
             position: relative;
+            overflow: hidden;
         }
         .child-card:hover {
             transform: translateY(-5px);
@@ -114,12 +115,47 @@ $conn->close();
             position: absolute;
             top: 8px;
             right: 8px;
-            z-index: 5;
-            padding: 6px 8px;
-            border-radius: 4px;
+            z-index: 1050;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 6px;
             font-size: 14px;
+            line-height: 1;
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
         }
-        .edit-icon svg { vertical-align: middle; }
+        .edit-icon svg { display: block; width: 18px; height: 18px; }
+
+        /* Responsive tweaks for small screens */
+        @media (max-width: 576px) {
+            .edit-icon {
+                width: 36px;
+                height: 36px;
+                padding: 0;
+                font-size: 12px;
+                top: 8px;
+                right: 8px;
+            }
+            .edit-icon svg { width: 16px; height: 16px; }
+            .child-photo {
+                width: 64px;
+                height: 64px;
+            }
+            .no-photo {
+                width: 64px;
+                height: 64px;
+                font-size: 11px;
+            }
+            /* Ensure the absolute button doesn't cover the card content */
+            .card-body {
+                padding-top: 40px;
+            }
+        }
     </style>
 </head>
 <body class="bg-light">
