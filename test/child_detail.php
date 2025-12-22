@@ -76,7 +76,7 @@ if ($stmt2) {
 
     // ดึงสถิติโดยรวมของการประเมินสำหรับเด็กคนนี้ (สำหรับการแสดงสรุป)
     $summary = null;
-    $conn2 = new mysqli('localhost', 'root', '', 'dspm_db');
+    $conn2 = new mysqli('localhost', 'zteypszw_dspm', 'DSPMDB123321', 'zteypszw_dspm_db');
     if ($conn2->connect_errno === 0) {
         $s = $conn2->prepare("SELECT COUNT(*) AS cnt, COALESCE(SUM(eva_total_score),0) AS total_score, COALESCE(SUM(eva_total_questions),0) AS total_questions, MAX(eva_evaluation_date) AS latest_date FROM evaluations WHERE eva_child_id = ?");
         if ($s) {
