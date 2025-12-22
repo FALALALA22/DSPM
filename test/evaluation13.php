@@ -117,8 +117,15 @@ $conn->close();
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/eva.css">
   <link rel="stylesheet" href="../css/test.css">
+  <style>
+    /* Page-specific styles for evaluation13.php: yellow background, green text */
+    .page-eva13 .table-color { background-color: #FFEB3B !important; color: #0b6623 !important; text-align: center; }
+    .page-eva13 table { color: #0b6623 !important; }
+    .page-eva13 .bgeva1 { background-color: #FFEB3B !important; color: #0b6623 !important; }
+    .page-eva13 .card-header.bgeva1.text-white { color: #0b6623 !important; }
+  </style>
 </head>
-<body class="bg-light">
+<body class="bg-light page-eva13">
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
@@ -428,9 +435,7 @@ $conn->close();
             ยืนยันแบบประเมิน
           </button>
         </div>
-      </div>
-
-      <!-- ช่องหมายเหตุ -->
+        <!-- ช่องหมายเหตุ -->
       <div class="card mt-4">
         <div class="card-header bg-light">
           <h5 class="mb-0"><i class="fas fa-sticky-note"></i> หมายเหตุ (ไม่บังคับ)</h5>
@@ -439,6 +444,9 @@ $conn->close();
           <textarea class="form-control" name="notes" rows="3" placeholder="เพิ่มหมายเหตุสำหรับการประเมินครั้งนี้ เช่น พฤติกรรมที่สังเกต สภาพแวดล้อม หรือข้อสังเกตอื่นๆ"></textarea>
         </div>
       </div>
+      </div>
+
+      
 
       <!-- Mobile version -->
       <div class="d-block d-md-none">

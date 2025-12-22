@@ -444,9 +444,7 @@ $conn->close();
             ยืนยันแบบประเมิน
           </button>
         </div>
-      </div>
-
-      <!-- ช่องหมายเหตุ -->
+        <!-- ช่องหมายเหตุ -->
       <div class="card mt-4">
         <div class="card-header bg-light">
           <h5 class="mb-0"><i class="fas fa-sticky-note"></i> หมายเหตุ (ไม่บังคับ)</h5>
@@ -455,6 +453,9 @@ $conn->close();
           <textarea class="form-control" name="notes" rows="3" placeholder="เพิ่มหมายเหตุสำหรับการประเมินครั้งนี้ เช่น พฤติกรรมที่สังเกต สภาพแวดล้อม หรือข้อสังเกตอื่นๆ"></textarea>
         </div>
       </div>
+      </div>
+
+      
 
       <!-- Mobile version -->
       <div class="d-block d-md-none">
