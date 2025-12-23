@@ -60,7 +60,10 @@ try {
     }
     
     if ($stmt->execute()) {
-        // อัปเดต session
+        // อัปเดต session (อัปเดตทั้งคีย์ที่โค้ดอื่นๆ คาดหวังไว้)
+        $_SESSION['fname'] = $fname;
+        $_SESSION['lname'] = $lname;
+        // เก็บไว้ด้วยชื่อคีย์เดิมถ้ามีที่อื่นใช้งาน
         $_SESSION['user_fname'] = $fname;
         $_SESSION['user_lname'] = $lname;
         
