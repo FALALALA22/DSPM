@@ -54,10 +54,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 
                 $stmt->close();
                 $conn->close();
-                
-                // เปลี่ยนเส้นทางไปหน้าหลัก
-                header("Location: test/mainpage.php");
-                exit();
+
+                // เปลี่ยนเส้นทางตาม role
+                if (!empty($user['user_role']) && $user['user_role'] === 'admin') {
+                  header("Location: admin_/index.php");
+                  exit();
+                } else {
+                  // staff และ user ให้ไปหน้าหลักเดิม
+                  header("Location: test/mainpage.php");
+                  exit();
+                }
             } else {
                 $errors[] = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
             }
