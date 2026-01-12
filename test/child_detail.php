@@ -16,16 +16,20 @@ if ($child_id == 0) {
 
 // ดึงข้อมูลเด็ก - ตรวจสอบสิทธิ์ตาม role
 if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
-    // Admin และ Staff ดูได้ทุกคน พร้อมข้อมูลผู้ปกครอง
-    $sql = "SELECT c.*, u.user_fname, u.user_lname, u.user_phone 
-            FROM children c 
-            JOIN users u ON c.chi_user_id = u.user_id 
+    // Admin และ Staff ดูได้ทุกคน พร้อมข้อมูลผู้ปกครอง และชื่อโรงพยาบาล/สาขา
+        $sql = "SELECT c.*, u.user_fname, u.user_lname, u.user_phone, h.hosp_name AS hospital_name
+            FROM children c
+            JOIN users u ON c.chi_user_id = u.user_id
+            LEFT JOIN hospitals h ON c.chi_hospital_id = h.hosp_id
             WHERE c.chi_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $child_id);
 } else {
-    // User ปกติดูได้เฉพาะของตัวเอง
-    $sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
+    // User ปกติดูได้เฉพาะของตัวเอง (รวมชื่อโรงพยาบาล/สาขา)
+        $sql = "SELECT c.*, h.hosp_name AS hospital_name
+            FROM children c
+            LEFT JOIN hospitals h ON c.chi_hospital_id = h.hosp_id
+            WHERE c.chi_id = ? AND c.chi_user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $child_id, $user['user_id']);
 }
@@ -37,6 +41,16 @@ if (!$child) {
     $_SESSION['error'] = "ไม่พบข้อมูลเด็กที่ต้องการ";
     header("Location: children_list.php");
     exit();
+}
+
+// หากเป็น staff ให้ตรวจสอบว่าเป็นโรงพยาบาลเดียวกัน
+if ($user['user_role'] === 'staff') {
+    $user_hosp = $user['user_hospital'] ?? null;
+    if (empty($user_hosp) || (isset($child['chi_hospital_id']) && $child['chi_hospital_id'] != $user_hosp)) {
+        $_SESSION['error'] = "คุณไม่มีสิทธิ์เข้าถึงข้อมูลเด็กจากโรงพยาบาลนี้";
+        header("Location: children_list.php");
+        exit();
+    }
 }
 
 $stmt->close();
@@ -76,7 +90,7 @@ if ($stmt2) {
 
     // ดึงสถิติโดยรวมของการประเมินสำหรับเด็กคนนี้ (สำหรับการแสดงสรุป)
     $summary = null;
-    $conn2 = new mysqli('localhost', 'zteypszw_dspm', 'DSPMDB123321', 'zteypszw_dspm_db');
+    $conn2 = new mysqli('localhost', 'root', '', 'dspm_db');
     if ($conn2->connect_errno === 0) {
         $s = $conn2->prepare("SELECT COUNT(*) AS cnt, COALESCE(SUM(eva_total_score),0) AS total_score, COALESCE(SUM(eva_total_questions),0) AS total_questions, MAX(eva_evaluation_date) AS latest_date FROM evaluations WHERE eva_child_id = ?");
         if ($s) {
@@ -249,6 +263,7 @@ if ($stmt2) {
                             <?php endif; ?>
                         </div>
                         <div class="col-md-6">
+                            <p><strong>โรงพยาบาล:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : ($child['chi_hospital_id'] ?? '-')); ?></p>
                             <p><strong>อายุปัจจุบัน:</strong> <?php echo floor($current_age_months / 12); ?> ปี <?php echo $current_age_months % 12; ?> เดือน</p>
                             <p><strong>เพิ่มข้อมูลเมื่อ:</strong> <?php echo date('d/m/Y H:i', strtotime($child['chi_created_at'])); ?></p>
                         </div>

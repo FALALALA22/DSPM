@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // ถ้าไม่มีข้อผิดพลาด ทำการตรวจสอบข้อมูลในฐานข้อมูล
     if (empty($errors)) {
-        $sql = "SELECT user_id, user_username, user_password, user_fname, user_lname, user_role FROM users WHERE user_username = ?";
+        $sql = "SELECT user_id, user_username, user_password, user_fname, user_lname, user_role, user_hospital FROM users WHERE user_username = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -42,6 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['fname'] = $user['user_fname'];
                 $_SESSION['lname'] = $user['user_lname'];
                 $_SESSION['user_role'] = $user['user_role'];
+                $_SESSION['user_hospital'] = $user['user_hospital'];
                 $_SESSION['login_time'] = date('Y-m-d H:i:s');
                 
                 // อัพเดทเวลาล็อกอินล่าสุด (ถ้าต้องการ)

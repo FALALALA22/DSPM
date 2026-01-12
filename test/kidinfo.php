@@ -6,6 +6,19 @@ require_once '../db_conn.php';
 checkLogin(); // ตรวจสอบว่าล็อกอินแล้วหรือยัง
 $user = getUserInfo();
 
+// ดึงรายการโรงพยาบาลเพื่อแสดงในฟอร์ม
+$hospitals = array();
+$hsql = "SELECT hosp_id, hosp_name FROM hospitals ORDER BY hosp_name";
+$hres = $conn->query($hsql);
+if ($hres) {
+  while ($hr = $hres->fetch_assoc()) {
+    $hospitals[] = $hr;
+  }
+}
+
+// ถ้ามีโรงพยาบาลของผู้ใช้ ให้ดึงสาขาเริ่มต้น
+$user_hosp = $user['user_hospital'] ?? null;
+
 // ถ้ามีการส่งข้อมูลมาแบบ POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $child_name = trim($_POST['child_name']);
@@ -15,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $age_months = 0;
     
     $errors = array();
+    $chi_hospital = isset($_POST['chi_hospital']) && $_POST['chi_hospital'] !== '' ? intval($_POST['chi_hospital']) : null;
     
     // ตรวจสอบความถูกต้องของข้อมูล
     if (empty($child_name)) {
@@ -62,9 +76,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           // หากไม่มีรูป ให้เป็นค่าว่างเพื่อ bind
           $photo_path = $photo_path ?: '';
 
-          $insert_sql = "INSERT INTO children (chi_user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo) VALUES (?, ?, ?, ?, ?, ?)";
+          $insert_sql = "INSERT INTO children (chi_user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo, chi_hospital_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
           $stmt = $conn->prepare($insert_sql);
-          $stmt->bind_param("issiis", $user['user_id'], $child_name, $date_of_birth, $age_years, $age_months, $photo_path);
+          $stmt->bind_param("issiisi", $user['user_id'], $child_name, $date_of_birth, $age_years, $age_months, $photo_path, $chi_hospital);
         
         if ($stmt->execute()) {
             $_SESSION['success'] = "บันทึกข้อมูลเด็กเรียบร้อยแล้ว";
@@ -182,6 +196,18 @@ $conn->close();
                  value="<?php echo isset($_SESSION['form_data']['date_of_birth']) ? htmlspecialchars($_SESSION['form_data']['date_of_birth']) : ''; ?>" 
                  required>
         </div>
+
+        <div class="mb-3">
+          <label for="chi_hospital" class="form-label">สถานที่โรงพยาบาล</label>
+          <select class="form-select" id="chi_hospital" name="chi_hospital">
+            <option value="">-- เลือกสถานที่โรงพยาบาล --</option>
+            <?php foreach ($hospitals as $h): ?>
+              <option value="<?php echo $h['hosp_id']; ?>" <?php echo (isset($user_hosp) && $user_hosp == $h['hosp_id']) ? 'selected' : (isset($_SESSION['form_data']['chi_hospital']) && $_SESSION['form_data']['chi_hospital']==$h['hosp_id'] ? 'selected' : ''); ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <!-- สาขา ถูกตัดออก — เก็บไว้แค่โรงพยาบาล -->
         <div class="row">
           <div class="col-6">
             <div class="mb-3">
@@ -244,6 +270,8 @@ $conn->close();
         document.getElementById('age_months').value = ageMonths;
       }
     });
+
+    // สาขาถูกย้ายออก — ไม่มีการโหลดสาขาแบบไดนามิกอีกต่อไป
   </script>
 </body>
 </html>

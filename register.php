@@ -11,6 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fname = trim($_POST['user_fname']);
     $lname = trim($_POST['user_lname']);
     $phone = trim($_POST['user_phone']);
+    $user_hospital = isset($_POST['user_hospital']) ? intval($_POST['user_hospital']) : null;
     
     // ตรวจสอบความถูกต้องของข้อมูล
     $errors = array();
@@ -33,6 +34,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     if (empty($phone)) {
         $errors[] = "กรุณากรอกเบอร์โทรศัพท์";
+    }
+
+    // ตรวจสอบ hospital ถ้ามีการส่งค่า
+    if (!empty($user_hospital) && !is_int($user_hospital)) {
+        $errors[] = "ค่ารหัสโรงพยาบาลไม่ถูกต้อง";
     }
     
     // ตรวจสอบความยาวชื่อผู้ใช้
@@ -75,9 +81,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
         // บันทึกข้อมูลลงฐานข้อมูล
-        $insert_sql = "INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, user_created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+        $insert_sql = "INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, user_hospital, user_created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $conn->prepare($insert_sql);
-        $stmt->bind_param("sssss", $username, $hashed_password, $fname, $lname, $phone);
+        $stmt->bind_param("sssssi", $username, $hashed_password, $fname, $lname, $phone, $user_hospital);
         
         if ($stmt->execute()) {
             $_SESSION['success'] = "ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ";
@@ -95,6 +101,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($errors)) {
         $_SESSION['errors'] = $errors;
         $_SESSION['form_data'] = $_POST;
+    }
+}
+
+// ดึงรายการโรงพยาบาลเพื่อแสดงในฟอร์ม
+$hospitals = array();
+$hsql = "SELECT hosp_id, hosp_name FROM hospitals ORDER BY hosp_name";
+$hres = $conn->query($hsql);
+if ($hres) {
+    while ($hr = $hres->fetch_assoc()) {
+        $hospitals[] = $hr;
     }
 }
 
@@ -166,6 +182,15 @@ $conn->close();
                     <input type="text" class="form-control" id="user_lname" name="user_lname" 
                            placeholder="กรุณากรอกนามสกุล" 
                            value="<?php echo isset($_SESSION['form_data']['user_lname']) ? htmlspecialchars($_SESSION['form_data']['user_lname']) : ''; ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label for="user_hospital" class="form-label">สถานที่โรงพยาบาล</label>
+                    <select class="form-select" id="user_hospital" name="user_hospital" required>
+                        <option value="">-- เลือกสถานที่โรงพยาบาล --</option>
+                        <?php foreach ($hospitals as $h): ?>
+                            <option value="<?php echo $h['hosp_id']; ?>" <?php echo (isset($_SESSION['form_data']['user_hospital']) && $_SESSION['form_data']['user_hospital']==$h['hosp_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="user_phone" class="form-label">เบอร์โทรศัพท์</label>

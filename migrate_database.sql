@@ -27,6 +27,27 @@ CREATE TABLE users (
     user_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ตารางโรงพยาบาลและสาขา (ถ้ายังไม่มี)
+CREATE TABLE IF NOT EXISTS hospitals (
+    hosp_id INT AUTO_INCREMENT PRIMARY KEY,
+    hosp_name VARCHAR(255) NOT NULL,
+    hosp_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS hospital_branches (
+    branch_id INT AUTO_INCREMENT PRIMARY KEY,
+    branch_hosp_id INT NOT NULL,
+    branch_name VARCHAR(255) NOT NULL,
+    branch_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (branch_hosp_id) REFERENCES hospitals(hosp_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- เพิ่มคอลัมน์ user_hospital ในตาราง users (ถ้ายังไม่มี)
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS user_hospital INT DEFAULT NULL;
+ALTER TABLE users
+    ADD CONSTRAINT IF NOT EXISTS fk_users_hospital FOREIGN KEY (user_hospital) REFERENCES hospitals(hosp_id) ON DELETE SET NULL;
+
 -- สร้างตาราง children ใหม่
 CREATE TABLE children (
     chi_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -42,6 +63,15 @@ CREATE TABLE children (
     chi_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (chi_user_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- เพิ่มคอลัมน์เชื่อมโยงโรงพยาบาล/สาขาใน children
+ALTER TABLE children
+    ADD COLUMN IF NOT EXISTS chi_hospital_id INT DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS chi_branch_id INT DEFAULT NULL;
+ALTER TABLE children
+    ADD CONSTRAINT IF NOT EXISTS fk_children_hospital FOREIGN KEY (chi_hospital_id) REFERENCES hospitals(hosp_id) ON DELETE SET NULL;
+ALTER TABLE children
+    ADD CONSTRAINT IF NOT EXISTS fk_children_branch FOREIGN KEY (chi_branch_id) REFERENCES hospital_branches(branch_id) ON DELETE SET NULL;
 
 -- สร้างตาราง evaluations ใหม่
 CREATE TABLE evaluations (

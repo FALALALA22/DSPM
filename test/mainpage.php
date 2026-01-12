@@ -408,11 +408,31 @@ $user = getUserInfo();
           $result = $stmt->get_result();
           $additional_info = $result->fetch_assoc();
           $stmt->close();
+            // หากเป็น staff ให้ดึงชื่อโรงพยาบาล
+            $user_hospital_name = '';
+            if (!empty($user['user_hospital'])) {
+              $hsql = "SELECT hosp_name FROM hospitals WHERE hosp_id = ?";
+              $hstmt = $conn->prepare($hsql);
+              if ($hstmt) {
+                $hstmt->bind_param('i', $user['user_hospital']);
+                $hstmt->execute();
+                $hres = $hstmt->get_result();
+                $hrow = $hres->fetch_assoc();
+                $user_hospital_name = $hrow['hosp_name'] ?? '';
+                $hstmt->close();
+              }
+            }
           ?>
           <div class="row mb-3 align-items-center">
             <div class="col-12 col-sm-4 col-md-3"><strong class="text-primary">เบอร์โทรศัพท์:</strong></div>
             <div class="col-12 col-sm-8 col-md-9 text-sm-start text-center"><?php echo htmlspecialchars($additional_info['user_phone']); ?></div>
           </div>
+          <?php if ($user['user_role'] === 'staff'): ?>
+          <div class="row mb-3 align-items-center">
+            <div class="col-12 col-sm-4 col-md-3"><strong class="text-primary">สังกัดโรงพยาบาล:</strong></div>
+            <div class="col-12 col-sm-8 col-md-9 text-sm-start text-center"><?php echo htmlspecialchars($user_hospital_name ?: '-'); ?></div>
+          </div>
+          <?php endif; ?>
           <div class="row mb-3 align-items-center">
             <div class="col-12 col-sm-4 col-md-3"><strong class="text-primary">สมาชิกเมื่อ:</strong></div>
             <div class="col-12 col-sm-8 col-md-9 text-sm-start text-center"><?php echo date('d/m/Y H:i', strtotime($additional_info['user_created_at'])); ?></div>

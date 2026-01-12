@@ -20,6 +20,7 @@ function getUserInfo() {
             'fname' => $_SESSION['fname'],
             'lname' => $_SESSION['lname'],
             'user_role' => $_SESSION['user_role'] ?? 'user',
+            'user_hospital' => $_SESSION['user_hospital'] ?? null,
             'login_time' => $_SESSION['login_time']
         );
     }
