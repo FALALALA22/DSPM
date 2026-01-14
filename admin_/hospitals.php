@@ -12,17 +12,18 @@ if ($user['user_role'] !== 'admin') {
 $errors = [];
 // Add hospital
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_hospital') {
-    $name = trim($_POST['hosp_name'] ?? '');
-    if ($name === '') {
-        $errors[] = 'กรุณากรอกชื่อโรงพยาบาล';
-    } else {
-        $ins = $conn->prepare('INSERT INTO hospitals (hosp_name) VALUES (?)');
-        $ins->bind_param('s', $name);
-        if (!$ins->execute()) {
-            $errors[] = 'ไม่สามารถเพิ่มโรงพยาบาลได้';
-        }
-        $ins->close();
+  $name = trim($_POST['hosp_name'] ?? '');
+  $shph = trim($_POST['hosp_shph_id'] ?? '');
+  if ($name === '') {
+    $errors[] = 'กรุณากรอกชื่อโรงพยาบาล';
+  } else {
+    $ins = $conn->prepare('INSERT INTO hospitals (hosp_name, hosp_shph_id) VALUES (?, ?)');
+    $ins->bind_param('ss', $name, $shph);
+    if (!$ins->execute()) {
+      $errors[] = 'ไม่สามารถเพิ่มโรงพยาบาลได้';
     }
+    $ins->close();
+  }
 }
 
 // Delete hospital
@@ -38,7 +39,7 @@ if (isset($_GET['delete_hospital'])) {
 
 // Fetch hospitals
 $hospitals = [];
-$res = $conn->query('SELECT hosp_id, hosp_name FROM hospitals ORDER BY hosp_name');
+$res = $conn->query('SELECT hosp_id, hosp_name, hosp_shph_id FROM hospitals ORDER BY hosp_name');
 if ($res) {
     while ($r = $res->fetch_assoc()) $hospitals[] = $r;
 }
@@ -82,6 +83,7 @@ $conn->close();
           <input type="hidden" name="action" value="add_hospital">
           <div class="col-md-9">
             <input type="text" name="hosp_name" class="form-control" placeholder="ชื่อโรงพยาบาล">
+            <input type="text" name="hosp_shph_id" class="form-control mt-2" placeholder="รหัสโรงพยาบาล">
           </div>
           <div class="col-md-3">
             <button class="btn btn-primary w-100" type="submit"><i class="bi bi-plus-circle"></i> เพิ่มโรงพยาบาล</button>
@@ -97,11 +99,12 @@ $conn->close();
         </div>
         <div class="table-responsive">
         <table class="table table-hover align-middle">
-          <thead><tr><th>ชื่อ</th><th class="text-end">การกระทำ</th></tr></thead>
+          <thead><tr><th>ชื่อ</th><th>รหัส</th><th class="text-end">การกระทำ</th></tr></thead>
           <tbody>
             <?php foreach ($hospitals as $h): ?>
               <tr>
                 <td><?php echo htmlspecialchars($h['hosp_name']); ?></td>
+                <td><?php echo htmlspecialchars($h['hosp_shph_id'] ?? ''); ?></td>
                 <td class="text-end table-actions">
                   <a href="staff.php?hospital_id=<?php echo $h['hosp_id']; ?>" class="btn btn-sm btn-outline-info"><i class="bi bi-people"></i> ดูพนักงาน</a>
                   <a href="hospitals.php?delete_hospital=<?php echo $h['hosp_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบโรงพยาบาลนี้? จะลบความสัมพันธ์กับพนักงานด้วย');"><i class="bi bi-trash"></i> ลบ</a>
