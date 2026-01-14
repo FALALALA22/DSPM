@@ -29,6 +29,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     $errors = array();
     $chi_hospital = isset($_POST['chi_hospital']) && $_POST['chi_hospital'] !== '' ? intval($_POST['chi_hospital']) : null;
+
+    // ถ้าผู้ใช้ไม่ได้เลือกโรงพยาบาล ให้ใช้โรงพยาบาลของผู้ปกครองเป็นค่าเริ่มต้น
+    if (is_null($chi_hospital) && !empty($user_hosp)) {
+      $chi_hospital = intval($user_hosp);
+    }
     
     // ตรวจสอบความถูกต้องของข้อมูล
     if (empty($child_name)) {
@@ -197,7 +202,7 @@ $conn->close();
                  required>
         </div>
 
-        <div class="mb-3">
+        <!--<div class="mb-3">
           <label for="chi_hospital" class="form-label">สถานที่โรงพยาบาล</label>
           <select class="form-select" id="chi_hospital" name="chi_hospital">
             <option value="">-- เลือกสถานที่โรงพยาบาล --</option>
@@ -205,7 +210,7 @@ $conn->close();
               <option value="<?php echo $h['hosp_id']; ?>" <?php echo (isset($user_hosp) && $user_hosp == $h['hosp_id']) ? 'selected' : (isset($_SESSION['form_data']['chi_hospital']) && $_SESSION['form_data']['chi_hospital']==$h['hosp_id'] ? 'selected' : ''); ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
             <?php endforeach; ?>
           </select>
-        </div>
+        </div>-->
 
         <!-- สาขา ถูกตัดออก — เก็บไว้แค่โรงพยาบาล -->
         <div class="row">
