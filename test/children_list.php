@@ -17,16 +17,16 @@ $paramTypes = '';
 
 // ถ้าเป็น user ปกติ ให้ดูเฉพาะของตัวเอง
 if ($user['user_role'] === 'user') {
-    $whereConditions[] = "c.chi_user_id = ?";
+    $whereConditions[] = "c.user_id = ?";
     $params[] = $user['user_id'];
     $paramTypes .= 'i';
 }
 
 // ถ้าเป็น staff ให้ดูเฉพาะของโรงพยาบาลของตัวเอง
 if ($user['user_role'] === 'staff') {
-    if (!empty($user['user_hospital'])) {
-        $whereConditions[] = "c.chi_hospital_id = ?";
-        $params[] = $user['user_hospital'];
+    if (!empty($user['hosp_shph_id'])) {
+        $whereConditions[] = "c.hosp_shph_id = ?";
+        $params[] = $user['hosp_shph_id'];
         $paramTypes .= 'i';
     }
 }
@@ -40,7 +40,7 @@ if (!empty($search)) {
 
 // เพิ่มฟิลเตอร์ user_id (เฉพาะ admin และ staff)
 if (!empty($filter_user) && ($user['user_role'] === 'admin' || $user['user_role'] === 'staff')) {
-    $whereConditions[] = "c.chi_user_id = ?";
+    $whereConditions[] = "c.user_id = ?";
     $params[] = $filter_user;
     $paramTypes .= 'i';
 }
@@ -50,8 +50,8 @@ if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     // Admin และ Staff ดูได้ทุกคน พร้อมข้อมูลผู้ปกครอง
         $sql = "SELECT c.*, u.user_fname, u.user_lname, u.user_phone, h.hosp_name AS hospital_name
             FROM children c
-            JOIN users u ON c.chi_user_id = u.user_id
-            LEFT JOIN hospitals h ON c.chi_hospital_id = h.hosp_id";
+            JOIN users u ON c.user_id = u.user_id
+            LEFT JOIN hospitals h ON c.hosp_shph_id = h.hosp_shph_id";
     
     if (!empty($whereConditions)) {
         $sql .= " WHERE " . implode(" AND ", $whereConditions);
@@ -60,7 +60,7 @@ if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     $sql .= " ORDER BY c.chi_created_at DESC";
 } else {
     // User ปกติดูได้เฉพาะของตัวเอง
-    $sql = "SELECT c.*, h.hosp_name AS hospital_name FROM children c LEFT JOIN hospitals h ON c.chi_hospital_id = h.hosp_id WHERE " . implode(" AND ", $whereConditions);
+    $sql = "SELECT c.*, h.hosp_name AS hospital_name FROM children c LEFT JOIN hospitals h ON c.hosp_shph_id = h.hosp_shph_id WHERE " . implode(" AND ", $whereConditions);
     $sql .= " ORDER BY c.chi_created_at DESC";
 }
 
@@ -76,15 +76,15 @@ $children = $result->fetch_all(MYSQLI_ASSOC);
 $users_list = [];
 if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     // หากเป็น staff ให้จำกัดเฉพาะผู้ปกครองที่อยู่ในโรงพยาบาลเดียวกัน
-    if ($user['user_role'] === 'staff' && !empty($user['user_hospital'])) {
+    if ($user['user_role'] === 'staff' && !empty($user['hosp_shph_id'])) {
         // จำกัดเป็นผู้ปกครองที่มีเด็กในโรงพยาบาลเดียวกับ staff
         $users_sql = "SELECT DISTINCT u.user_id, u.user_fname, u.user_lname
                       FROM users u
-                      JOIN children c ON c.chi_user_id = u.user_id
-                      WHERE u.user_role = 'user' AND c.chi_hospital_id = ?
+                      JOIN children c ON c.user_id = u.user_id
+                      WHERE u.user_role = 'user' AND c.hosp_shph_id = ?
                       ORDER BY u.user_fname, u.user_lname";
         $users_stmt = $conn->prepare($users_sql);
-        $users_stmt->bind_param('i', $user['user_hospital']);
+        $users_stmt->bind_param('i', $user['hosp_shph_id']);
     } else {
         $users_sql = "SELECT user_id, user_fname, user_lname FROM users WHERE user_role = 'user' ORDER BY user_fname, user_lname";
         $users_stmt = $conn->prepare($users_sql);
@@ -351,7 +351,7 @@ $conn->close();
                                             <?php if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff'): ?>
                                                 <strong>ผู้ปกครอง:</strong> <?php echo htmlspecialchars($child['user_fname'] . ' ' . $child['user_lname']); ?><br>
                                                 <strong>เบอร์โทร:</strong> <?php echo htmlspecialchars($child['user_phone']); ?><br>
-                                                <strong>โรงพยาบาล:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : $child['chi_hospital_id']); ?><br>
+                                                <strong>โรงพยาบาล:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : $child['hosp_shph_id']); ?><br>
                                             <?php endif; ?>
                                             <small class="text-muted">เพิ่มเมื่อ: <?php echo date('d/m/Y H:i', strtotime($child['chi_created_at'])); ?></small>
                                         </p>

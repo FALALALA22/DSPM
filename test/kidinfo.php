@@ -8,7 +8,7 @@ $user = getUserInfo();
 
 // ดึงรายการโรงพยาบาลเพื่อแสดงในฟอร์ม
 $hospitals = array();
-$hsql = "SELECT hosp_id, hosp_name FROM hospitals ORDER BY hosp_name";
+$hsql = "SELECT hosp_shph_id, hosp_name FROM hospitals ORDER BY hosp_name";
 $hres = $conn->query($hsql);
 if ($hres) {
   while ($hr = $hres->fetch_assoc()) {
@@ -17,7 +17,7 @@ if ($hres) {
 }
 
 // ถ้ามีโรงพยาบาลของผู้ใช้ ให้ดึงสาขาเริ่มต้น
-$user_hosp = $user['user_hospital'] ?? null;
+$user_hosp = $user['hosp_shph_id'] ?? null;
 
 // ถ้ามีการส่งข้อมูลมาแบบ POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $age_months = 0;
     
     $errors = array();
-    $chi_hospital = isset($_POST['chi_hospital']) && $_POST['chi_hospital'] !== '' ? intval($_POST['chi_hospital']) : null;
+    $chi_hospital = isset($_POST['hosp_shph_id']) && $_POST['hosp_shph_id'] !== '' ? intval($_POST['hosp_shph_id']) : null;
 
     // ถ้าผู้ใช้ไม่ได้เลือกโรงพยาบาล ให้ใช้โรงพยาบาลของผู้ปกครองเป็นค่าเริ่มต้น
     if (is_null($chi_hospital) && !empty($user_hosp)) {
@@ -81,18 +81,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           // หากไม่มีรูป ให้เป็นค่าว่างเพื่อ bind
           $photo_path = $photo_path ?: '';
 
-          $insert_sql = "INSERT INTO children (chi_user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo, chi_hospital_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+          $insert_sql = "INSERT INTO children (user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo, hosp_shph_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
           $stmt = $conn->prepare($insert_sql);
           $stmt->bind_param("issiisi", $user['user_id'], $child_name, $date_of_birth, $age_years, $age_months, $photo_path, $chi_hospital);
         
         if ($stmt->execute()) {
-            $_SESSION['success'] = "บันทึกข้อมูลเด็กเรียบร้อยแล้ว";
-            $stmt->close();
-            $conn->close();
-            header("Location: children_list.php");
-            exit();
+          // Ensure children.chi_id matches the generated auto-increment id (chi_id_auto or insert_id)
+          $newId = $conn->insert_id;
+          if ($newId) {
+            $upd = $conn->prepare('UPDATE children SET chi_id = ? WHERE chi_id_auto = ?');
+            if ($upd) {
+              $upd->bind_param('ii', $newId, $newId);
+              $upd->execute();
+              $upd->close();
+            }
+          }
+
+          $_SESSION['success'] = "บันทึกข้อมูลเด็กเรียบร้อยแล้ว";
+          $stmt->close();
+          $conn->close();
+          header("Location: children_list.php");
+          exit();
         } else {
+          if ($conn->errno === 1062) {
+            $errors[] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล (ค่าซ้ำ) กรุณาตรวจสอบหรือแจ้งผู้ดูแล";
+          } else {
             $errors[] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง";
+          }
         }
         $stmt->close();
     }
@@ -207,7 +222,7 @@ $conn->close();
           <select class="form-select" id="chi_hospital" name="chi_hospital">
             <option value="">-- เลือกสถานที่โรงพยาบาล --</option>
             <?php foreach ($hospitals as $h): ?>
-              <option value="<?php echo $h['hosp_id']; ?>" <?php echo (isset($user_hosp) && $user_hosp == $h['hosp_id']) ? 'selected' : (isset($_SESSION['form_data']['chi_hospital']) && $_SESSION['form_data']['chi_hospital']==$h['hosp_id'] ? 'selected' : ''); ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
+              <option value="<?php echo $h['hosp_shph_id']; ?>" <?php echo (isset($user_hosp) && $user_hosp == $h['hosp_shph_id']) ? 'selected' : (isset($_SESSION['form_data']['chi_hospital']) && $_SESSION['form_data']['chi_hospital']==$h['hosp_shph_id'] ? 'selected' : ''); ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
             <?php endforeach; ?>
           </select>
         </div>-->

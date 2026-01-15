@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $fname = trim($_POST['user_fname'] ?? '');
     $lname = trim($_POST['user_lname'] ?? '');
     $phone = trim($_POST['user_phone'] ?? '');
-    $user_hospital = isset($_POST['user_hospital']) ? intval($_POST['user_hospital']) : null;
+    $hosp_shph_id = isset($_POST['hosp_shph_id']) ? intval($_POST['hosp_shph_id']) : null;
 
     if ($username === '' || $password === '' || $fname === '' || $lname === '') {
         $errors[] = 'กรุณากรอกข้อมูลให้ครบถ้วน';
@@ -36,10 +36,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     if (empty($errors)) {
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $ins = $conn->prepare('INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, user_hospital, user_role, user_created_at) VALUES (?, ?, ?, ?, ?, ?, "staff", NOW())');
-        $ins->bind_param('sssssi', $username, $hash, $fname, $lname, $phone, $user_hospital);
-        if (!$ins->execute()) {
-            $errors[] = 'ไม่สามารถเพิ่มพนักงานได้';
+        $ins = $conn->prepare('INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, hosp_shph_id, user_role, user_created_at) VALUES (?, ?, ?, ?, ?, ?, "staff", NOW())');
+        $ins->bind_param('sssssi', $username, $hash, $fname, $lname, $phone, $hosp_shph_id);
+        if ($ins->execute()) {
+          // Ensure users.user_id matches the generated auto-increment id (user_id_auto or insert_id)
+          $newId = $conn->insert_id; // this is the AUTO_INCREMENT value
+          if ($newId) {
+            $upd = $conn->prepare('UPDATE users SET user_id = ? WHERE user_id_auto = ?');
+            if ($upd) {
+              $upd->bind_param('ii', $newId, $newId);
+              $upd->execute();
+              $upd->close();
+            }
+          }
+        } else {
+          // Provide clearer error for duplicate key on user_id
+          if ($conn->errno === 1062) {
+            $errors[] = 'ไม่สามารถเพิ่มพนักงานได้ (ค่าซ้ำใน user_id) - โปรดปรับโครงสร้างฐานข้อมูลก่อน';
+          } else {
+            $errors[] = 'ไม่สามารถเพิ่มพนักงานได้: ' . $conn->error;
+          }
         }
         $ins->close();
     }
@@ -59,21 +75,21 @@ if (isset($_GET['delete_user'])) {
 // Fetch hospitals for select
 // Fetch hospitals for select and for name lookup
 $hospitals = [];
-$hres = $conn->query('SELECT hosp_id, hosp_name FROM hospitals ORDER BY hosp_name');
+$hres = $conn->query('SELECT hosp_shph_id, hosp_name FROM hospitals ORDER BY hosp_name');
 if ($hres) while ($r = $hres->fetch_assoc()) $hospitals[] = $r;
 
 // Build hospital id -> name map for display
 $hmap = [];
-foreach ($hospitals as $hh) $hmap[$hh['hosp_id']] = $hh['hosp_name'];
+foreach ($hospitals as $hh) $hmap[$hh['hosp_shph_id']] = $hh['hosp_name'];
 
 // Fetch staff grouped by hospital (or filter by hospital_id)
 $filter_hospital = isset($_GET['hospital_id']) ? (int)$_GET['hospital_id'] : 0;
 $staff = [];
 if ($filter_hospital) {
-    $s = $conn->prepare('SELECT user_id, user_username, user_fname, user_lname, user_phone, user_hospital FROM users WHERE user_role = "staff" AND user_hospital = ? ORDER BY user_fname');
+    $s = $conn->prepare('SELECT user_id, user_username, user_fname, user_lname, user_phone, hosp_shph_id FROM users WHERE user_role = "staff" AND hosp_shph_id = ? ORDER BY user_fname');
     $s->bind_param('i', $filter_hospital);
 } else {
-    $s = $conn->prepare('SELECT user_id, user_username, user_fname, user_lname, user_phone, user_hospital FROM users WHERE user_role = "staff" ORDER BY user_hospital, user_fname');
+    $s = $conn->prepare('SELECT user_id, user_username, user_fname, user_lname, user_phone, hosp_shph_id FROM users WHERE user_role = "staff" ORDER BY hosp_shph_id, user_fname');
 }
 $s->execute();
 $sr = $s->get_result();
@@ -120,10 +136,10 @@ $conn->close();
           <div class="col-md-3"><input name="user_username" class="form-control" placeholder="ชื่อผู้ใช้"></div>
           <div class="col-md-3"><input name="user_password" type="password" class="form-control" placeholder="รหัสผ่าน"></div>
           <div class="col-md-3">
-            <select name="user_hospital" class="form-select">
+            <select name="hosp_shph_id" class="form-select">
               <option value="">-- เลือกโรงพยาบาล --</option>
               <?php foreach ($hospitals as $h): ?>
-                <option value="<?php echo $h['hosp_id']; ?>"><?php echo htmlspecialchars($h['hosp_name']); ?></option>
+                <option value="<?php echo $h['hosp_shph_id']; ?>"><?php echo htmlspecialchars($h['hosp_name']); ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -143,7 +159,7 @@ $conn->close();
             <select name="hospital_id" class="form-select">
               <option value="">-- แสดงพนักงานทั้งหมด --</option>
               <?php foreach ($hospitals as $h): ?>
-                <option value="<?php echo $h['hosp_id']; ?>" <?php echo ($filter_hospital == $h['hosp_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
+                <option value="<?php echo $h['hosp_shph_id']; ?>" <?php echo ($filter_hospital == $h['hosp_shph_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -159,7 +175,7 @@ $conn->close();
                 <td><?php echo htmlspecialchars($s['user_fname'] . ' ' . $s['user_lname']); ?></td>
                 <td><?php echo htmlspecialchars($s['user_username']); ?></td>
                 <td><?php echo htmlspecialchars($s['user_phone']); ?></td>
-                <td><?php echo htmlspecialchars(!empty($s['user_hospital']) && isset($hmap[$s['user_hospital']]) ? $hmap[$s['user_hospital']] : '-'); ?></td>
+                <td><?php echo htmlspecialchars(!empty($s['hosp_shph_id']) && isset($hmap[$s['hosp_shph_id']]) ? $hmap[$s['hosp_shph_id']] : '-'); ?></td>
                 <td class="text-end">
                   <a href="staff.php?delete_user=<?php echo $s['user_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบพนักงานนี้?')"><i class="bi bi-trash"></i> ลบ</a>
                 </td>

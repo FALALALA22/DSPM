@@ -46,7 +46,8 @@ CREATE INDEX idx_chi_child_name ON children(chi_child_name);
 
 -- สร้างตาราง evaluations สำหรับเก็บผลการประเมิน
 CREATE TABLE IF NOT EXISTS evaluations (
-    eva_id_auto INT AUTO_INCREMENT PRIMARY KEY,
+    eva_id_auto INT AUTO_INCREMENT PRIMARY KEY,ฃ
+    eva_id INT NOT NULL,
     chi_id INT NOT NULL,
     user_id INT NOT NULL,
     eva_age_range VARCHAR(10) NOT NULL,
@@ -76,3 +77,21 @@ CREATE TABLE IF NOT EXISTS hospitals (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- เพิ่ม index สำหรับการค้นหา
 CREATE INDEX idx_hosp_shph_id ON hospitals(hosp_shph_id);
+
+-- Triggers: sync `user_id` from `user_id_auto` only once (on insert)
+DROP TRIGGER IF EXISTS trg_users_sync_user_id_after_insert;
+DROP TRIGGER IF EXISTS trg_users_sync_user_id_after_update;
+
+DELIMITER $$
+CREATE TRIGGER trg_users_sync_user_id_after_insert
+AFTER INSERT ON users
+FOR EACH ROW
+BEGIN
+    -- Only set user_id when it is not provided (0 or NULL)
+    IF NEW.user_id = 0 OR NEW.user_id IS NULL THEN
+        UPDATE users
+            SET user_id = NEW.user_id_auto
+            WHERE user_id_auto = NEW.user_id_auto;
+    END IF;
+END$$
+DELIMITER ;

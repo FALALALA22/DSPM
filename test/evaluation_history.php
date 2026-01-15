@@ -22,7 +22,7 @@ if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     $stmt->bind_param("i", $child_id);
 } else {
     // User ปกติดูได้เฉพาะของตัวเอง
-    $sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
+    $sql = "SELECT * FROM children WHERE chi_id = ? AND user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $child_id, $user['user_id']);
 }
@@ -38,8 +38,8 @@ if (!$child) {
 
 $sql = "SELECT e.*, DATE(e.eva_evaluation_date) as eval_date, u.user_fname, u.user_lname, u.user_role as evaluator_role
     FROM evaluations e
-    LEFT JOIN users u ON e.eva_user_id = u.user_id
-    WHERE e.eva_child_id = ?
+    LEFT JOIN users u ON e.user_id = u.user_id
+    WHERE e.chi_id = ?
     ORDER BY e.eva_evaluation_date DESC, e.eva_version DESC";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $child_id);

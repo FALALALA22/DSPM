@@ -39,7 +39,7 @@ if (isset($_GET['delete_hospital'])) {
 
 // Fetch hospitals
 $hospitals = [];
-$res = $conn->query('SELECT hosp_id, hosp_name, hosp_shph_id FROM hospitals ORDER BY hosp_name');
+$res = $conn->query('SELECT hosp_name, hosp_shph_id FROM hospitals ORDER BY hosp_name');
 if ($res) {
     while ($r = $res->fetch_assoc()) $hospitals[] = $r;
 }
@@ -106,8 +106,8 @@ $conn->close();
                 <td><?php echo htmlspecialchars($h['hosp_name']); ?></td>
                 <td><?php echo htmlspecialchars($h['hosp_shph_id'] ?? ''); ?></td>
                 <td class="text-end table-actions">
-                  <a href="staff.php?hospital_id=<?php echo $h['hosp_id']; ?>" class="btn btn-sm btn-outline-info"><i class="bi bi-people"></i> ดูพนักงาน</a>
-                  <a href="hospitals.php?delete_hospital=<?php echo $h['hosp_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบโรงพยาบาลนี้? จะลบความสัมพันธ์กับพนักงานด้วย');"><i class="bi bi-trash"></i> ลบ</a>
+                  <a href="staff.php?hospital_id=<?php echo $h['hosp_shph_id']; ?>" class="btn btn-sm btn-outline-info"><i class="bi bi-people"></i> ดูพนักงาน</a>
+                  <a href="hospitals.php?delete_hospital=<?php echo $h['hosp_shph_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบโรงพยาบาลนี้? จะลบความสัมพันธ์กับพนักงานด้วย');"><i class="bi bi-trash"></i> ลบ</a>
                 </td>
               </tr>
             <?php endforeach; ?>

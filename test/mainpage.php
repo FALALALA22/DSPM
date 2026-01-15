@@ -408,13 +408,13 @@ $user = getUserInfo();
           $result = $stmt->get_result();
           $additional_info = $result->fetch_assoc();
           $stmt->close();
-            // หากเป็น staff ให้ดึงชื่อโรงพยาบาล
+            // หากเป็น staff ให้ดึงชื่อโรงพยาบาล (ใช้ hosp_shph_id จาก session)
             $user_hospital_name = '';
-            if (!empty($user['user_hospital'])) {
-              $hsql = "SELECT hosp_name FROM hospitals WHERE hosp_id = ?";
+            if (!empty($user['hosp_shph_id'])) {
+              $hsql = "SELECT hosp_name FROM hospitals WHERE hosp_shph_id = ?";
               $hstmt = $conn->prepare($hsql);
               if ($hstmt) {
-                $hstmt->bind_param('i', $user['user_hospital']);
+                $hstmt->bind_param('i', $user['hosp_shph_id']);
                 $hstmt->execute();
                 $hres = $hstmt->get_result();
                 $hrow = $hres->fetch_assoc();

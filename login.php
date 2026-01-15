@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // ถ้าไม่มีข้อผิดพลาด ทำการตรวจสอบข้อมูลในฐานข้อมูล
     if (empty($errors)) {
-        $sql = "SELECT user_id, user_username, user_password, user_fname, user_lname, user_role, user_hospital FROM users WHERE user_username = ?";
+        $sql = "SELECT user_id, user_id, user_username, user_password, user_fname, user_lname, user_role, hosp_shph_id FROM users WHERE user_username = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -37,18 +37,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // ตรวจสอบรหัสผ่าน
             if (password_verify($password, $user['user_password'])) {
                 // ล็อกอินสำเร็จ - เก็บข้อมูลใน session
-                $_SESSION['user_id'] = $user['user_id'];
+                // If user_id is empty/0, fall back to user_id_auto (the actual AUTO_INCREMENT id)
+                $sessionUserId = (!empty($user['user_id']) && $user['user_id'] != 0) ? $user['user_id'] : $user['user_id'];
+                $_SESSION['user_id'] = $sessionUserId;
                 $_SESSION['username'] = $user['user_username'];
                 $_SESSION['fname'] = $user['user_fname'];
                 $_SESSION['lname'] = $user['user_lname'];
                 $_SESSION['user_role'] = $user['user_role'];
-                $_SESSION['user_hospital'] = $user['user_hospital'];
+                $_SESSION['hosp_shph_id'] = $user['hosp_shph_id'];
                 $_SESSION['login_time'] = date('Y-m-d H:i:s');
                 
                 // อัพเดทเวลาล็อกอินล่าสุด (ถ้าต้องการ)
-                $update_sql = "UPDATE users SET user_updated_at = NOW() WHERE user_id = ?";
+                // Update the user's updated_at using either id column (user_id or user_id_auto)
+                $update_sql = "UPDATE users SET user_updated_at = NOW() WHERE user_id = ? OR user_id = ?";
                 $update_stmt = $conn->prepare($update_sql);
-                $update_stmt->bind_param("i", $user['user_id']);
+                $update_stmt->bind_param("ii", $sessionUserId, $sessionUserId);
                 $update_stmt->execute();
                 $update_stmt->close();
                 

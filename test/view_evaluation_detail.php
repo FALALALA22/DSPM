@@ -16,24 +16,24 @@ if ($evaluation_id == 0) {
 
 // ดึงข้อมูลการประเมิน - ตรวจสอบสิทธิ์ตาม role
 // Admin และ Staff ดูได้ทุกการประเมิน
-// ผู้ใช้งานปกติ (ผู้ปกครอง) ควรดูได้หากเป็นเจ้าของเด็ก (children.chi_user_id)
+// ผู้ใช้งานปกติ (ผู้ปกครอง) ควรดูได้หากเป็นเจ้าของเด็ก (children.user_id)
 if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
-    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo as photo, c.chi_user_id as child_owner_id,
+    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo as photo, c.user_id as child_owner_id,
                    u.user_fname AS evaluator_fname, u.user_lname AS evaluator_lname, u.user_role AS evaluator_role
             FROM evaluations e
-            JOIN children c ON e.eva_child_id = c.chi_id
-            LEFT JOIN users u ON e.eva_user_id = u.user_id
+            JOIN children c ON e.chi_id = c.chi_id
+            LEFT JOIN users u ON e.user_id = u.user_id
             WHERE e.eva_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $evaluation_id);
 } else {
     // สำหรับผู้ปกครอง ให้อนุญาตถ้าเป็นผู้สร้างผลการประเมินหรือเป็นเจ้าของเด็ก
-    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo as photo, c.chi_user_id as child_owner_id,
+    $sql = "SELECT e.*, c.chi_child_name as child_name, c.chi_photo as photo, c.user_id as child_owner_id,
                    u.user_fname AS evaluator_fname, u.user_lname AS evaluator_lname, u.user_role AS evaluator_role
             FROM evaluations e
-            JOIN children c ON e.eva_child_id = c.chi_id
-            LEFT JOIN users u ON e.eva_user_id = u.user_id
-            WHERE e.eva_id = ? AND (e.eva_user_id = ? OR c.chi_user_id = ?)";
+            JOIN children c ON e.chi_id = c.chi_id
+            LEFT JOIN users u ON e.user_id = u.user_id
+            WHERE e.eva_id = ? AND (e.user_id = ? OR c.user_id = ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iii", $evaluation_id, $user['user_id'], $user['user_id']);
 }
@@ -1687,7 +1687,7 @@ $questions = getQuestionsByAgeRange($evaluation['eva_age_range']);
         <!-- Action Buttons -->
         <div class="row mt-4">
             <div class="col-12 text-center">
-                <a href="evaluation_history.php?child_id=<?= $evaluation['eva_child_id'] ?>" 
+                <a href="evaluation_history.php?child_id=<?= $evaluation['chi_id'] ?>" 
                    class="btn btn-purple me-2">
                     <i class="fas fa-arrow-left me-2"></i>กลับไปดูประวัติ
                 </a>

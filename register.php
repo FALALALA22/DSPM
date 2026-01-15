@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fname = trim($_POST['user_fname']);
     $lname = trim($_POST['user_lname']);
     $phone = trim($_POST['user_phone']);
-    $user_hospital = isset($_POST['user_hospital']) ? intval($_POST['user_hospital']) : null;
+    $hosp_shph_id = isset($_POST['hosp_shph_id']) ? intval($_POST['hosp_shph_id']) : null;
     
     // ตรวจสอบความถูกต้องของข้อมูล
     $errors = array();
@@ -36,9 +36,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errors[] = "กรุณากรอกเบอร์โทรศัพท์";
     }
 
-    // ตรวจสอบ hospital ถ้ามีการส่งค่า
-    if (!empty($user_hospital) && !is_int($user_hospital)) {
-        $errors[] = "ค่ารหัสโรงพยาบาลไม่ถูกต้อง";
+    // ตรวจสอบ hospital (ต้องเลือก)
+    if (empty($hosp_shph_id)) {
+        $errors[] = "กรุณาเลือกสถานที่โรงพยาบาล";
     }
     
     // ตรวจสอบความยาวชื่อผู้ใช้
@@ -81,18 +81,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
         // บันทึกข้อมูลลงฐานข้อมูล
-        $insert_sql = "INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, user_hospital, user_created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())";
+        $insert_sql = "INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, hosp_shph_id, user_created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $conn->prepare($insert_sql);
-        $stmt->bind_param("sssssi", $username, $hashed_password, $fname, $lname, $phone, $user_hospital);
+        $stmt->bind_param("sssssi", $username, $hashed_password, $fname, $lname, $phone, $hosp_shph_id);
         
         if ($stmt->execute()) {
+            // Ensure users.user_id matches the generated auto-increment id (user_id_auto or insert_id)
+            $newId = $conn->insert_id;
+            if ($newId) {
+                $upd = $conn->prepare('UPDATE users SET user_id = ? WHERE user_id_auto = ?');
+                if ($upd) {
+                    $upd->bind_param('ii', $newId, $newId);
+                    $upd->execute();
+                    $upd->close();
+                }
+            }
+
             $_SESSION['success'] = "ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ";
             $stmt->close();
             $conn->close();
             header("Location: login.php");
             exit();
         } else {
-            $errors[] = "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง";
+            if ($conn->errno === 1062) {
+                $errors[] = "เกิดข้อผิดพลาดในการลงทะเบียน (ค่าซ้ำ) กรุณาลองใหม่หรือแจ้งผู้ดูแล";
+            } else {
+                $errors[] = "เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง";
+            }
         }
         $stmt->close();
     }
@@ -106,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // ดึงรายการโรงพยาบาลเพื่อแสดงในฟอร์ม
 $hospitals = array();
-$hsql = "SELECT hosp_id, hosp_name FROM hospitals ORDER BY hosp_name";
+$hsql = "SELECT hosp_shph_id, hosp_name FROM hospitals ORDER BY hosp_name";
 $hres = $conn->query($hsql);
 if ($hres) {
     while ($hr = $hres->fetch_assoc()) {
@@ -185,10 +200,10 @@ $conn->close();
                 </div>
                 <div class="mb-3">
                     <label for="user_hospital" class="form-label">สถานที่โรงพยาบาล</label>
-                    <select class="form-select" id="user_hospital" name="user_hospital" required>
+                    <select class="form-select" id="user_hospital" name="hosp_shph_id" required>
                         <option value="">-- เลือกสถานที่โรงพยาบาล --</option>
                         <?php foreach ($hospitals as $h): ?>
-                            <option value="<?php echo $h['hosp_id']; ?>" <?php echo (isset($_SESSION['form_data']['user_hospital']) && $_SESSION['form_data']['user_hospital']==$h['hosp_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
+                            <option value="<?php echo $h['hosp_shph_id']; ?>" <?php echo (isset($_SESSION['form_data']['hosp_shph_id']) && $_SESSION['form_data']['hosp_shph_id']==$h['hosp_shph_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>

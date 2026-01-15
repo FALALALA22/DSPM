@@ -23,7 +23,7 @@ if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     $stmt->bind_param("i", $child_id);
 } else {
     // User ปกติประเมินได้เฉพาะเด็กของตัวเอง
-    $sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
+    $sql = "SELECT * FROM children WHERE chi_id = ? AND user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $child_id, $user['user_id']);
 }
@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
     
     // หาเวอร์ชันล่าสุดสำหรับการประเมินนี้
-    $version_sql = "SELECT MAX(eva_version) as max_version FROM evaluations WHERE eva_child_id = ? AND eva_age_range = ? AND eva_evaluation_date = ?";
+    $version_sql = "SELECT MAX(eva_version) as max_version FROM evaluations WHERE chi_id = ? AND eva_age_range = ? AND eva_evaluation_date = ?";
     $version_stmt = $conn->prepare($version_sql);
     $version_stmt->bind_param("iss", $child_id, $age_range, $evaluation_date);
     $version_stmt->execute();
@@ -72,13 +72,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $version_stmt->close();
     
     // เพิ่มข้อมูลใหม่เสมอ (ไม่แทนที่)
-    $insert_sql = "INSERT INTO evaluations (eva_child_id, eva_user_id, eva_age_range, eva_responses, eva_total_score, eva_total_questions, eva_evaluation_date, eva_evaluation_time, eva_version, eva_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $insert_sql = "INSERT INTO evaluations (chi_id, user_id, eva_age_range, eva_responses, eva_total_score, eva_total_questions, eva_evaluation_date, eva_evaluation_time, eva_version, eva_notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($insert_sql);
     $total_questions = 5; // แบบประเมินมีทั้งหมด 5 ข้อ (ข้อ 60-64)
     $stmt->bind_param("iisssissis", $child_id, $user['user_id'], $age_range, $evaluation_json, $total_passed, $total_questions, $evaluation_date, $evaluation_time, $next_version, $notes);
     
     if ($stmt->execute()) {
-        $evaluation_id = $conn->insert_id;
+      $evaluation_id = $conn->insert_id;
+      if ($evaluation_id) {
+        $upd = $conn->prepare('UPDATE evaluations SET eva_id = ? WHERE eva_id_auto = ?');
+        if ($upd) {
+          $upd->bind_param('ii', $evaluation_id, $evaluation_id);
+          $upd->execute();
+          $upd->close();
+        }
+      }
         if ($next_version > 1) {
             $_SESSION['success'] = "บันทึกผลการประเมินครั้งที่ {$next_version} เรียบร้อยแล้ว (อัพเดทจากครั้งก่อน)";
         } else {
@@ -96,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // ดึงการประเมินล่าสุดถ้ามี (สำหรับแสดงข้อมูลเดิม)
 $latest_evaluation = null;
-$latest_sql = "SELECT * FROM evaluations WHERE eva_child_id = ? AND eva_age_range = ? ORDER BY eva_evaluation_date DESC, eva_version DESC LIMIT 1";
+$latest_sql = "SELECT * FROM evaluations WHERE chi_id = ? AND eva_age_range = ? ORDER BY eva_evaluation_date DESC, eva_version DESC LIMIT 1";
 $latest_stmt = $conn->prepare($latest_sql);
 $latest_stmt->bind_param("is", $child_id, $age_range);
 $latest_stmt->execute();

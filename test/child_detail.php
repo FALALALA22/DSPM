@@ -19,8 +19,8 @@ if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     // Admin และ Staff ดูได้ทุกคน พร้อมข้อมูลผู้ปกครอง และชื่อโรงพยาบาล/สาขา
         $sql = "SELECT c.*, u.user_fname, u.user_lname, u.user_phone, h.hosp_name AS hospital_name
             FROM children c
-            JOIN users u ON c.chi_user_id = u.user_id
-            LEFT JOIN hospitals h ON c.chi_hospital_id = h.hosp_id
+            JOIN users u ON c.user_id = u.user_id
+            LEFT JOIN hospitals h ON c.hosp_shph_id = h.hosp_shph_id
             WHERE c.chi_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $child_id);
@@ -28,8 +28,8 @@ if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     // User ปกติดูได้เฉพาะของตัวเอง (รวมชื่อโรงพยาบาล/สาขา)
         $sql = "SELECT c.*, h.hosp_name AS hospital_name
             FROM children c
-            LEFT JOIN hospitals h ON c.chi_hospital_id = h.hosp_id
-            WHERE c.chi_id = ? AND c.chi_user_id = ?";
+            LEFT JOIN hospitals h ON c.hosp_shph_id = h.hosp_shph_id
+            WHERE c.chi_id = ? AND c.user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $child_id, $user['user_id']);
 }
@@ -45,8 +45,8 @@ if (!$child) {
 
 // หากเป็น staff ให้ตรวจสอบว่าเป็นโรงพยาบาลเดียวกัน
 if ($user['user_role'] === 'staff') {
-    $user_hosp = $user['user_hospital'] ?? null;
-    if (empty($user_hosp) || (isset($child['chi_hospital_id']) && $child['chi_hospital_id'] != $user_hosp)) {
+    $user_hosp = $user['hosp_shph_id'] ?? null;
+    if (empty($user_hosp) || (isset($child['hosp_shph_id']) && $child['hosp_shph_id'] != $user_hosp)) {
         $_SESSION['error'] = "คุณไม่มีสิทธิ์เข้าถึงข้อมูลเด็กจากโรงพยาบาลนี้";
         header("Location: children_list.php");
         exit();
@@ -64,7 +64,7 @@ $current_age_months = ($age_diff->y * 12) + $age_diff->m;
 
 // ดึงรายการช่วงอายุที่มีการประเมินแล้วสำหรับเด็กคนนี้
 $completed_ranges = [];
-$stmt2 = $conn->prepare("SELECT DISTINCT eva_age_range FROM evaluations WHERE eva_child_id = ?");
+$stmt2 = $conn->prepare("SELECT DISTINCT eva_age_range FROM evaluations WHERE chi_id = ?");
 if ($stmt2) {
     $stmt2->bind_param('i', $child_id);
     $stmt2->execute();
@@ -77,7 +77,7 @@ if ($stmt2) {
     $latest_eval = null;
     // ดึงสรุปผลการประเมินล่าสุดสำหรับเด็กคนนี้ (ถ้าเป็น admin หรือ staff)
     if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
-        $stmt3 = $conn->prepare("SELECT e.*, u.user_fname, u.user_lname FROM evaluations e LEFT JOIN users u ON e.eva_user_id = u.user_id WHERE e.eva_child_id = ? ORDER BY e.eva_evaluation_date DESC, e.eva_evaluation_time DESC, e.eva_version DESC LIMIT 1");
+        $stmt3 = $conn->prepare("SELECT e.*, u.user_fname, u.user_lname FROM evaluations e LEFT JOIN users u ON e.user_id = u.user_id WHERE e.chi_id = ? ORDER BY e.eva_evaluation_date DESC, e.eva_evaluation_time DESC, e.eva_version DESC LIMIT 1");
         if ($stmt3) {
             $stmt3->bind_param('i', $child_id);
             $stmt3->execute();
@@ -90,9 +90,9 @@ if ($stmt2) {
 
     // ดึงสถิติโดยรวมของการประเมินสำหรับเด็กคนนี้ (สำหรับการแสดงสรุป)
     $summary = null;
-    $conn2 = new mysqli('localhost', 'root', '', 'dspm_db');
+    $conn2 = new mysqli('localhost', 'root', '', 'testdspm_db');
     if ($conn2->connect_errno === 0) {
-        $s = $conn2->prepare("SELECT COUNT(*) AS cnt, COALESCE(SUM(eva_total_score),0) AS total_score, COALESCE(SUM(eva_total_questions),0) AS total_questions, MAX(eva_evaluation_date) AS latest_date FROM evaluations WHERE eva_child_id = ?");
+        $s = $conn2->prepare("SELECT COUNT(*) AS cnt, COALESCE(SUM(eva_total_score),0) AS total_score, COALESCE(SUM(eva_total_questions),0) AS total_questions, MAX(eva_evaluation_date) AS latest_date FROM evaluations WHERE chi_id = ?");
         if ($s) {
             $s->bind_param('i', $child_id);
             $s->execute();
@@ -263,7 +263,7 @@ if ($stmt2) {
                             <?php endif; ?>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>โรงพยาบาล:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : ($child['chi_hospital_id'] ?? '-')); ?></p>
+                            <p><strong>โรงพยาบาล:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : ($child['hosp_shph_id'] ?? '-')); ?></p>
                             <p><strong>อายุปัจจุบัน:</strong> <?php echo floor($current_age_months / 12); ?> ปี <?php echo $current_age_months % 12; ?> เดือน</p>
                             <p><strong>เพิ่มข้อมูลเมื่อ:</strong> <?php echo date('d/m/Y H:i', strtotime($child['chi_created_at'])); ?></p>
                         </div>
