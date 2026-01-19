@@ -27,7 +27,7 @@ if (!$child) {
 }
 
 // ตรวจสอบสิทธิ์: user ปกติแก้ได้เฉพาะของตัวเอง
-if ($user['user_role'] === 'user' && $child['chi_user_id'] != $user['user_id']) {
+if ($user['user_role'] === 'user' && $child['user_id'] != $user['user_id']) {
     $_SESSION['errors'] = ["คุณไม่มีสิทธิ์แก้ไขข้อมูลเด็กนี้"];
     header('Location: children_list.php');
     exit();
