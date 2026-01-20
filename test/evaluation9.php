@@ -185,7 +185,7 @@ $conn->close();
         <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
-    <form method="POST" action="">
+    <form method="POST" action="" autocomplete="off">
       <!-- Desktop version -->
       <div class="table-responsive d-none d-md-block">
         <table class="table table-bordered table-striped align-middle">
@@ -654,10 +654,11 @@ $conn->close();
                   </div>
                 </div>
               </div>
+              <div id="modal-alert" class="alert alert-danger mt-3" style="display: none;"></div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-              <button type="submit" class="btn btn-primary">ยืนยัน</button>
+              <button type="button" id="confirmSubmitBtn" class="btn btn-primary">ยืนยัน</button>
             </div>
           </div>
         </div>
@@ -669,80 +670,124 @@ $conn->close();
   <script>
     // ป้องกันการเลือก checkbox ทั้งผ่านและไม่ผ่านพร้อมกัน
     document.addEventListener('DOMContentLoaded', function() {
-      // Desktop version
+      for (let i = 45; i <= 49; i++) {
+        ['q' + i + '_pass', 'q' + i + '_fail', 'q' + i + '_pass_mobile', 'q' + i + '_fail_mobile'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.checked = false;
+        });
+      }
+
       for (let i = 45; i <= 49; i++) {
         const passCheckbox = document.getElementById(`q${i}_pass`);
         const failCheckbox = document.getElementById(`q${i}_fail`);
-        
+        const passCheckboxMobile = document.getElementById(`q${i}_pass_mobile`);
+        const failCheckboxMobile = document.getElementById(`q${i}_fail_mobile`);
+
         if (passCheckbox && failCheckbox) {
           passCheckbox.addEventListener('change', function() {
-            if (this.checked) failCheckbox.checked = false;
-            updateSummary();
+            if (this.checked) {
+              failCheckbox.checked = false;
+              if (passCheckboxMobile) passCheckboxMobile.checked = true;
+              if (failCheckboxMobile) failCheckboxMobile.checked = false;
+            } else {
+              if (passCheckboxMobile) passCheckboxMobile.checked = false;
+            }
           });
-          
+
           failCheckbox.addEventListener('change', function() {
-            if (this.checked) passCheckbox.checked = false;
-            updateSummary();
+            if (this.checked) {
+              passCheckbox.checked = false;
+              if (failCheckboxMobile) failCheckboxMobile.checked = true;
+              if (passCheckboxMobile) passCheckboxMobile.checked = false;
+            } else {
+              if (failCheckboxMobile) failCheckboxMobile.checked = false;
+            }
           });
         }
       }
 
-      // Mobile version
       for (let i = 45; i <= 49; i++) {
         const passCheckboxMobile = document.getElementById(`q${i}_pass_mobile`);
         const failCheckboxMobile = document.getElementById(`q${i}_fail_mobile`);
         const passCheckboxDesktop = document.getElementById(`q${i}_pass`);
         const failCheckboxDesktop = document.getElementById(`q${i}_fail`);
-        
+
         if (passCheckboxMobile && failCheckboxMobile) {
-          // Mobile checkbox events
           passCheckboxMobile.addEventListener('change', function() {
             if (this.checked) {
               failCheckboxMobile.checked = false;
-              // Sync with desktop
               if (passCheckboxDesktop) passCheckboxDesktop.checked = true;
               if (failCheckboxDesktop) failCheckboxDesktop.checked = false;
+            } else {
+              if (passCheckboxDesktop) passCheckboxDesktop.checked = false;
             }
-            updateSummary();
           });
-          
+
           failCheckboxMobile.addEventListener('change', function() {
             if (this.checked) {
               passCheckboxMobile.checked = false;
-              // Sync with desktop
               if (failCheckboxDesktop) failCheckboxDesktop.checked = true;
               if (passCheckboxDesktop) passCheckboxDesktop.checked = false;
+            } else {
+              if (failCheckboxDesktop) failCheckboxDesktop.checked = false;
             }
-            updateSummary();
           });
 
-          // Sync desktop to mobile
           if (passCheckboxDesktop) {
             passCheckboxDesktop.addEventListener('change', function() {
-              if (this.checked) {
-                passCheckboxMobile.checked = true;
-                failCheckboxMobile.checked = false;
-              }
-              updateSummary();
+              if (!this.checked && passCheckboxMobile) passCheckboxMobile.checked = false;
             });
           }
 
           if (failCheckboxDesktop) {
             failCheckboxDesktop.addEventListener('change', function() {
-              if (this.checked) {
-                failCheckboxMobile.checked = true;
-                passCheckboxMobile.checked = false;
-              }
-              updateSummary();
+              if (!this.checked && failCheckboxMobile) failCheckboxMobile.checked = false;
             });
           }
         }
       }
 
-      // แสดงสรุปผลเมื่อเปิด Modal
       document.getElementById('confirmModal').addEventListener('show.bs.modal', function() {
         updateSummary();
         document.getElementById('evaluation-summary').style.display = 'block';
+      });
+
+      function clearCheckboxes() {
+        for (let i = 45; i <= 49; i++) {
+          ['q' + i + '_pass', 'q' + i + '_fail', 'q' + i + '_pass_mobile', 'q' + i + '_fail_mobile'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.checked = false;
+          });
+        }
+      }
+
+      window.addEventListener('pageshow', function(e) {
+        clearCheckboxes();
+      });
+
+      document.getElementById('confirmSubmitBtn').addEventListener('click', function() {
+        const missing = [];
+        for (let i = 45; i <= 49; i++) {
+          const passDesktop = document.getElementById(`q${i}_pass`);
+          const failDesktop = document.getElementById(`q${i}_fail`);
+          const passMobile = document.getElementById(`q${i}_pass_mobile`);
+          const failMobile = document.getElementById(`q${i}_fail_mobile`);
+
+          const hasAnswer = (passDesktop && passDesktop.checked) || (failDesktop && failDesktop.checked) || (passMobile && passMobile.checked) || (failMobile && failMobile.checked);
+          if (!hasAnswer) missing.push(i);
+        }
+
+        const alertBox = document.getElementById('modal-alert');
+        if (missing.length > 0) {
+          alertBox.style.display = 'block';
+          alertBox.textContent = 'กรุณาเลือก ผลการประเมิน (ผ่าน/ไม่ผ่าน) ให้ครบทุกข้อ ก่อนยืนยัน แบบยังไม่ครบ: ข้อที่ ' + missing.join(', ');
+          document.getElementById('evaluation-summary').style.display = 'block';
+          return;
+        }
+
+        alertBox.style.display = 'none';
+        const frm = document.querySelector('form');
+        if (frm) frm.submit();
       });
     });
 
@@ -753,7 +798,7 @@ $conn->close();
       for (let i = 45; i <= 49; i++) {
         const passCheckbox = document.getElementById(`q${i}_pass`);
         const failCheckbox = document.getElementById(`q${i}_fail`);
-        
+
         if (passCheckbox && passCheckbox.checked) passedCount++;
         if (failCheckbox && failCheckbox.checked) failedCount++;
       }
