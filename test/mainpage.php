@@ -420,7 +420,7 @@ if (isset($user['user_role']) && $user['user_role'] === 'staff') {
               $hsql = "SELECT hosp_name FROM hospitals WHERE hosp_shph_id = ?";
               $hstmt = $conn->prepare($hsql);
               if ($hstmt) {
-                $hstmt->bind_param('i', $user['hosp_shph_id']);
+                $hstmt->bind_param('s', $user['hosp_shph_id']);
                 $hstmt->execute();
                 $hres = $hstmt->get_result();
                 $hrow = $hres->fetch_assoc();

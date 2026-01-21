@@ -10,19 +10,19 @@ $user = getUserInfo();
 require_once '../db_conn.php';
 $additional_info = [];
 $user_hospital_name = '';
-$stmt = $conn->prepare("SELECT user_phone, hosp_shph_id FROM users WHERE user_id = ?");
+  $stmt = $conn->prepare("SELECT user_phone, hosp_shph_id FROM users WHERE user_id = ?");
 if ($stmt) {
   $stmt->bind_param('i', $user['user_id']);
   $stmt->execute();
   $res = $stmt->get_result();
   $additional_info = $res->fetch_assoc() ?: [];
-  $hosp_id = !empty($additional_info['hosp_shph_id']) ? (int)$additional_info['hosp_shph_id'] : 0;
+    $hosp_id = !empty($additional_info['hosp_shph_id']) ? (string)$additional_info['hosp_shph_id'] : '';
   $stmt->close();
 
   if ($hosp_id) {
     $hstmt = $conn->prepare('SELECT hosp_name FROM hospitals WHERE hosp_shph_id = ?');
     if ($hstmt) {
-      $hstmt->bind_param('i', $hosp_id);
+      $hstmt->bind_param('s', $hosp_id);
       $hstmt->execute();
       $hres = $hstmt->get_result();
       $hrow = $hres->fetch_assoc();
@@ -35,12 +35,12 @@ if ($stmt) {
 // fetch totals for display (scoped to staff hospital if available)
 $total_children = 0;
 $total_parents = 0;
-$hosp_id = isset($user['hosp_shph_id']) ? (int)$user['hosp_shph_id'] : 0;
+  $hosp_id = isset($user['hosp_shph_id']) ? (string)$user['hosp_shph_id'] : '';
 if ($conn) {
   if ($hosp_id) {
     $stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM children WHERE hosp_shph_id = ?");
     if ($stmt) {
-      $stmt->bind_param('i', $hosp_id);
+      $stmt->bind_param('s', $hosp_id);
       $stmt->execute();
       $res = $stmt->get_result();
       $row = $res->fetch_assoc();
@@ -50,7 +50,7 @@ if ($conn) {
 
     $stmt = $conn->prepare("SELECT COUNT(*) AS cnt FROM users WHERE user_role = 'user' AND hosp_shph_id = ?");
     if ($stmt) {
-      $stmt->bind_param('i', $hosp_id);
+      $stmt->bind_param('s', $hosp_id);
       $stmt->execute();
       $res = $stmt->get_result();
       $row = $res->fetch_assoc();

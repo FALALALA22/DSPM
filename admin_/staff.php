@@ -17,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $fname = trim($_POST['user_fname'] ?? '');
     $lname = trim($_POST['user_lname'] ?? '');
     $phone = trim($_POST['user_phone'] ?? '');
-    $hosp_shph_id = isset($_POST['hosp_shph_id']) ? intval($_POST['hosp_shph_id']) : null;
+    // keep hosp_shph_id as string to preserve leading zeros
+    $hosp_shph_id = isset($_POST['hosp_shph_id']) && $_POST['hosp_shph_id'] !== '' ? (string)$_POST['hosp_shph_id'] : '';
 
     if ($username === '' || $password === '' || $fname === '' || $lname === '') {
         $errors[] = 'กรุณากรอกข้อมูลให้ครบถ้วน';
@@ -37,7 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (empty($errors)) {
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $ins = $conn->prepare('INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, hosp_shph_id, user_role, user_created_at) VALUES (?, ?, ?, ?, ?, ?, "staff", NOW())');
-        $ins->bind_param('sssssi', $username, $hash, $fname, $lname, $phone, $hosp_shph_id);
+        // bind hospital id as string to preserve leading zeros
+        $ins->bind_param('ssssss', $username, $hash, $fname, $lname, $phone, $hosp_shph_id);
         if ($ins->execute()) {
           // Ensure users.user_id matches the generated auto-increment id (user_id_auto or insert_id)
           $newId = $conn->insert_id; // this is the AUTO_INCREMENT value
@@ -89,14 +91,13 @@ foreach ($hospitals as $hh) {
   $hmap_num[(int)$k] = $hh['hosp_name'];
 }
 
-// Fetch staff grouped by hospital (or filter by hospital_id)
-$filter_hospital = isset($_GET['hospital_id']) ? (int)$_GET['hospital_id'] : 0;
+$filter_hospital = isset($_GET['hospital_id']) && $_GET['hospital_id'] !== '' ? (string)$_GET['hospital_id'] : '';
 $staff = [];
-if ($filter_hospital) {
-    $s = $conn->prepare('SELECT user_id, user_username, user_fname, user_lname, user_phone, hosp_shph_id FROM users WHERE user_role = "staff" AND hosp_shph_id = ? ORDER BY user_fname');
-    $s->bind_param('i', $filter_hospital);
+if ($filter_hospital !== '') {
+  $s = $conn->prepare('SELECT user_id, user_username, user_fname, user_lname, user_phone, hosp_shph_id FROM users WHERE user_role = "staff" AND hosp_shph_id = ? ORDER BY user_fname');
+  $s->bind_param('s', $filter_hospital);
 } else {
-    $s = $conn->prepare('SELECT user_id, user_username, user_fname, user_lname, user_phone, hosp_shph_id FROM users WHERE user_role = "staff" ORDER BY hosp_shph_id, user_fname');
+  $s = $conn->prepare('SELECT user_id, user_username, user_fname, user_lname, user_phone, hosp_shph_id FROM users WHERE user_role = "staff" ORDER BY hosp_shph_id, user_fname');
 }
 $s->execute();
 $sr = $s->get_result();

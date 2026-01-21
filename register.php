@@ -11,7 +11,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $fname = trim($_POST['user_fname']);
     $lname = trim($_POST['user_lname']);
     $phone = trim($_POST['user_phone']);
-    $hosp_shph_id = isset($_POST['hosp_shph_id']) ? intval($_POST['hosp_shph_id']) : null;
+    // keep hosp_shph_id as string to preserve leading zeros
+    $hosp_shph_id = isset($_POST['hosp_shph_id']) ? (string)$_POST['hosp_shph_id'] : null;
     
     // ตรวจสอบความถูกต้องของข้อมูล
     $errors = array();
@@ -83,7 +84,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // บันทึกข้อมูลลงฐานข้อมูล
         $insert_sql = "INSERT INTO users (user_username, user_password, user_fname, user_lname, user_phone, hosp_shph_id, user_created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())";
         $stmt = $conn->prepare($insert_sql);
-        $stmt->bind_param("sssssi", $username, $hashed_password, $fname, $lname, $phone, $hosp_shph_id);
+        // bind hosp_shph_id as string
+        $stmt->bind_param("ssssss", $username, $hashed_password, $fname, $lname, $phone, $hosp_shph_id);
         
         if ($stmt->execute()) {
             // Ensure users.user_id matches the generated auto-increment id (user_id_auto or insert_id)

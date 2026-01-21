@@ -26,8 +26,9 @@ if ($user['user_role'] === 'user') {
 if ($user['user_role'] === 'staff') {
     if (!empty($user['hosp_shph_id'])) {
         $whereConditions[] = "c.hosp_shph_id = ?";
-        $params[] = $user['hosp_shph_id'];
-        $paramTypes .= 'i';
+        // use string hospital id (preserve leading zeros)
+        $params[] = (string)$user['hosp_shph_id'];
+        $paramTypes .= 's';
     }
 }
 
@@ -84,7 +85,9 @@ if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
                       WHERE u.user_role = 'user' AND c.hosp_shph_id = ?
                       ORDER BY u.user_fname, u.user_lname";
         $users_stmt = $conn->prepare($users_sql);
-        $users_stmt->bind_param('i', $user['hosp_shph_id']);
+        // bind hospital id as string
+        $uh = (string)$user['hosp_shph_id'];
+        $users_stmt->bind_param('s', $uh);
     } else {
         $users_sql = "SELECT user_id, user_fname, user_lname FROM users WHERE user_role = 'user' ORDER BY user_fname, user_lname";
         $users_stmt = $conn->prepare($users_sql);

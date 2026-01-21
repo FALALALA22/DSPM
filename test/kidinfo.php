@@ -16,13 +16,16 @@ if ($hres) {
   }
 }
 
+$user_hosp = isset($user['hosp_shph_id']) ? (string)$user['hosp_shph_id'] : null;
+
 // หากเป็น staff ให้ดึงรายการผู้ปกครองเพื่อให้เลือกผูกกับเด็ก
 $users = array();
 if ($user['user_role'] === 'staff') {
   $usql = "SELECT user_id, user_fname, user_lname FROM users WHERE user_role = 'user' AND hosp_shph_id = ? ORDER BY user_fname, user_lname";
   $ustmt = $conn->prepare($usql);
   if ($ustmt) {
-    $ustmt->bind_param('i', $user['hosp_shph_id']);
+    // bind hospital id as string to preserve leading zeros
+    $ustmt->bind_param('s', $user_hosp);
     $ustmt->execute();
     $ures = $ustmt->get_result();
     if ($ures) {
@@ -34,8 +37,8 @@ if ($user['user_role'] === 'staff') {
   }
 }
 
-// ถ้ามีโรงพยาบาลของผู้ใช้ ให้ดึงสาขาเริ่มต้น
-$user_hosp = $user['hosp_shph_id'] ?? null;
+// ถ้ามีโรงพยาบาลของผู้ใช้ ให้ดึงสาขาเริ่มต้น (ค่าเป็นสตริง)
+// (moved above where needed)
 
 // ถ้ามีการส่งข้อมูลมาแบบ POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -46,11 +49,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $age_months = 0;
     
     $errors = array();
-    $chi_hospital = isset($_POST['hosp_shph_id']) && $_POST['hosp_shph_id'] !== '' ? intval($_POST['hosp_shph_id']) : null;
+    // keep hosp id as string (preserve leading zeros)
+    $chi_hospital = isset($_POST['hosp_shph_id']) && $_POST['hosp_shph_id'] !== '' ? (string)$_POST['hosp_shph_id'] : null;
 
     // ถ้าผู้ใช้ไม่ได้เลือกโรงพยาบาล ให้ใช้โรงพยาบาลของผู้ปกครองเป็นค่าเริ่มต้น
     if (is_null($chi_hospital) && !empty($user_hosp)) {
-      $chi_hospital = intval($user_hosp);
+      $chi_hospital = (string)$user_hosp;
     }
 
     // กำหนดผู้เป็นเจ้าของข้อมูลเด็ก (user_id) - โดยปกติเป็นผู้ใช้ปัจจุบัน
@@ -110,7 +114,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
           $insert_sql = "INSERT INTO children (user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo, hosp_shph_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
           $stmt = $conn->prepare($insert_sql);
-          $stmt->bind_param("issiisi", $owner_user_id, $child_name, $date_of_birth, $age_years, $age_months, $photo_path, $chi_hospital);
+          // owner_user_id (i), child_name (s), date_of_birth (s), age_years (i), age_months (i), photo_path (s), chi_hospital (s)
+          $stmt->bind_param("issiiss", $owner_user_id, $child_name, $date_of_birth, $age_years, $age_months, $photo_path, $chi_hospital);
         
         if ($stmt->execute()) {
           // Ensure children.chi_id matches the generated auto-increment id (chi_id_auto or insert_id)
