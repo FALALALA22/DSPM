@@ -3,6 +3,12 @@ require_once '../check_session.php';
 checkLogin(); // ตรวจสอบว่าล็อกอินแล้วหรือยัง
 
 $user = getUserInfo();
+
+// หากเป็น staff ให้ไปยังหน้า mainpage ของ staff โดยเฉพาะ
+if (isset($user['user_role']) && $user['user_role'] === 'staff') {
+  header('Location: mainpage_staff.php');
+  exit();
+}
 ?>
 
 <!DOCTYPE html>

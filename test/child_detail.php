@@ -102,6 +102,70 @@ if ($stmt2) {
         }
         $conn2->close();
     }
+
+    // เตรียมสรุปแบบเดียวกับ evaluation_history.php: เอาเฉพาะเวอร์ชันล่าสุดของแต่ละช่วงอายุ
+    $latest_evaluations = array();
+    $ld_passed = 0;
+    $ld_questions = 0;
+    $system_total_questions = 0;
+
+    $conn3 = new mysqli('localhost', 'root', '', 'testdspm_db');
+    if ($conn3->connect_errno === 0) {
+        $q = $conn3->prepare("SELECT * FROM evaluations WHERE chi_id = ? ORDER BY eva_evaluation_date DESC, eva_version DESC");
+        if ($q) {
+            $q->bind_param('i', $child_id);
+            $q->execute();
+            $r = $q->get_result();
+            $evals = $r->fetch_all(MYSQLI_ASSOC);
+            $q->close();
+
+            // group by age range and pick latest per group
+            $grouped = array();
+            foreach ($evals as $ev) {
+                $age = $ev['eva_age_range'];
+                if (!isset($grouped[$age])) $grouped[$age] = array();
+                $grouped[$age][] = $ev;
+            }
+            foreach ($grouped as $g) {
+                usort($g, function($a, $b){
+                    $tA = strtotime($a['eva_evaluation_date']);
+                    $tB = strtotime($b['eva_evaluation_date']);
+                    if ($tA === $tB) return ($b['eva_version'] ?? 0) <=> ($a['eva_version'] ?? 0);
+                    return $tB <=> $tA;
+                });
+                if (!empty($g[0])) {
+                    $latest_evaluations[] = $g[0];
+                }
+            }
+
+            // sums from latest evaluations per age-range
+            if (!empty($latest_evaluations)) {
+                $ld_passed = array_sum(array_column($latest_evaluations, 'eva_total_score'));
+                $ld_questions = array_sum(array_column($latest_evaluations, 'eva_total_questions'));
+            }
+
+            // compute system total questions (MAX per age range)
+            $sys_q = "SELECT eva_age_range, MAX(eva_total_questions) AS max_q FROM evaluations GROUP BY eva_age_range";
+            if ($res2 = $conn3->query($sys_q)) {
+                while ($rr = $res2->fetch_assoc()) {
+                    $system_total_questions += (int)$rr['max_q'];
+                }
+                $res2->free();
+            }
+        }
+        $conn3->close();
+    }
+
+    // Fallbacks if nothing found
+    if ($system_total_questions === 0) {
+        $system_total_questions = $ld_questions ?: ((int)($summary['total_questions'] ?? 0));
+    }
+
+    // compute display values: prefer latest-per-age-range sums when available
+    $display_total_score = $ld_passed ?: (int)($summary['total_score'] ?? 0);
+    $display_total_questions = $ld_questions ?: (int)($summary['total_questions'] ?? 0);
+    $display_total_failed = $display_total_questions - $display_total_score;
+    $display_percentage = $system_total_questions > 0 ? round(($display_total_score / $system_total_questions) * 100, 1) : 0;
 ?>
 
 <!DOCTYPE html>
@@ -275,12 +339,13 @@ if ($stmt2) {
         <!-- สรุปผลการประเมินล่าสุด (สำหรับ admin/staff) -->
         <?php if (($user['user_role'] === 'admin' || $user['user_role'] === 'staff')): ?>
             <div class="mb-4">
-                <?php if ($summary && $summary['cnt'] > 0):
+                    <?php if ($summary && $summary['cnt'] > 0):
                     $total_evals = (int)$summary['cnt'];
-                    $total_score = (int)$summary['total_score'];
-                    $total_questions = (int)$summary['total_questions'];
-                    $total_failed = $total_questions - $total_score;
-                    $overall_pct = $total_questions > 0 ? round(($total_score / $total_questions) * 100, 1) : 0;
+                    // ใช้ค่าที่เตรียมจาก latest-per-age-range ถ้ามี
+                    $total_score = $display_total_score;
+                    $total_questions = $display_total_questions;
+                    $total_failed = $display_total_failed;
+                    $overall_pct = $display_percentage;
                     $latest_dt = !empty($summary['latest_date']) ? date('d/m/Y', strtotime($summary['latest_date'])) : '';
                 ?>
                     <div class="row mt-4">
@@ -307,10 +372,10 @@ if ($stmt2) {
                                             <h3 class="text-info"><?php echo $total_questions; ?></h3>
                                             <p>ข้อทั้งหมด</p>
                                         </div>
-                                        <div class="col-md-2">
+                                        <!--<div class="col-md-2">
                                             <h3 class="text-warning"><?php echo $overall_pct; ?>%</h3>
                                             <p>เปอร์เซ็นต์รวม</p>
-                                        </div>
+                                        </div>-->
                                         <div class="col-md-2">
                                             <h3 class="text-muted"><?php echo $latest_dt; ?></h3>
                                             <p>ประเมินล่าสุด</p>
