@@ -112,36 +112,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           // หากไม่มีรูป ให้เป็นค่าว่างเพื่อ bind
           $photo_path = $photo_path ?: '';
 
-          $insert_sql = "INSERT INTO children (user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo, hosp_shph_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+          // Check table schema to decide insert strategy (preserve compatibility across environments)
+          // Simple INSERT. Some DB setups require chi_id to be present (no default),
+          // so insert a temporary 0 and update it after insert using insert_id.
+          $insert_sql = "INSERT INTO children (user_id, chi_child_name, chi_date_of_birth, chi_age_years, chi_age_months, chi_photo, hosp_shph_id, chi_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
           $stmt = $conn->prepare($insert_sql);
-          // owner_user_id (i), child_name (s), date_of_birth (s), age_years (i), age_months (i), photo_path (s), chi_hospital (s)
-          $stmt->bind_param("issiiss", $owner_user_id, $child_name, $date_of_birth, $age_years, $age_months, $photo_path, $chi_hospital);
-        
-        if ($stmt->execute()) {
-          // Ensure children.chi_id matches the generated auto-increment id (chi_id_auto or insert_id)
-          $newId = $conn->insert_id;
-          if ($newId) {
-            $upd = $conn->prepare('UPDATE children SET chi_id = ? WHERE chi_id_auto = ?');
-            if ($upd) {
-              $upd->bind_param('ii', $newId, $newId);
-              $upd->execute();
-              $upd->close();
-            }
-          }
-
-          $_SESSION['success'] = "บันทึกข้อมูลเด็กเรียบร้อยแล้ว";
-          $stmt->close();
-          $conn->close();
-          header("Location: children_list.php");
-          exit();
-        } else {
-          if ($conn->errno === 1062) {
-            $errors[] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล (ค่าซ้ำ) กรุณาตรวจสอบหรือแจ้งผู้ดูแล";
+          $chi_temp = 0;
+          $stmt->bind_param("issiissi", $owner_user_id, $child_name, $date_of_birth, $age_years, $age_months, $photo_path, $chi_hospital, $chi_temp);
+          if ($stmt->execute()) {
+              $newId = $conn->insert_id;
+              if ($newId) {
+                $upd = $conn->prepare('UPDATE children SET chi_id = ? WHERE chi_id_auto = ?');
+                if ($upd) {
+                  $upd->bind_param('ii', $newId, $newId);
+                  $upd->execute();
+                  $upd->close();
+                }
+              }
+              $_SESSION['success'] = "บันทึกข้อมูลเด็กเรียบร้อยแล้ว";
+              $stmt->close();
+              $conn->close();
+              header("Location: children_list.php");
+              exit();
           } else {
-            $errors[] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง";
+            $exec_err = $conn->error;
+            if ($conn->errno === 1062) {
+              $errors[] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล (ค่าซ้ำ) กรุณาตรวจสอบหรือแจ้งผู้ดูแล";
+            } else {
+              $errors[] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง (" . htmlspecialchars($exec_err) . ")";
+            }
+            if (isset($stmt) && $stmt) $stmt->close();
           }
-        }
-        $stmt->close();
     }
     
     // เก็บข้อผิดพลาดใน session
