@@ -23,12 +23,12 @@ if ($child_id == 0) {
 if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff') {
     $sql = "SELECT c.*, u.user_fname, u.user_lname 
             FROM children c 
-            JOIN users u ON c.chi_user_id = u.user_id 
+            JOIN users u ON c.user_id = u.user_id 
             WHERE c.chi_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $child_id);
 } else {
-    $sql = "SELECT * FROM children WHERE chi_id = ? AND chi_user_id = ?";
+    $sql = "SELECT * FROM children WHERE chi_id = ? AND user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ii", $child_id, $user['user_id']);
 }
@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['confirm_delete'])) {
     
     try {
         // ลบข้อมูลการประเมินก่อน (foreign key constraint)
-        $delete_evaluations_sql = "DELETE FROM evaluations WHERE eva_child_id = ?";
+        $delete_evaluations_sql = "DELETE FROM evaluations WHERE eva_id = ?";
         $delete_eval_stmt = $conn->prepare($delete_evaluations_sql);
         $delete_eval_stmt->bind_param("i", $child_id);
         $delete_eval_stmt->execute();
