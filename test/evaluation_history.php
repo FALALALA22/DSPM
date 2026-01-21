@@ -76,9 +76,23 @@ foreach ($grouped_list as &$g) {
 }
 unset($g);
 
-// เรียงกลุ่มตามวันที่ล่าสุดของแต่ละช่วงอายุ (กลุ่มที่มีการประเมินล่าสุดขึ้นก่อน)
+// เรียงกลุ่มตามช่วงอายุเป็นหลัก (ใช้เลขเริ่มต้นของช่วง เช่น '10-12' -> 10)
+// ถ้าอายุเริ่มต้นเท่ากัน ให้เรียงตามวันที่ล่าสุดภายในกลุ่ม (ใหม่ก่อน)
+function _age_start_key($age) {
+    if ($age === null || $age === '') return PHP_INT_MAX;
+    // หาตัวเลขตัวแรกในสตริง
+    if (preg_match('/^(\d{1,3})/', $age, $m)) return (int)$m[1];
+    if (preg_match('/(\d{1,3})/', $age, $m2)) return (int)$m2[1];
+    return PHP_INT_MAX;
+}
+
 usort($grouped_list, function($a, $b) {
-    return $b['latest'] <=> $a['latest'];
+    $ka = _age_start_key($a['age_range']);
+    $kb = _age_start_key($b['age_range']);
+    if ($ka === $kb) {
+        return $b['latest'] <=> $a['latest'];
+    }
+    return $ka <=> $kb; // อายุเริ่มต้นน้อยก่อน
 });
 
 $stmt->close();
@@ -235,7 +249,7 @@ $summary_percentage = $system_percentage;
             <hr>
             <!-- แสดงผลการประเมิน (เรียงจากใหม่ไปเก่า) -->
             <?php foreach ($grouped_list as $group): ?>
-                <div class="card mb-4 shadow-sm">
+                <div class="card mb-4 shadow-sm" id="group-<?php echo md5($group['age_range']); ?>">
                     <div class="card-header bg-primary text-white">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">ช่วงอายุ: <?php echo htmlspecialchars($group['age_range']); ?> เดือน</h5>
@@ -323,8 +337,8 @@ $summary_percentage = $system_percentage;
                                         </div>
                                         <div class="col-md-4 text-end">
                                             <div class="btn-group-vertical" role="group">
-                                                <a href="view_evaluation_detail.php?id=<?php echo $evaluation['eva_id']; ?>" 
-                                                   class="btn btn-primary btn-sm">ดูรายละเอียด</a>
+                                                                <a href="view_evaluation_detail.php?id=<?php echo $evaluation['eva_id']; ?>" 
+                                                                    class="btn btn-primary btn-sm" onclick="saveScroll();">ดูรายละเอียด</a>
                                                 <?php if ($is_latest): // แสดงปุ่มประเมินใหม่เฉพาะ version ล่าสุด ?>
                                                     <?php 
                                                     $evaluation_file = 'evaluation1.php'; // default
@@ -354,8 +368,8 @@ $summary_percentage = $system_percentage;
                                                         default: $evaluation_file = 'evaluation1.php'; break;
                                                     }
                                                     ?>
-                                                    <a href="<?php echo $evaluation_file; ?>?child_id=<?php echo $child['chi_id']; ?>&age_range=<?php echo $evaluation['eva_age_range']; ?>" 
-                                                       class="btn btn-warning btn-sm">ประเมินใหม่</a>
+                                                                     <a href="<?php echo $evaluation_file; ?>?child_id=<?php echo $child['chi_id']; ?>&age_range=<?php echo $evaluation['eva_age_range']; ?>" 
+                                                                         class="btn btn-warning btn-sm" onclick="saveScroll();">ประเมินใหม่</a>
                                                 <?php endif; ?>
                                                 <button class="btn btn-danger btn-sm" onclick="deleteEvaluation(<?php echo $evaluation['eva_id']; ?>)">ลบ</button>
                                             </div>
