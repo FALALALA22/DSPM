@@ -119,7 +119,7 @@ foreach ($latest_evaluations as $le) {
 
 // คำนวณจำนวนข้อทั้งหมดในระบบ: ใช้ MAX(eva_total_questions) ต่อช่วงอายุจากตาราง evaluations
 $system_total_questions = 0;
-$mysqli_sys = new mysqli('localhost', 'root', '', 'testdspm_db');
+$mysqli_sys = new mysqli('localhost', 'zteypszw_dspm', 'DSPMDB123321', 'zteypszw_dspm_db');
 if (!$mysqli_sys->connect_error) {
     $q = "SELECT eva_age_range, MAX(eva_total_questions) AS max_q FROM evaluations GROUP BY eva_age_range";
     if ($res = $mysqli_sys->query($q)) {
