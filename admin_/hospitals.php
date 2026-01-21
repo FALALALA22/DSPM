@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Delete hospital
 if (isset($_GET['delete_hospital'])) {
     $hid = (int)$_GET['delete_hospital'];
-    $del = $conn->prepare('DELETE FROM hospitals WHERE hosp_id = ?');
+    $del = $conn->prepare('DELETE FROM hospitals WHERE hosp_shph_id = ?');
     $del->bind_param('i', $hid);
     $del->execute();
     $del->close();
