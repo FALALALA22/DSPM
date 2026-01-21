@@ -79,8 +79,15 @@ $hres = $conn->query('SELECT hosp_shph_id, hosp_name FROM hospitals ORDER BY hos
 if ($hres) while ($r = $hres->fetch_assoc()) $hospitals[] = $r;
 
 // Build hospital id -> name map for display
+// Create both string-key and numeric-key maps so lookup works even if
+// users.hosp_shph_id was stored without leading zeros (e.g. 06808 -> 6808)
 $hmap = [];
-foreach ($hospitals as $hh) $hmap[$hh['hosp_shph_id']] = $hh['hosp_name'];
+$hmap_num = [];
+foreach ($hospitals as $hh) {
+  $k = $hh['hosp_shph_id'];
+  $hmap[(string)$k] = $hh['hosp_name'];
+  $hmap_num[(int)$k] = $hh['hosp_name'];
+}
 
 // Fetch staff grouped by hospital (or filter by hospital_id)
 $filter_hospital = isset($_GET['hospital_id']) ? (int)$_GET['hospital_id'] : 0;
@@ -175,7 +182,16 @@ $conn->close();
                 <td><?php echo htmlspecialchars($s['user_fname'] . ' ' . $s['user_lname']); ?></td>
                 <td><?php echo htmlspecialchars($s['user_username']); ?></td>
                 <td><?php echo htmlspecialchars($s['user_phone']); ?></td>
-                <td><?php echo htmlspecialchars(!empty($s['hosp_shph_id']) && isset($hmap[$s['hosp_shph_id']]) ? $hmap[$s['hosp_shph_id']] : '-'); ?></td>
+                <?php
+                  $hk = isset($s['hosp_shph_id']) ? $s['hosp_shph_id'] : '';
+                  $hname = '-';
+                  if ($hk !== '' && isset($hmap[(string)$hk])) {
+                      $hname = $hmap[(string)$hk];
+                  } elseif ($hk !== '' && isset($hmap_num[(int)$hk])) {
+                      $hname = $hmap_num[(int)$hk];
+                  }
+                ?>
+                <td><?php echo htmlspecialchars($hname); ?></td>
                 <td class="text-end">
                   <a href="staff.php?delete_user=<?php echo $s['user_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบพนักงานนี้?')"><i class="bi bi-trash"></i> ลบ</a>
                 </td>
