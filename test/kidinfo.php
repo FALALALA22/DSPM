@@ -214,7 +214,7 @@ $conn->close();
       <h1 class="text-center mb-4" style="color: #149ee9;">ลงทะเบียนข้อมูลเด็ก</h1>
       
       <!-- แสดงข้อความแจ้งเตือน -->
-      <?php if (isset($_SESSION['errors'])): ?>
+        <?php if (isset($_SESSION['errors'])): ?>
           <div class="alert alert-danger" role="alert">
               <ul class="mb-0">
                   <?php foreach($_SESSION['errors'] as $error): ?>
@@ -224,6 +224,9 @@ $conn->close();
           </div>
           <?php unset($_SESSION['errors']); ?>
       <?php endif; ?>
+
+        <!-- client-side alert placeholder -->
+        <div id="clientAlertContainer" class="mb-3"></div>
       
       <form method="POST" action="kidinfo.php" enctype="multipart/form-data">
         <!-- รูปภาพวงกลม -->
@@ -280,7 +283,7 @@ $conn->close();
               <input type="number" class="form-control" id="age_years" name="age_years" 
                      placeholder="ปี" min="0" max="18" 
                      value="<?php echo isset($_SESSION['form_data']['age_years']) ? htmlspecialchars($_SESSION['form_data']['age_years']) : ''; ?>" 
-                     required>
+                     required readonly>
             </div>
           </div>
           <div class="col-6">
@@ -288,7 +291,7 @@ $conn->close();
               <label for="age_months" class="form-label">อายุ (เดือน)</label>
               <input type="number" class="form-control" id="age_months" name="age_months" 
                      placeholder="เดือน" min="0" max="11" 
-                     value="<?php echo isset($_SESSION['form_data']['age_months']) ? htmlspecialchars($_SESSION['form_data']['age_months']) : ''; ?>">
+                     value="<?php echo isset($_SESSION['form_data']['age_months']) ? htmlspecialchars($_SESSION['form_data']['age_months']) : ''; ?>" readonly>
             </div>
           </div>
         </div>
@@ -317,24 +320,90 @@ $conn->close();
       }
     });
 
-    // คำนวณอายุอัตโนมัติจากวันเกิด
-    document.getElementById('date_of_birth').addEventListener('change', function() {
-      const birthDate = new Date(this.value);
-      const today = new Date();
-      
-      if (birthDate <= today) {
-        let ageYears = today.getFullYear() - birthDate.getFullYear();
-        let ageMonths = today.getMonth() - birthDate.getMonth();
-        
-        if (ageMonths < 0) {
-          ageYears--;
-          ageMonths += 12;
-        }
-        
-        document.getElementById('age_years').value = ageYears;
-        document.getElementById('age_months').value = ageMonths;
+    // คำนวณอายุอัตโนมัติจากวันเกิด และแจ้งเตือนถ้าเป็นวันในอนาคต
+    function updateAgeFromDOB(showAlertOnFuture = true) {
+      const dobEl = document.getElementById('date_of_birth');
+      const yearsEl = document.getElementById('age_years');
+      const monthsEl = document.getElementById('age_months');
+      const val = dobEl.value;
+
+      if (!val) {
+        yearsEl.value = '';
+        monthsEl.value = '';
+        return;
       }
-    });
+
+      const birthDate = new Date(val + 'T00:00:00');
+      const today = new Date();
+
+      if (isNaN(birthDate.getTime())) {
+        yearsEl.value = '';
+        monthsEl.value = '';
+        return;
+      }
+
+      if (birthDate > today) {
+        if (showAlertOnFuture) {
+          alert('วันที่ที่เลือกต้องไม่เกินวันที่ปัจจุบัน กรุณาเลือกวันที่ใหม่');
+        }
+        // แสดง client-side bootstrap alert
+        showClientAlert('วันที่ที่เลือกต้องไม่เกินวันที่ปัจจุบัน กรุณาเลือกวันที่ใหม่', 'danger');
+        // ล้างค่า date_of_birth พร้อมกับปี/เดือน แล้วให้โฟกัสกลับไปที่ช่อง
+        dobEl.value = '';
+        yearsEl.value = '';
+        monthsEl.value = '';
+        dobEl.focus();
+        return;
+      }
+
+      let years = today.getFullYear() - birthDate.getFullYear();
+      let months = today.getMonth() - birthDate.getMonth();
+
+      if (today.getDate() < birthDate.getDate()) {
+        months--;
+      }
+
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      if (years < 0) years = 0;
+      if (months < 0) months = 0;
+
+      yearsEl.value = years;
+      monthsEl.value = months;
+    }
+
+    const dobEl = document.getElementById('date_of_birth');
+    dobEl.addEventListener('input', function() { updateAgeFromDOB(false); });
+    dobEl.addEventListener('change', function() { updateAgeFromDOB(true); });
+    // initialize on load
+    updateAgeFromDOB(false);
+
+    // client alert helpers
+    function showClientAlert(message, type = 'danger', timeout = 5000) {
+      const container = document.getElementById('clientAlertContainer');
+      if (!container) return;
+      clearClientAlert();
+      const wrapper = document.createElement('div');
+      wrapper.className = `alert alert-${type} alert-dismissible fade show`;
+      wrapper.role = 'alert';
+      wrapper.innerHTML = `${message} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+      container.appendChild(wrapper);
+      if (timeout > 0) {
+        setTimeout(() => {
+          try { wrapper.classList.remove('show'); wrapper.classList.add('hide'); } catch(e){}
+          if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+        }, timeout);
+      }
+    }
+
+    function clearClientAlert() {
+      const container = document.getElementById('clientAlertContainer');
+      if (!container) return;
+      container.innerHTML = '';
+    }
 
     // สาขาถูกย้ายออก — ไม่มีการโหลดสาขาแบบไดนามิกอีกต่อไป
   </script>
