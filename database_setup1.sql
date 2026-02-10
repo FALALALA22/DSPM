@@ -8,7 +8,7 @@ USE testdspm_db;
 CREATE TABLE IF NOT EXISTS users (
     user_id_auto INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
-    hosp_shph_id INT(15) NOT NULL,
+    hosp_shph_id VARCHAR(20) NOT NULL,
     user_username VARCHAR(50) UNIQUE NOT NULL,
     user_password VARCHAR(255) NOT NULL,
     user_fname VARCHAR(100) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS children (
     chi_id_auto INT AUTO_INCREMENT PRIMARY KEY,
     chi_id INT UNIQUE NOT NULL,
     user_id INT NOT NULL,
-    hosp_shph_id INT(15) NOT NULL,
+    hosp_shph_id VARCHAR(20) NOT NULL,
     chi_child_name VARCHAR(200) NOT NULL,
     chi_date_of_birth DATE NOT NULL,
     chi_age_years INT NOT NULL,
@@ -70,7 +70,7 @@ CREATE INDEX idx_eva_evaluation_version ON evaluations(chi_id, eva_age_range, ev
 -- สร้างตาราง hospitals สำหรับเก็บผลการประเมิน
 CREATE TABLE IF NOT EXISTS hospitals (
     hosp_id_auto INT AUTO_INCREMENT PRIMARY KEY,
-    hosp_shph_id INT NOT NULL,
+    hosp_shph_id VARCHAR(20) NOT NULL,
     hosp_name VARCHAR(255) NOT NULL,
     hosp_created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     hosp_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -78,20 +78,4 @@ CREATE TABLE IF NOT EXISTS hospitals (
 -- เพิ่ม index สำหรับการค้นหา
 CREATE INDEX idx_hosp_shph_id ON hospitals(hosp_shph_id);
 
--- Triggers: sync `user_id` from `user_id_auto` only once (on insert)
-DROP TRIGGER IF EXISTS trg_users_sync_user_id_after_insert;
-DROP TRIGGER IF EXISTS trg_users_sync_user_id_after_update;
 
-DELIMITER $$
-CREATE TRIGGER trg_users_sync_user_id_after_insert
-AFTER INSERT ON users
-FOR EACH ROW
-BEGIN
-    -- Only set user_id when it is not provided (0 or NULL)
-    IF NEW.user_id = 0 OR NEW.user_id IS NULL THEN
-        UPDATE users
-            SET user_id = NEW.user_id_auto
-            WHERE user_id_auto = NEW.user_id_auto;
-    END IF;
-END$$
-DELIMITER ;
