@@ -310,8 +310,8 @@ $conn->close();
 
     <div class="container mt-4">
         <div class="text-center mb-4">
-            <h1 style="color: #149ee9;">รายงานการประเมินทั้งหมด</h1>
-            <h4><?php echo htmlspecialchars($child['chi_child_name']); ?></h4>
+            <h1 style="color: #149ee9;">แบบบันทึกการเฝ้าระวังและส่งเสริมพัฒนาการเด็กปฐมวัย ตามช่วงอายุ โดยพ่อแม่ ผู้ปกครอง ครู ผู้ดูแลเด็ก และเจ้าหน้าที่สาธารณสุข</h1>
+            <h2><?php echo htmlspecialchars($child['chi_child_name']); ?></h2>
         </div>
 
         <div class="card mb-3">
@@ -360,7 +360,7 @@ $conn->close();
                             <tr>
                                 <th class="age-left"><div class="v">ด้าน / อายุ</div></th>
                                 <th class="domain-header">ด้านการเคลื่อนไหว<br>Gross Motor (GM)</th>
-                                <th class="domain-header">ด้านการใช้กล้ามเนื้อมือเล็ก<br>Fine Motor (FM)</th>
+                                <th class="domain-header">ด้านการใช้กล้ามเนื้อมัดเล็กและสติปัญญา<br>Fine Motor (FM)</th>
                                 <th class="domain-header">ด้านการเข้าใจภาษา<br>Receptive Language (RL)</th>
                                 <th class="domain-header">ด้านการใช้ภาษา<br>Expressive Language (EL)</th>
                                 <th class="domain-header">ด้านการช่วยเหลือตัวเองและสังคม<br>Personal and Social (PS)</th>
@@ -411,7 +411,7 @@ $conn->close();
                                                 $failed = isset($resp[$key]['failed']) && $resp[$key]['failed'];
                                             ?>
                                                 <div class="q-item">
-                                                    <strong><?php echo $qid; ?>.</strong> <?php echo htmlspecialchars(preg_replace('/\s*\(GM|FM|RL|EL|PS\)\s*/i','',$item['skill'])); ?>
+                                                    <strong><?php echo $qid; ?>.</strong> <?php echo htmlspecialchars(preg_replace('/\s*\((?:GM|FM|RL|EL|PS)\)\s*/i','',$item['skill'])); ?>
                                                     <small>
                                                         <label class="me-2"><input class="q-checkbox" type="checkbox" disabled <?php echo $passed ? 'checked' : ''; ?>> ผ่าน</label>
                                                         <label><input class="q-checkbox" type="checkbox" disabled <?php echo $failed ? 'checked' : ''; ?>> ไม่ผ่าน</label>
