@@ -452,8 +452,8 @@ function getQuestionsByAgeRange($age_range) {
     }
 
     // เพิ่มคำถามสำหรับ 18 เดือน (ข้อ 50-59)
-    if ($age_range == '16-17') {
-        $questions_16_17 = [
+    if ($age_range == '18') {
+        $questions_18 = [
             50 => [
                 'skill' => 'วิ่งได้ (GM)',
                 'method' => 'วิ่งเล่นกับเด็ก หรืออาจกลิ้งลูกบอลแล้วกระตุ้นให้เด็กวิ่งตามลูกบอล
@@ -543,7 +543,7 @@ function getQuestionsByAgeRange($age_range) {
                 2. ฝึกเด็กดื่มนมและน้ำจากถ้วย (เลิกใช้ขวดนม)'
             ]
         ];
-        $questions_0_1 = $questions_16_17; // ใช้เฉพาะคำถาม 45-49
+        $questions_0_1 = $questions_18; // ใช้เฉพาะคำถาม 45-49
     }
 
     // เพิ่มคำถามสำหรับ 19-24 เดือน (ข้อ 60-64)

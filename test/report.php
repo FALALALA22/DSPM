@@ -304,6 +304,7 @@ $conn->close();
             <div class="navbar-nav ms-auto">
                 <span class="navbar-text me-3">รายงาน: <?php echo htmlspecialchars($child['chi_child_name']); ?></span>
                 <a class="btn btn-outline-light btn-sm" href="evaluation_history.php?child_id=<?php echo $child['chi_id']; ?>">กลับ</a>
+                <a class="btn btn-outline-light btn-sm ms-2" href="report_blue.php?child_id=<?php echo $child['chi_id']; ?>">แบบบันทึก (โดยเจ้าหน้าที่)</a>
             </div>
         </div>
     </nav>
@@ -435,6 +436,7 @@ $conn->close();
         <div class="text-center mt-3">
             <a href="evaluation_history.php?child_id=<?php echo $child['chi_id']; ?>" class="btn btn-secondary me-2">กลับ</a>
             <a href="children_list.php" class="btn btn-primary">รายชื่อเด็ก</a>
+            <a href="report_blue.php?child_id=<?php echo $child['chi_id']; ?>" class="btn btn-primary">รายงาน โดย เจ้าหน้าที่สาธารณสุข</a>
         </div>
     </div>
 
