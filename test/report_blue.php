@@ -231,7 +231,7 @@ $conn->close();
 
         <div class="card">
             <div class="card-body">
-                <div class="table-responsive">
+                <div class="table-responsive desktop-table d-none d-md-block">
                     <!-- reuse same table structure as report.php -->
                     <?php // To keep file concise we reuse the same rendering logic as report.php ?>
                     <?php
@@ -306,6 +306,55 @@ $conn->close();
                         <?php endif; ?>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile: stacked card view -->
+                <div class="mobile-cards d-block d-md-none">
+                    <?php foreach ($age_reports as $age => $data):
+                        $questions = $data['questions'];
+                        if (empty($questions)) continue;
+                        $by_domain = [ 'GM'=>[], 'FM'=>[], 'RL'=>[], 'EL'=>[], 'PS'=>[] ];
+                        foreach ($questions as $qid => $q) {
+                            if (preg_match('/\((GM|FM|RL|EL|PS)\)/i', $q['skill'] ?? '', $m)) {
+                                $tag = strtoupper($m[1]);
+                                if (isset($by_domain[$tag])) $by_domain[$tag][$qid] = $q;
+                            }
+                        }
+                        $resp = $data['responses'] ?? [];
+                        $latest = $data['latest'];
+                    ?>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><?php echo htmlspecialchars($age_labels[$age] ?? $age); ?>
+                                <?php if (!empty($latest)): ?>
+                                    <small class="text-muted"> - <?php echo date('d/m/Y', strtotime($latest['eva_evaluation_date'])); ?></small>
+                                <?php endif; ?>
+                            </h5>
+                            <?php foreach (['GM','FM','RL','EL','PS'] as $dom): ?>
+                                <div class="mb-2">
+                                    <strong><?php echo $dom; ?></strong>
+                                    <?php if (!empty($by_domain[$dom])): ?>
+                                        <ul class="list-unstyled mt-1 mb-0">
+                                        <?php foreach ($by_domain[$dom] as $qid => $item):
+                                            $key = 'question_' . $qid;
+                                            $passed = isset($resp[$key]['passed']) && $resp[$key]['passed'];
+                                            $failed = isset($resp[$key]['failed']) && $resp[$key]['failed'];
+                                        ?>
+                                            <li class="small">
+                                                <strong><?php echo $qid; ?>.</strong> <?php echo htmlspecialchars(preg_replace('/\s*\((?:GM|FM|RL|EL|PS)\)\s*/i','',$item['skill'])); ?>
+                                                <div><label class="me-2"><input type="checkbox" disabled <?php echo $passed ? 'checked' : ''; ?>> ผ่าน</label>
+                                                <label><input type="checkbox" disabled <?php echo $failed ? 'checked' : ''; ?>> ไม่ผ่าน</label></div>
+                                            </li>
+                                        <?php endforeach; ?>
+                                        </ul>
+                                    <?php else: ?>
+                                        <div class="small text-muted">-</div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
             </div>
         </div>
