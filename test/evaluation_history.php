@@ -389,6 +389,7 @@ $summary_percentage = $system_percentage;
         <div class="text-center mt-4">
             <a href="child_detail.php?id=<?php echo $child['chi_id']; ?>" class="btn btn-secondary me-2">กลับข้อมูลเด็ก</a>
             <a href="children_list.php" class="btn btn-primary me-2">รายชื่อเด็ก</a>
+            <a href="report.php?child_id=<?php echo $child['chi_id']; ?>" class="btn btn-info me-2">รายงานผล</a>
             <a href="mainpage.php" class="btn btn-success">หน้าหลัก</a>
         </div>
     </div>
