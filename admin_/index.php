@@ -26,7 +26,7 @@ if ($user['user_role'] !== 'admin') {
 <body class="bg-light">
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-      <a class="navbar-brand" href="../mainpage.php">DSPM Admin</a>
+      <a class="navbar-brand" href="../admin_/index.php">DSPM Admin</a>
       <div class="navbar-nav ms-auto">
         <span class="navbar-text me-3">สวัสดี, <?php echo htmlspecialchars($user['fname'] . ' ' . $user['lname']); ?></span>
         <a class="btn btn-outline-light btn-sm" href="../logout.php">ออกจากระบบ</a>
