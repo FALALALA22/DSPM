@@ -104,7 +104,7 @@ if ($conn) {
 
   <div class="container mt-4 staff-card">
     <div class="text-center mb-4">
-      <h1 style="color:#149ee9">แดชบอร์ดสำหรับ พนักงาน รพสต.</h1>
+      <h1 style="color:#149ee9">แดชบอร์ดสำหรับ เจ้าหน้าที่ รพ.สต.</h1>
       <p class="text-muted">เมนูที่รวดเร็วสำหรับการทำงานที่โรงพยาบาล</p>
     </div>
 

@@ -354,7 +354,7 @@ $conn->close();
                                             <?php if ($user['user_role'] === 'admin' || $user['user_role'] === 'staff'): ?>
                                                 <strong>ผู้ปกครอง:</strong> <?php echo htmlspecialchars($child['user_fname'] . ' ' . $child['user_lname']); ?><br>
                                                 <strong>เบอร์โทร:</strong> <?php echo htmlspecialchars($child['user_phone']); ?><br>
-                                                <strong>โรงพยาบาล:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : $child['hosp_shph_id']); ?><br>
+                                                <strong>หน่วยบริการ:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : $child['hosp_shph_id']); ?><br>
                                             <?php endif; ?>
                                             <small class="text-muted">เพิ่มเมื่อ: <?php echo date('d/m/Y H:i', strtotime($child['chi_created_at'])); ?></small>
                                         </p>

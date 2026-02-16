@@ -47,7 +47,7 @@ if (!$child) {
 if ($user['user_role'] === 'staff') {
     $user_hosp = $user['hosp_shph_id'] ?? null;
     if (empty($user_hosp) || (isset($child['hosp_shph_id']) && $child['hosp_shph_id'] != $user_hosp)) {
-        $_SESSION['error'] = "คุณไม่มีสิทธิ์เข้าถึงข้อมูลเด็กจากโรงพยาบาลนี้";
+        $_SESSION['error'] = "คุณไม่มีสิทธิ์เข้าถึงข้อมูลเด็กจากหน่วยบริการนี้";
         header("Location: children_list.php");
         exit();
     }
@@ -327,7 +327,7 @@ if ($stmt2) {
                             <?php endif; ?>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>โรงพยาบาล:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : ($child['hosp_shph_id'] ?? '-')); ?></p>
+                            <p><strong>หน่วยบริการ:</strong> <?php echo htmlspecialchars(!empty($child['hospital_name']) ? $child['hospital_name'] : ($child['hosp_shph_id'] ?? '-')); ?></p>
                             <p><strong>อายุปัจจุบัน:</strong> <?php echo floor($current_age_months / 12); ?> ปี <?php echo $current_age_months % 12; ?> เดือน</p>
                             <p><strong>เพิ่มข้อมูลเมื่อ:</strong> <?php echo date('d/m/Y H:i', strtotime($child['chi_created_at'])); ?></p>
                         </div>

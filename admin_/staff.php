@@ -54,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         } else {
           // Provide clearer error for duplicate key on user_id
           if ($conn->errno === 1062) {
-            $errors[] = 'ไม่สามารถเพิ่มพนักงานได้ (ค่าซ้ำใน user_id) - โปรดปรับโครงสร้างฐานข้อมูลก่อน';
+            $errors[] = 'ไม่สามารถเพิ่มเจ้าหน้าที่ได้ (ค่าซ้ำใน user_id) - โปรดปรับโครงสร้างฐานข้อมูลก่อน';
           } else {
-            $errors[] = 'ไม่สามารถเพิ่มพนักงานได้: ' . $conn->error;
+            $errors[] = 'ไม่สามารถเพิ่มเจ้าหน้าที่ได้: ' . $conn->error;
           }
         }
         $ins->close();
@@ -111,7 +111,7 @@ $conn->close();
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>จัดการพนักงาน</title>
+  <title>จัดการเจ้าหน้าที่</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <style>
@@ -123,8 +123,8 @@ $conn->close();
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
-        <h2 class="mb-0">จัดการพนักงาน (Staff)</h2>
-        <div class="small text-muted">เพิ่ม/ลบพนักงาน และกรองตามโรงพยาบาล</div>
+        <h2 class="mb-0">จัดการเจ้าหน้าที่ (Staff)</h2>
+        <div class="small text-muted">เพิ่ม/ลบเจ้าหน้าที่ และกรองตามโรงพยาบาล</div>
       </div>
       <div>
         <a href="index.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> กลับ</a>
@@ -145,13 +145,13 @@ $conn->close();
           <div class="col-md-3"><input name="user_password" type="password" class="form-control" placeholder="รหัสผ่าน"></div>
           <div class="col-md-3">
             <select name="hosp_shph_id" class="form-select">
-              <option value="">-- เลือกโรงพยาบาล --</option>
+              <option value="">-- เลือกหน่วยบริการ --</option>
               <?php foreach ($hospitals as $h): ?>
                 <option value="<?php echo $h['hosp_shph_id']; ?>"><?php echo htmlspecialchars($h['hosp_name']); ?></option>
               <?php endforeach; ?>
             </select>
           </div>
-          <div class="col-md-3"><button class="btn btn-primary w-100" type="submit"><i class="bi bi-person-plus"></i> เพิ่มพนักงาน</button></div>
+          <div class="col-md-3"><button class="btn btn-primary w-100" type="submit"><i class="bi bi-person-plus"></i> เพิ่มเจ้าหน้าที่</button></div>
 
           <div class="col-md-3"><input name="user_fname" class="form-control" placeholder="ชื่อ"></div>
           <div class="col-md-3"><input name="user_lname" class="form-control" placeholder="นามสกุล"></div>
@@ -165,7 +165,7 @@ $conn->close();
         <form method="GET" action="staff.php" class="row g-2 mb-3">
           <div class="col-md-8">
             <select name="hospital_id" class="form-select">
-              <option value="">-- แสดงพนักงานทั้งหมด --</option>
+              <option value="">-- แสดงเจ้าหน้าที่ทั้งหมด --</option>
               <?php foreach ($hospitals as $h): ?>
                 <option value="<?php echo $h['hosp_shph_id']; ?>" <?php echo ($filter_hospital == $h['hosp_shph_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($h['hosp_name']); ?></option>
               <?php endforeach; ?>
@@ -194,7 +194,7 @@ $conn->close();
                 ?>
                 <td><?php echo htmlspecialchars($hname); ?></td>
                 <td class="text-end">
-                  <a href="staff.php?delete_user=<?php echo $s['user_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบพนักงานนี้?')"><i class="bi bi-trash"></i> ลบ</a>
+                  <a href="staff.php?delete_user=<?php echo $s['user_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบเจ้าหน้าที่นี้?')"><i class="bi bi-trash"></i> ลบ</a>
                 </td>
               </tr>
             <?php endforeach; ?>

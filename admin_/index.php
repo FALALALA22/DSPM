@@ -40,7 +40,7 @@ if ($user['user_role'] !== 'admin') {
         <div class="admin-hero mb-4 d-flex align-items-center justify-content-between">
           <div>
             <h1 class="h2 mb-1">แผงควบคุมผู้ดูแลระบบ</h1>
-            <div class="small-opacity">จัดการโรงพยาบาลและพนักงานของระบบ</div>
+            <div class="small-opacity">จัดการหน่วยบริการและเจ้าหน้าที่ของระบบ</div>
           </div>
         </div>
 
@@ -51,8 +51,8 @@ if ($user['user_role'] !== 'admin') {
                 <div class="card-body d-flex align-items-center gap-3">
                   <div class="display-6 text-primary"><i class="bi bi-hospital"></i></div>
                   <div>
-                    <h5 class="mb-0">จัดการโรงพยาบาล</h5>
-                    <div class="small text-muted">เพิ่ม ลบ และดูรายการโรงพยาบาล</div>
+                    <h5 class="mb-0">จัดการหน่วยบริการ</h5>
+                    <div class="small text-muted">เพิ่ม ลบ และดูรายการหน่วยบริการ</div>
                   </div>
                 </div>
               </div>
@@ -64,8 +64,8 @@ if ($user['user_role'] !== 'admin') {
                 <div class="card-body d-flex align-items-center gap-3">
                   <div class="display-6 text-success"><i class="bi bi-people"></i></div>
                   <div>
-                    <h5 class="mb-0">จัดการพนักงาน</h5>
-                    <div class="small text-muted">เพิ่ม ลบ และกรองพนักงานตามโรงพยาบาล</div>
+                    <h5 class="mb-0">จัดการเจ้าหน้าที่</h5>
+                    <div class="small text-muted">เพิ่ม ลบ และกรองเจ้าหน้าที่ตามหน่วยบริการ</div>
                   </div>
                 </div>
               </div>

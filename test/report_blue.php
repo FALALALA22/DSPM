@@ -362,7 +362,7 @@ $conn->close();
         <div class="text-center mt-3">
             <a href="evaluation_history.php?child_id=<?php echo $child['chi_id']; ?>" class="btn btn-secondary me-2">กลับ</a>
             <a href="children_list.php" class="btn btn-primary">รายชื่อเด็ก</a>
-            <a href="report.php?child_id=<?php echo $child['chi_id']; ?>" class="btn btn-primary">รายงาน</a>
+            <a href="report.php?child_id=<?php echo $child['chi_id']; ?>" class="btn btn-primary">รายงานผล</a>
         </div>
     </div>
 

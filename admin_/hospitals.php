@@ -15,12 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
   $name = trim($_POST['hosp_name'] ?? '');
   $shph = trim($_POST['hosp_shph_id'] ?? '');
   if ($name === '') {
-    $errors[] = 'กรุณากรอกชื่อโรงพยาบาล';
+    $errors[] = 'กรุณากรอกชื่อหน่วยบริการ';
   } else {
     $ins = $conn->prepare('INSERT INTO hospitals (hosp_name, hosp_shph_id) VALUES (?, ?)');
     $ins->bind_param('ss', $name, $shph);
     if (!$ins->execute()) {
-      $errors[] = 'ไม่สามารถเพิ่มโรงพยาบาลได้';
+      $errors[] = 'ไม่สามารถเพิ่มหน่วยบริการได้';
     }
     $ins->close();
   }
@@ -51,7 +51,7 @@ $conn->close();
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>จัดการโรงพยาบาล</title>
+  <title>จัดการหน่วยบริการ</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <style>
@@ -63,8 +63,8 @@ $conn->close();
   <div class="container mt-4">
     <div class="page-header mb-3">
       <div>
-        <h2 class="mb-0">จัดการโรงพยาบาล</h2>
-        <div class="small text-muted">เพิ่มหรือลบข้อมูลโรงพยาบาลในระบบ</div>
+        <h2 class="mb-0">จัดการหน่วยบริการ</h2>
+        <div class="small text-muted">เพิ่มหรือลบข้อมูลหน่วยบริการในระบบ</div>
       </div>
       <div>
         <a href="index.php" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> กลับ</a>
@@ -82,11 +82,11 @@ $conn->close();
         <form method="POST" action="hospitals.php" class="row g-2 align-items-center">
           <input type="hidden" name="action" value="add_hospital">
           <div class="col-md-9">
-            <input type="text" name="hosp_name" class="form-control" placeholder="ชื่อโรงพยาบาล">
-            <input type="text" name="hosp_shph_id" class="form-control mt-2" placeholder="รหัสโรงพยาบาล">
+            <input type="text" name="hosp_name" class="form-control" placeholder="ชื่อหน่วยบริการ">
+            <input type="text" name="hosp_shph_id" class="form-control mt-2" placeholder="รหัสหน่วยบริการ">
           </div>
           <div class="col-md-3">
-            <button class="btn btn-primary w-100" type="submit"><i class="bi bi-plus-circle"></i> เพิ่มโรงพยาบาล</button>
+            <button class="btn btn-primary w-100" type="submit"><i class="bi bi-plus-circle"></i> เพิ่มหน่วยบริการ</button>
           </div>
         </form>
       </div>
@@ -95,7 +95,7 @@ $conn->close();
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-2">
-          <h5 class="mb-0">รายการโรงพยาบาล <span class="badge bg-info ms-2"><?php echo count($hospitals); ?></span></h5>
+          <h5 class="mb-0">รายการหน่วยบริการ <span class="badge bg-info ms-2"><?php echo count($hospitals); ?></span></h5>
         </div>
         <div class="table-responsive">
         <table class="table table-hover align-middle">
@@ -106,8 +106,8 @@ $conn->close();
                 <td><?php echo htmlspecialchars($h['hosp_name']); ?></td>
                 <td><?php echo htmlspecialchars($h['hosp_shph_id'] ?? ''); ?></td>
                 <td class="text-end table-actions">
-                  <a href="staff.php?hospital_id=<?php echo $h['hosp_shph_id']; ?>" class="btn btn-sm btn-outline-info"><i class="bi bi-people"></i> ดูพนักงาน</a>
-                  <a href="hospitals.php?delete_hospital=<?php echo $h['hosp_shph_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบโรงพยาบาลนี้? จะลบความสัมพันธ์กับพนักงานด้วย');"><i class="bi bi-trash"></i> ลบ</a>
+                  <a href="staff.php?hospital_id=<?php echo $h['hosp_shph_id']; ?>" class="btn btn-sm btn-outline-info"><i class="bi bi-people"></i> ดูเจ้าหน้าที่</a>
+                  <a href="hospitals.php?delete_hospital=<?php echo $h['hosp_shph_id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('ลบหน่วยบริการนี้? จะลบความสัมพันธ์กับเจ้าหน้าที่ด้วย');"><i class="bi bi-trash"></i> ลบ</a>
                 </td>
               </tr>
             <?php endforeach; ?>
